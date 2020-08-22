@@ -7,7 +7,7 @@ from src.actions import ActionQuit, RotateAction, MovementAction
 from src.render_functions import rot_center
 from src.utilities import direction_angle
 from src.entity import Entity
-
+from src.engine import Engine
 
 def main() -> None:
     pygame.init()
@@ -34,30 +34,19 @@ def main() -> None:
 
     player = Entity(x=12 * tilesize, y=6 * tilesize, facing=0, icon=player_image
                     )
-    npc = Entity(x=6 * tilesize, y=6 * tilesize, facing=0, icon=player_image)
+    npc = Entity(x=6 * tilesize, y=6 * tilesize, facing=0, icon=icon)
     entities = {player, npc}
+    
+    engine = Engine(entities=entities, event_handler=event_handler, player=player)
     
     while not should_quit:
         try:
-            main_surface.fill((0, 0, 0))
-            player_image = rot_center(player.icon, direction_angle[player.facing])
-            main_surface.blit(player_image, (player.x, player.y + ((player.x // tilesize) % 2) * tilesize // 2))
-            pygame.display.flip()
+            engine.render(main_surface=main_surface)
             
-            action = event_handler.handle_events(player_facing)
+            events = pygame.event.get(pump=True)
             
-            if action is None:
-                continue
-                
-            if isinstance(action, RotateAction):
-                player.rotate(action.rotate)
+            engine.handle_events(events=events)
             
-            elif isinstance(action, MovementAction):
-                player.move()
-                
-            elif isinstance(action, ActionQuit):
-                raise SystemExit()
-                
         except SystemExit:
             should_quit = True
 
