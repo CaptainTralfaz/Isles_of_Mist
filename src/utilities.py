@@ -62,7 +62,7 @@ def hex_to_cube(hexagon: Hex) -> Cube:
     return Cube(x, y, z)
 
 
-def cube_add(cube1, cube2):
+def cube_add(cube1, cube2) -> Cube:
     """
     adds the cubic coordinate values of two cubes
     :param cube1: first cube
@@ -72,7 +72,7 @@ def cube_add(cube1, cube2):
     return Cube(x=cube1.x + cube2.x, y=cube1.y + cube2.y, z=cube1.z + cube2.z)
 
 
-def cube_direction(direction):
+def cube_direction(direction) -> Cube:
     """
     Returns neighboring cubic relational values in a given hex direction
     :param direction: int direction
@@ -81,7 +81,7 @@ def cube_direction(direction):
     return cube_directions[direction]
 
 
-def cube_neighbor(cube, direction):
+def cube_neighbor(cube, direction) -> Cube:
     """
     Returns neighboring cubic coordinates in a given hex direction
     :param cube: cubic coordinates
@@ -89,15 +89,3 @@ def cube_neighbor(cube, direction):
     :return: cubic coordinates of neighbor in the given direction
     """
     return cube_add(cube1=cube, cube2=cube_direction(direction))
-
-
-def move_entity(old_x: int, old_y: int, direction: int) -> Tuple[int, int]:
-    old_cube = hex_to_cube(Hex(old_x // 32, old_y // 32))
-    print("old cube: {}, {}, {}".format(old_cube.x, old_cube.y, old_cube.z))
-    
-    target_cube = cube_neighbor(old_cube, direction)
-    print("target cube: {}, {}, {}".format(target_cube.x, target_cube.y, target_cube.z))
-    
-    new_hex = cube_to_hex(target_cube)
-    print(new_hex.col, new_hex.row)
-    return new_hex.col * 32, new_hex.row * 32

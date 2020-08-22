@@ -5,7 +5,8 @@ from pygame import Surface
 from src.input_handlers import MainEventHandler
 from src.actions import ActionQuit, RotateAction, MovementAction
 from src.render_functions import rot_center
-from src.utilities import direction_angle, move_entity
+from src.utilities import direction_angle
+from src.entity import Entity
 
 
 def main() -> None:
@@ -31,9 +32,16 @@ def main() -> None:
 
     event_handler = MainEventHandler()
 
+    player = Entity(x=12 * tilesize, y=6 * tilesize, facing=0, icon=player_image
+                    )
+    npc = Entity(x=6 * tilesize, y=6 * tilesize, facing=0, icon=player_image)
+    entities = {player, npc}
+    
     while not should_quit:
         try:
-            main_surface.blit(player_image, (player_x, player_y + ((player_x // tilesize) % 2) * tilesize // 2))
+            main_surface.fill((0, 0, 0))
+            player_image = rot_center(player.icon, direction_angle[player.facing])
+            main_surface.blit(player_image, (player.x, player.y + ((player.x // tilesize) % 2) * tilesize // 2))
             pygame.display.flip()
             
             action = event_handler.handle_events(player_facing)
@@ -42,23 +50,14 @@ def main() -> None:
                 continue
                 
             if isinstance(action, RotateAction):
-                player_facing += action.rotate
-                if player_facing >= len(direction_angle):
-                    player_facing = 0
-                elif player_facing < 0:
-                    player_facing = len(direction_angle) - 1
-                print(player_facing)
+                player.rotate(action.rotate)
             
             elif isinstance(action, MovementAction):
-                player_x, player_y = move_entity(player_x, player_y, action.direction)
+                player.move()
                 
             elif isinstance(action, ActionQuit):
                 raise SystemExit()
-            
-            print(player_x, player_y)
-            main_surface.fill((0, 0, 0))
-            player_image = rot_center(icon, direction_angle[player_facing])
-            
+                
         except SystemExit:
             should_quit = True
 
