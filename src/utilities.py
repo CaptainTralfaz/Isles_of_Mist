@@ -1,5 +1,3 @@
-from typing import Tuple
-
 direction_angle = [0, 60, 120, 180, 240, 300]
 
 
@@ -14,8 +12,8 @@ class Cube:
         self.x = x
         self.y = y
         self.z = z
-        
-        
+
+
 """
 Returns the neighbor cube in the given direction
 """
@@ -24,7 +22,7 @@ cube_directions = [Cube(0, 1, -1),  # (0) Up
                    Cube(1, -1, 0),  # (2) lower right
                    Cube(0, -1, 1),  # (3) Down
                    Cube(-1, 0, 1),  # (4) lower left
-                   Cube(-1, 1, 0)   # (5) upper left
+                   Cube(-1, 1, 0)  # (5) upper left
                    ]
 
 

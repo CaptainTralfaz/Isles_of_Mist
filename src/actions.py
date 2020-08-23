@@ -25,9 +25,9 @@ class EscapeAction(Action):
 class MovementAction(Action):
     def __init__(self, direction: int):
         super().__init__()
-
+        
         self.direction = direction
-
+    
     def perform(self, engine: Engine, entity: Entity) -> None:
         x, y = entity.get_next_hex()
         if engine.game_map.can_sail_to(x, y):
@@ -38,7 +38,7 @@ class RotateAction(Action):
     def __init__(self, rotate: int):
         super().__init__()
         self.rotate = rotate
-
+    
     def perform(self, engine: Engine, entity: Entity) -> None:
         direction = self.rotate
         entity.rotate(direction)
@@ -46,10 +46,10 @@ class RotateAction(Action):
 
 class ActionQuit(Action):
     """Action that quits the game"""
-
+    
     def __init__(self):
         """Space intentionally left blank"""
         pass
-
+    
     def perform(self, engine: Engine, entity: Entity) -> None:
         raise SystemExit()
