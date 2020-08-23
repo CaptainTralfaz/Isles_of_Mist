@@ -21,10 +21,12 @@ def main() -> None:
     screen_width = map_width * tile_size
     screen_height = map_height * tile_size
     
-    main_display = pygame.display.set_mode((screen_width, screen_height))
+    game_display = pygame.display.set_mode((screen_width, screen_height))
+    game_display.fill((0, 0, 0))
     pygame.display.set_caption(caption)
     pygame.display.set_icon(icon)
     pygame.display.flip()
+    
     should_quit = False
 
     event_handler = MainEventHandler()
@@ -40,8 +42,8 @@ def main() -> None:
     
     while not should_quit:
         try:
-            main_surface = engine.render(main_surface=pygame.Surface((screen_width, screen_height)))
-            main_display.blit(main_surface, (0, 0))
+            engine.render(main_surface=game_display)
+            pygame.display.flip()
             
             events = pygame.event.get(pump=True)
             
