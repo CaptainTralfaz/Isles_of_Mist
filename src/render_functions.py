@@ -1,5 +1,10 @@
 import pygame.transform as transform
 from pygame import Surface
+from src.utilities import direction_angle
+
+
+def get_rotated_image(image: Surface, facing: int) -> Surface:
+    return rot_center(image, direction_angle[facing])
 
 
 def rot_center(image: Surface, angle: int) -> Surface:
@@ -16,3 +21,4 @@ def rot_center(image: Surface, angle: int) -> Surface:
     rot_rect.center = rot_image.get_rect().center
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
+

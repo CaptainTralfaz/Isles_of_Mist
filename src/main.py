@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import pygame
 
-from pygame import Surface
 from src.input_handlers import MainEventHandler
-from src.actions import ActionQuit, RotateAction, MovementAction
-from src.render_functions import rot_center
-from src.utilities import direction_angle, move_entity
+from src.entity import Entity
+from src.engine import Engine
+from src.game_map import GameMap
 
 
 def main() -> None:
@@ -15,49 +14,40 @@ def main() -> None:
     caption = "Isles of Mist"
     icon = pygame.image.load("assets/Ship_s.png")
     player_image = pygame.image.load("assets/Ship_s.png")
-    player_facing = 0
+
+    tile_size = 32
+    map_width = 25
+    map_height = 15
+    screen_width = map_width * tile_size
+    screen_height = map_height * tile_size
     
-    screen_width = 800
-    screen_height = 500
-    tilesize = 32
-    
-    player_x = 12 * tilesize
-    player_y = 6 * tilesize
-    
-    main_surface = pygame.display.set_mode((screen_width, screen_height))
+    game_display = pygame.display.set_mode((screen_width, screen_height))
+    game_display.fill((0, 0, 0))
     pygame.display.set_caption(caption)
     pygame.display.set_icon(icon)
+    pygame.display.flip()
+    
     should_quit = False
 
     event_handler = MainEventHandler()
 
+    player = Entity(x=12 * tile_size, y=6 * tile_size, facing=0, icon=player_image
+                    )
+    npc = Entity(x=6 * tile_size, y=6 * tile_size, facing=0, icon=icon)
+    entities = {player, npc}
+
+    game_map = GameMap(map_width, map_height)
+
+    engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
+    
     while not should_quit:
         try:
-            main_surface.blit(player_image, (player_x, player_y + ((player_x // tilesize) % 2) * tilesize // 2))
+            engine.render(main_surface=game_display)
             pygame.display.flip()
             
-            action = event_handler.handle_events(player_facing)
+            events = pygame.event.get(pump=True)
             
-            if action is None:
-                continue
-                
-            if isinstance(action, RotateAction):
-                player_facing += action.rotate
-                if player_facing >= len(direction_angle):
-                    player_facing = 0
-                elif player_facing < 0:
-                    player_facing = len(direction_angle) - 1
-                print(player_facing)
-            
-            elif isinstance(action, MovementAction):
-                player_x, player_y = move_entity(player_x, player_y, action.direction)
-                
-            elif isinstance(action, ActionQuit):
-                raise SystemExit()
-            
-            print(player_x, player_y)
-            main_surface.fill((0, 0, 0))
-            player_image = rot_center(icon, direction_angle[player_facing])
+            engine.handle_events(events=events)
             
         except SystemExit:
             should_quit = True
