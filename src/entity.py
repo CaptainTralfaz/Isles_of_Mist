@@ -1,4 +1,3 @@
-from typing import Tuple
 from pygame import Surface
 from src.utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
 tile_size = 32
@@ -26,3 +25,9 @@ class Entity:
             self.facing = 0
         elif self.facing < 0:
             self.facing = len(direction_angle) - 1
+
+    def get_next_hex(self):
+        old_cube = hex_to_cube(Hex(self.x // tile_size, self.y // tile_size))
+        new_hex = cube_to_hex(cube_neighbor(old_cube, self.facing))
+        return new_hex.col, new_hex.row
+        

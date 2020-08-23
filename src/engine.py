@@ -1,18 +1,20 @@
 from typing import Set, Iterable, Any
 
-from pygame import Surface, display
-from src.actions import MovementAction, RotateAction, ActionQuit
+from pygame import Surface
 from src.entity import Entity
 from src.input_handlers import MainEventHandler
 from src.render_functions import get_rotated_image
+from src.game_map import GameMap
+
 
 tile_size = 32
 
 
 class Engine:
-    def __init__(self, entities: Set[Entity], event_handler: MainEventHandler, player: Entity):
+    def __init__(self, entities: Set[Entity], event_handler: MainEventHandler, game_map: GameMap, player: Entity):
         self.entities = entities
         self.event_handler = event_handler
+        self.game_map = game_map
         self.player = player
 
     def handle_events(self, events: Iterable[Any]) -> None:
@@ -21,20 +23,14 @@ class Engine:
         
             if action is None:
                 continue
+
+            action.perform(self, self.player)
         
-            if isinstance(action, RotateAction):
-                self.player.rotate(action.rotate)
-        
-            elif isinstance(action, MovementAction):
-                self.player.move()
-        
-            elif isinstance(action, ActionQuit):
-                raise SystemExit()
-        
-    def render(self, main_surface: Surface) -> None:
+    def render(self, main_surface: Surface) -> Surface:
         main_surface.fill((50, 50, 200))
         for entity in self.entities:
             main_surface.blit(get_rotated_image(entity.icon, entity.facing),
                               (entity.x, entity.y + ((entity.x // tile_size) % 2) * tile_size // 2))
-
-        display.flip()
+        self.game_map.render(main_surface)
+        
+        return main_surface

@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import pygame
 
-from pygame import Surface
 from src.input_handlers import MainEventHandler
-from src.actions import ActionQuit, RotateAction, MovementAction
-from src.render_functions import rot_center
-from src.utilities import direction_angle
 from src.entity import Entity
 from src.engine import Engine
+from src.game_map import GameMap
+
 
 def main() -> None:
     pygame.init()
@@ -16,32 +14,34 @@ def main() -> None:
     caption = "Isles of Mist"
     icon = pygame.image.load("assets/Ship_s.png")
     player_image = pygame.image.load("assets/Ship_s.png")
-    player_facing = 0
+
+    tile_size = 32
+    map_width = 25
+    map_height = 15
+    screen_width = map_width * tile_size
+    screen_height = map_height * tile_size
     
-    screen_width = 800
-    screen_height = 500
-    tilesize = 32
-    
-    player_x = 12 * tilesize
-    player_y = 6 * tilesize
-    
-    main_surface = pygame.display.set_mode((screen_width, screen_height))
+    main_display = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption(caption)
     pygame.display.set_icon(icon)
+    pygame.display.flip()
     should_quit = False
 
     event_handler = MainEventHandler()
 
-    player = Entity(x=12 * tilesize, y=6 * tilesize, facing=0, icon=player_image
+    player = Entity(x=12 * tile_size, y=6 * tile_size, facing=0, icon=player_image
                     )
-    npc = Entity(x=6 * tilesize, y=6 * tilesize, facing=0, icon=icon)
+    npc = Entity(x=6 * tile_size, y=6 * tile_size, facing=0, icon=icon)
     entities = {player, npc}
-    
-    engine = Engine(entities=entities, event_handler=event_handler, player=player)
+
+    game_map = GameMap(map_width, map_height)
+
+    engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
     
     while not should_quit:
         try:
-            engine.render(main_surface=main_surface)
+            main_surface = engine.render(main_surface=pygame.Surface((screen_width, screen_height)))
+            main_display.blit(main_surface, (0, 0))
             
             events = pygame.event.get(pump=True)
             

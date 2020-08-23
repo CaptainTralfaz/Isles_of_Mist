@@ -21,3 +21,4 @@ def rot_center(image: Surface, angle: int) -> Surface:
     rot_rect.center = rot_image.get_rect().center
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
+
