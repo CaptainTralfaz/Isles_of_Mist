@@ -5,11 +5,11 @@ class Elevation(Enum):
     """
     Enum to track elevation
     """
-    DEEPS = auto()
+    OCEAN = auto()
     WATER = auto()
     SHALLOWS = auto()
-    DUNES = auto()
-    GRASSLAND = auto()
+    BEACH = auto()
+    GRASS = auto()
     JUNGLE = auto()
     MOUNTAIN = auto()
     VOLCANO = auto()
@@ -46,38 +46,38 @@ class Elevation(Enum):
 
 
 class Terrain:
-    def __init__(self, elevation: int, seen: bool = False):
+    def __init__(self, elevation: Elevation, seen: bool = False):
         """
         Height of terrain determines the terrain Enum value, name, mini-map color, and icon
         This class will also track if the tile has been seen, contains fog, or contains a decoration
         :param elevation: int elevation height
         :param seen: boolean if tile has been in player's fov
         """
-        self.elevation = Elevation(elevation)
+        self.elevation = elevation
         self.seen = seen
-        self.movable = False if elevation > 2 else True
+        self.movable = True if elevation <= Elevation.SHALLOWS else True
         # self.decoration = decoration
         # self.fog = fog
         
-        if self.elevation == Elevation.DEEPS:
-            self.name = 'Deep Sea'
-            self.icon = 'deep_sea'
+        if self.elevation == Elevation.OCEAN:
+            self.name = 'Ocean'
+            self.icon = 'ocean'
             # self.color = 'light_blue'
         elif self.elevation == Elevation.WATER:
-            self.name = 'Sea'
-            self.icon = 'sea'
+            self.name = 'Water'
+            self.icon = 'water'
             # self.color = 'blue'
         elif self.elevation == Elevation.SHALLOWS:
             self.name = 'Shallows'
             self.icon = 'shallows'
             # self.color = 'aqua'
-        elif self.elevation == Elevation.DUNES:
-            self.name = 'Dunes'
-            self.icon = 'dunes'
+        elif self.elevation == Elevation.BEACH:
+            self.name = 'Beach'
+            self.icon = 'beach'
             # self.color = 'cantaloupe'
         elif self.elevation == Elevation.GRASSLAND:
-            self.name = 'Grassland'
-            self.icon = 'grassland'
+            self.name = 'Grass'
+            self.icon = 'grass'
             # self.color = 'light_green'
         elif self.elevation == Elevation.JUNGLE:
             self.name = 'Jungle'

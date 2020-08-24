@@ -1,8 +1,6 @@
-from typing import Optional
-
 import pygame.event
 
-from src.actions import Action, ActionQuit, EscapeAction, MovementAction, RotateAction
+from src.actions import ActionQuit, MovementAction, RotateAction
 
 ROTATE_KEYS = {
     pygame.K_LEFT: -1,
@@ -25,7 +23,7 @@ class EventHandler:
 class MainEventHandler:
     def __init__(self):
         super().__init__()
-        
+    
     def handle_events(self, event, direction):
         something_happened = False
         response = None
@@ -38,8 +36,8 @@ class MainEventHandler:
                 response = MovementAction(direction)
             elif event.key == pygame.K_ESCAPE:
                 response = ActionQuit()
-
+        
         return response
-
+    
     def process_event(self, event):
         pass
