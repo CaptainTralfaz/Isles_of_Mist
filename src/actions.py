@@ -30,7 +30,7 @@ class MovementAction(Action):
     
     def perform(self, engine: Engine, entity: Entity) -> None:
         x, y = entity.get_next_hex()
-        if engine.game_map.can_sail_to(x, y):
+        if engine.game_map.in_bounds(x, y) and engine.game_map.can_sail_to(x, y):
             entity.move()
 
 

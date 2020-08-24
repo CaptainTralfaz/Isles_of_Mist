@@ -1,8 +1,17 @@
-from pygame import display, Surface
+from pygame import display, image
 
-from src.tile import Elevation
+from src.tile import Elevation, Terrain
 
 tile_size = 32
+
+ocean = image.load("assets/ocean.png")
+water = image.load("assets/water.png")
+shallows = image.load("assets/shallows.png")
+beach = image.load("assets/beach.png")
+grass = image.load("assets/grass.png")
+jungle = image.load("assets/jungle.png")
+mountain = image.load("assets/mountain.png")
+volcano = image.load("assets/volcano.png")
 
 
 class GameMap:
@@ -19,23 +28,33 @@ class GameMap:
         if terrain:
             self.terrain = terrain
         else:
-            self.terrain = [[0 for y in range(height)] for x in range(width)]
-        
-        self.terrain[10][10] = 5
-        self.terrain[10][11] = 5
-        self.terrain[11][11] = 5
-    
+            self.terrain = [[Terrain(elevation=Elevation.OCEAN) for y in range(height)] for x in range(width)]
+            
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
     
     def can_sail_to(self, x: int, y: int) -> bool:
-        return self.terrain[x][y] < Elevation.DUNES.value
+        return self.terrain[x][y] < Elevation.BEACH
     
     def render(self, main_display: display) -> None:
-        block = Surface((tile_size, tile_size))
-        block.fill((0, 150, 0))
         for x in range(self.width):
             for y in range(self.height):
-                if self.terrain[x][y] > Elevation.DEEPS.value:
-                    main_display.blit(block, (x * tile_size, y * tile_size + x % 2 * tile_size // 2))
+                if self.terrain[x][y] == Elevation.OCEAN:
+                    tile = ocean
+                elif self.terrain[x][y] == Elevation.WATER:
+                    tile = water
+                elif self.terrain[x][y] == Elevation.SHALLOWS:
+                    tile = shallows
+                elif self.terrain[x][y] == Elevation.BEACH:
+                    tile = beach
+                elif self.terrain[x][y] == Elevation.GRASS:
+                    tile = grass
+                elif self.terrain[x][y] == Elevation.JUNGLE:
+                    tile = jungle
+                elif self.terrain[x][y] == Elevation.MOUNTAIN:
+                    tile = mountain
+                else:
+                    tile = volcano
+                # TODO magic numbers
+                main_display.blit(tile, (x * tile_size - 5, y * tile_size + x % 2 * tile_size // 2 - 10))

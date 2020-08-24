@@ -3,8 +3,8 @@ import pygame
 
 from src.engine import Engine
 from src.entity import Entity
-from src.game_map import GameMap
 from src.input_handlers import MainEventHandler
+from src.procgen import generate_map
 
 
 def main() -> None:
@@ -16,13 +16,13 @@ def main() -> None:
     player_image = pygame.image.load("assets/Ship_s.png")
     
     tile_size = 32
-    map_width = 25
-    map_height = 15
+    map_width = 30
+    map_height = 20
     screen_width = map_width * tile_size
     screen_height = map_height * tile_size
     
     game_display = pygame.display.set_mode((screen_width, screen_height))
-    game_display.fill((0, 0, 0))
+    game_display.fill((0, 0, 175))
     pygame.display.set_caption(caption)
     pygame.display.set_icon(icon)
     pygame.display.flip()
@@ -36,7 +36,7 @@ def main() -> None:
     npc = Entity(x=6 * tile_size, y=6 * tile_size, facing=0, icon=icon)
     entities = {player, npc}
     
-    game_map = GameMap(map_width, map_height)
+    game_map = generate_map(map_width, map_height)
     
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
     

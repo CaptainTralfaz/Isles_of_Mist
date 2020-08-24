@@ -27,10 +27,9 @@ class Engine:
             action.perform(self, self.player)
     
     def render(self, main_surface: Surface) -> Surface:
-        main_surface.fill((50, 50, 200))
+        self.game_map.render(main_surface)
         for entity in self.entities:
             main_surface.blit(get_rotated_image(entity.icon, entity.facing),
                               (entity.x, entity.y + ((entity.x // tile_size) % 2) * tile_size // 2))
-        self.game_map.render(main_surface)
-        
+
         return main_surface
