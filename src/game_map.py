@@ -57,4 +57,4 @@ class GameMap:
                 else:
                     tile = volcano
                 # TODO magic numbers
-                main_display.blit(tile, (x * tile_size - 5, y * tile_size + x % 2 * tile_size // 2 - 10))
+                main_display.blit(tile, (x * tile_size - 10, y * tile_size + x % 2 * tile_size // 2 - 10 - 16))

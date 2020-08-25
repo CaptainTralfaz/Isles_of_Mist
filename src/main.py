@@ -12,14 +12,15 @@ def main() -> None:
     fps_clock = pygame.time.Clock()
     
     caption = "Isles of Mist"
-    icon = pygame.image.load("assets/Ship_s.png")
-    player_image = pygame.image.load("assets/Ship_s.png")
-    
+    icon = pygame.image.load("assets/ship_icon.png")
+    player_image = pygame.image.load("assets/ship_icon.png")
+    npc_image = pygame.image.load("assets/turtle.png")
+
     tile_size = 32
     map_width = 30
     map_height = 20
-    screen_width = map_width * tile_size
-    screen_height = map_height * tile_size
+    screen_width = map_width * tile_size - 10
+    screen_height = map_height * tile_size - 16
     
     game_display = pygame.display.set_mode((screen_width, screen_height))
     game_display.fill((0, 0, 175))
@@ -33,10 +34,10 @@ def main() -> None:
     
     player = Entity(x=12 * tile_size, y=6 * tile_size, facing=0, icon=player_image
                     )
-    npc = Entity(x=6 * tile_size, y=6 * tile_size, facing=0, icon=icon)
+    npc = Entity(x=6 * tile_size, y=6 * tile_size, facing=0, icon=npc_image)
     entities = {player, npc}
     
-    game_map = generate_map(map_width, map_height)
+    game_map = generate_map(map_width, map_height, entities)
     
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
     

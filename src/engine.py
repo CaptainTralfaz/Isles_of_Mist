@@ -30,6 +30,6 @@ class Engine:
         self.game_map.render(main_surface)
         for entity in self.entities:
             main_surface.blit(get_rotated_image(entity.icon, entity.facing),
-                              (entity.x, entity.y + ((entity.x // tile_size) % 2) * tile_size // 2))
+                              (entity.x - 5, entity.y - 16 + ((entity.x // tile_size) % 2) * tile_size // 2))
 
         return main_surface
