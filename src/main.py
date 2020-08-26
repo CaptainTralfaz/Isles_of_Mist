@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import pygame
+import copy
+import src.entity_factory
 
 from src.engine import Engine
 from src.entity import Entity
@@ -13,8 +15,6 @@ def main() -> None:
     
     caption = "Isles of Mist"
     icon = pygame.image.load("assets/ship_icon.png")
-    player_image = pygame.image.load("assets/ship_icon.png")
-    npc_image = pygame.image.load("assets/turtle.png")
 
     tile_size = 32
     map_width = 30
@@ -31,15 +31,12 @@ def main() -> None:
     should_quit = False
     
     event_handler = MainEventHandler()
+
+    player = copy.deepcopy(src.entity_factory.player)
     
-    player = Entity(x=12 * tile_size, y=6 * tile_size, facing=0, icon=player_image
-                    )
-    npc = Entity(x=6 * tile_size, y=6 * tile_size, facing=0, icon=npc_image)
-    entities = {player, npc}
+    game_map = generate_map(map_width, map_height, entities={player})
     
-    game_map = generate_map(map_width, map_height, entities)
-    
-    engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
+    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
     
     while not should_quit:
         try:

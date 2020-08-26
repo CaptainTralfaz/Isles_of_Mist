@@ -10,8 +10,7 @@ from src.tile import tile_size
 
 
 class Engine:
-    def __init__(self, entities: Set[Entity], event_handler: MainEventHandler, game_map: GameMap, player: Entity):
-        self.entities = entities
+    def __init__(self, event_handler: MainEventHandler, game_map: GameMap, player: Entity):
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
@@ -27,8 +26,5 @@ class Engine:
     
     def render(self, main_surface: Surface) -> Surface:
         self.game_map.render(main_surface)
-        for entity in self.entities:
-            main_surface.blit(get_rotated_image(entity.icon, entity.facing),
-                              (entity.x - 5, entity.y - 16 + ((entity.x // tile_size) % 2) * tile_size // 2))
 
         return main_surface

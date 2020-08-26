@@ -1,8 +1,3 @@
-from src.tile import Elevation
-from src.game_map import GameMap
-from typing import List, Tuple
-
-
 direction_angle = [0, 60, 120, 180, 240, 300]
 
 
@@ -94,19 +89,3 @@ def cube_neighbor(cube, direction) -> Cube:
     return cube_add(cube1=cube, cube2=cube_direction(direction))
 
 
-def get_hex_water_neighbors(game_map: GameMap, x: int, y: int) -> List[Tuple[int, int]]:
-    """
-    Returns neighboring water tiles of a given (x, y) map coordinate
-    :param game_map: GameMap
-    :param x: int x of the game map coordinate
-    :param y: int y of the game map coordinate
-    :return: list of tile coordinate (x, y) tuples
-    """
-    neighbors = []
-    for direction in cube_directions:
-        start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
-        neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
-        if game_map.in_bounds(neighbor_hex.col, neighbor_hex.row) \
-                and game_map.terrain[neighbor_hex.col][neighbor_hex.row].elevation < Elevation.BEACH:
-            neighbors.append((neighbor_hex.col, neighbor_hex.row))
-    return neighbors
