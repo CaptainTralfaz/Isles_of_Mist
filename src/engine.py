@@ -6,8 +6,7 @@ from src.entity import Entity
 from src.game_map import GameMap
 from src.input_handlers import MainEventHandler
 from src.render_functions import get_rotated_image
-
-tile_size = 32
+from src.tile import tile_size
 
 
 class Engine:
