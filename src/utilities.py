@@ -107,6 +107,6 @@ def get_hex_water_neighbors(game_map: GameMap, x: int, y: int) -> List[Tuple[int
         start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
         neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
         if game_map.in_bounds(neighbor_hex.col, neighbor_hex.row) \
-                and game_map.terrain[neighbor_hex.col][neighbor_hex.row] < Elevation.BEACH:
+                and game_map.terrain[neighbor_hex.col][neighbor_hex.row].elevation < Elevation.BEACH:
             neighbors.append((neighbor_hex.col, neighbor_hex.row))
     return neighbors

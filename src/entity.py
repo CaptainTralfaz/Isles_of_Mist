@@ -1,8 +1,7 @@
 from pygame import Surface
 
 from src.utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
-
-tile_size = 32
+from src.tile import tile_size
 
 
 class Entity:

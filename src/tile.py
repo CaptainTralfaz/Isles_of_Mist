@@ -1,6 +1,9 @@
 from enum import auto, Enum
 
 
+tile_size = 32
+
+
 class Elevation(Enum):
     """
     Enum to track elevation
@@ -46,15 +49,15 @@ class Elevation(Enum):
 
 
 class Terrain:
-    def __init__(self, elevation: Elevation, seen: bool = False):
+    def __init__(self, elevation: Elevation, explored: bool = False):
         """
         Height of terrain determines the terrain Enum value, name, mini-map color, and icon
         This class will also track if the tile has been seen, contains fog, or contains a decoration
         :param elevation: int elevation height
-        :param seen: boolean if tile has been in player's fov
+        :param explored: boolean if tile has been in player's fov
         """
         self.elevation = elevation
-        self.seen = seen
+        self.explored = explored
         self.movable = True if elevation <= Elevation.SHALLOWS else True
         # self.decoration = decoration
         # self.fog = fog
@@ -75,7 +78,7 @@ class Terrain:
             self.name = 'Beach'
             self.icon = 'beach'
             # self.color = 'cantaloupe'
-        elif self.elevation == Elevation.GRASSLAND:
+        elif self.elevation == Elevation.GRASS:
             self.name = 'Grass'
             self.icon = 'grass'
             # self.color = 'light_green'

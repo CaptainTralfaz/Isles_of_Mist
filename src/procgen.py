@@ -1,5 +1,5 @@
 from src.game_map import GameMap
-from src.tile import Elevation
+from src.tile import Elevation, tile_size, Terrain
 from typing import Set, List, Tuple
 from queue import Queue
 from random import randint, choice
@@ -7,8 +7,6 @@ from math import pow
 from opensimplex import OpenSimplex
 from src.entity import Entity
 from src.utilities import get_hex_water_neighbors
-
-tile_size = 32
 
 
 def generate_map(map_width, map_height, entities) -> GameMap:
@@ -46,21 +44,21 @@ def generate_map(map_width, map_height, entities) -> GameMap:
             
             height = round(256 * elevation * ratio)
             if height < 100:
-                island_map.terrain[x][y] = Elevation.OCEAN
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN, explored=True)
             elif height < 125:
-                island_map.terrain[x][y] = Elevation.WATER
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER, explored=True)
             elif height < 150:
-                island_map.terrain[x][y] = Elevation.SHALLOWS
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS, explored=True)
             elif height < 160:
-                island_map.terrain[x][y] = Elevation.BEACH
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH, explored=True)
             elif height < 170:
-                island_map.terrain[x][y] = Elevation.GRASS
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS, explored=True)
             elif height < 200:
-                island_map.terrain[x][y] = Elevation.JUNGLE
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE, explored=True)
             elif height < 210:
-                island_map.terrain[x][y] = Elevation.MOUNTAIN
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN, explored=True)
             else:
-                island_map.terrain[x][y] = Elevation.VOLCANO
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=True)
     
     place_entities(island_map, entities)
     
