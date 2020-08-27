@@ -1,4 +1,4 @@
-from src.entity import Entity
+from entity import Entity
 from pygame import image
 
 player_image = image.load("assets/ship_icon.png")

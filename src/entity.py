@@ -5,11 +5,11 @@ from typing import Tuple, TypeVar, TYPE_CHECKING
 
 from pygame import Surface
 
-from src.utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
-from src.tile import tile_size
+from utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
+from tile import tile_size
 
 if TYPE_CHECKING:
-    from src.game_map import GameMap
+    from game_map import GameMap
 
 T = TypeVar("T", bound="Entity")
 

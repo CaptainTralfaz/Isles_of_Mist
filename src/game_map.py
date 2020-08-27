@@ -4,13 +4,13 @@ from pygame import display, image
 
 from typing import Iterable, List, Tuple, TYPE_CHECKING
 
-from src.tile import Elevation, Terrain, tile_size
-from src.render_functions import get_rotated_image
-from src.utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube
-from src.entity_factory import images
+from tile import Elevation, Terrain, tile_size
+from render_functions import get_rotated_image
+from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube
+from entity_factory import images
 
 if TYPE_CHECKING:
-    from src.entity import Entity
+    from entity import Entity
 
 
 ocean = image.load("assets/ocean.png")
@@ -68,6 +68,8 @@ class GameMap:
                     else:
                         tile = volcano
                     # TODO magic numbers
+                    #  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
+                    #  16 is half the vertical standard Tile size - offset is due to hexes
                     main_display.blit(tile, (x * tile_size - 10, y * tile_size + x % 2 * tile_size // 2 - 10 - 16))
         
         for entity in self.entities:

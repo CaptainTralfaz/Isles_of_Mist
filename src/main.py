@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import pygame
 import copy
-import src.entity_factory
+import entity_factory
 
-from src.engine import Engine
-from src.entity import Entity
-from src.input_handlers import MainEventHandler
-from src.procgen import generate_map
+from engine import Engine
+from entity import Entity
+from input_handlers import MainEventHandler
+from procgen import generate_map
 
 
 def main() -> None:
@@ -32,7 +32,7 @@ def main() -> None:
     
     event_handler = MainEventHandler()
 
-    player = copy.deepcopy(src.entity_factory.player)
+    player = copy.deepcopy(entity_factory.player)
     
     game_map = generate_map(map_width, map_height, entities={player})
     

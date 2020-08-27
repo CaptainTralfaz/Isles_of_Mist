@@ -2,11 +2,11 @@ from typing import Set, Iterable, Any
 
 from pygame import Surface
 
-from src.entity import Entity
-from src.game_map import GameMap
-from src.input_handlers import MainEventHandler
-from src.render_functions import get_rotated_image
-from src.tile import tile_size
+from entity import Entity
+from game_map import GameMap
+from input_handlers import MainEventHandler
+from render_functions import get_rotated_image
+from tile import tile_size
 
 
 class Engine:

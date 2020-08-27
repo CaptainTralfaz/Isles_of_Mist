@@ -1,12 +1,12 @@
-from src.game_map import GameMap, get_hex_water_neighbors
-from src.tile import Elevation, tile_size, Terrain
+from game_map import GameMap, get_hex_water_neighbors
+from tile import Elevation, tile_size, Terrain
 from typing import Set, List, Tuple
 from queue import Queue
 from random import randint, random, choice
 from math import pow
 from opensimplex import OpenSimplex
-from src.entity import Entity
-import src.entity_factory
+from entity import Entity
+import entity_factory
 
 
 def generate_map(map_width: int, map_height: int, entities: Set) -> GameMap:
@@ -65,11 +65,11 @@ def generate_map(map_width: int, map_height: int, entities: Set) -> GameMap:
     for i in range(monster_count):
         rnd = random()
         if rnd < .4:
-            src.entity_factory.turtle.spawn(island_map, 0, 0)
+            entity_factory.turtle.spawn(island_map, 0, 0)
         elif rnd < .7:
-            src.entity_factory.bat.spawn(island_map, 0, 0)
+            entity_factory.bat.spawn(island_map, 0, 0)
         else:
-            src.entity_factory.serpent.spawn(island_map, 0, 0)
+            entity_factory.serpent.spawn(island_map, 0, 0)
     
     place_entities(island_map)
     
