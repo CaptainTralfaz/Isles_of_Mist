@@ -1,6 +1,16 @@
+from __future__ import annotations
+
 from pygame import display, image
 
-from src.tile import Elevation, Terrain, tile_size
+from typing import Iterable, List, Tuple, TYPE_CHECKING
+
+from tile import Elevation, Terrain, tile_size
+from render_functions import get_rotated_image
+from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube
+from entity_factory import images
+
+if TYPE_CHECKING:
+    from entity import Entity
 
 
 ocean = image.load("assets/ocean.png")
@@ -14,7 +24,7 @@ volcano = image.load("assets/volcano.png")
 
 
 class GameMap:
-    def __init__(self, width, height, terrain=None):
+    def __init__(self, width, height, entities: Iterable[Entity] = (), terrain=None):
         """
         The GameMap object, which holds the game map, map width, map height, tile information
         :param width: width of the game map
@@ -23,6 +33,7 @@ class GameMap:
         """
         self.width = width
         self.height = height
+        self.entities = set(entities)
         
         if terrain:
             self.terrain = terrain
@@ -57,4 +68,28 @@ class GameMap:
                     else:
                         tile = volcano
                     # TODO magic numbers
+                    #  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
+                    #  16 is half the vertical standard Tile size - offset is due to hexes
                     main_display.blit(tile, (x * tile_size - 10, y * tile_size + x % 2 * tile_size // 2 - 10 - 16))
+        
+        for entity in self.entities:
+            main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
+                              (entity.x - 5, entity.y - 16 + ((entity.x // tile_size) % 2) * tile_size // 2))
+
+
+def get_hex_water_neighbors(game_map: GameMap, x: int, y: int) -> List[Tuple[int, int]]:
+    """
+    Returns neighboring water tiles of a given (x, y) map coordinate
+    :param game_map: GameMap
+    :param x: int x of the game map coordinate
+    :param y: int y of the game map coordinate
+    :return: list of tile coordinate (x, y) tuples
+    """
+    neighbors = []
+    for direction in cube_directions:
+        start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
+        neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
+        if game_map.in_bounds(neighbor_hex.col, neighbor_hex.row) \
+                and game_map.terrain[neighbor_hex.col][neighbor_hex.row].elevation < Elevation.BEACH:
+            neighbors.append((neighbor_hex.col, neighbor_hex.row))
+    return neighbors

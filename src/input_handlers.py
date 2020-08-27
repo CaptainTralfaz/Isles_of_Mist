@@ -1,6 +1,6 @@
 import pygame.event
 
-from src.actions import ActionQuit, MovementAction, RotateAction
+from actions import ActionQuit, MovementAction, RotateAction
 
 ROTATE_KEYS = {
     pygame.K_LEFT: -1,

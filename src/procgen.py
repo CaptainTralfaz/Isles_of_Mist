@@ -1,16 +1,15 @@
-from src.game_map import GameMap
-from src.tile import Elevation, tile_size, Terrain
+from game_map import GameMap, get_hex_water_neighbors
+from tile import Elevation, tile_size, Terrain
 from typing import Set, List, Tuple
 from queue import Queue
-from random import randint, choice
+from random import randint, random, choice
 from math import pow
 from opensimplex import OpenSimplex
-from src.entity import Entity
-from src.utilities import get_hex_water_neighbors
+import entity_factory
 
 
-def generate_map(map_width, map_height, entities) -> GameMap:
-    island_map = GameMap(map_width, map_height)
+def generate_map(map_width: int, map_height: int, entities: Set) -> GameMap:
+    island_map = GameMap(map_width, map_height, entities)
     # noise_map = [[0.0 for y in range(map_height)] for x in range(map_width)]
     
     center_x = (map_width - 1) / 2.0
@@ -60,7 +59,18 @@ def generate_map(map_width, map_height, entities) -> GameMap:
             else:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=True)
     
-    place_entities(island_map, entities)
+    # generate monsters here, add to entities list
+    monster_count = (map_width * map_height) // 50
+    for i in range(monster_count):
+        rnd = random()
+        if rnd < .4:
+            entity_factory.turtle.spawn(island_map, 0, 0)
+        elif rnd < .7:
+            entity_factory.bat.spawn(island_map, 0, 0)
+        else:
+            entity_factory.serpent.spawn(island_map, 0, 0)
+    
+    place_entities(island_map)
     
     return island_map
 
@@ -70,9 +80,9 @@ def noise(gen, nx, ny):
     return gen.noise2d(nx, ny) / 2.0 + 0.5
 
 
-def place_entities(game_map: GameMap, entities: Set[Entity]) -> None:
-    water = explore_water_iterative(game_map, 0, 0)
-    for entity in entities:
+def place_entities(island_map: GameMap) -> None:
+    water = explore_water_iterative(island_map, 0, 0)
+    for entity in island_map.entities:
         water_tile = choice(water)
         water.remove(water_tile)
         entity.x = water_tile[0] * tile_size

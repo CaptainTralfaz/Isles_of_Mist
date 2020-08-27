@@ -1,7 +1,7 @@
 import pygame.transform as transform
 from pygame import Surface
 
-from src.utilities import direction_angle
+from utilities import direction_angle
 
 
 def get_rotated_image(image: Surface, facing: int) -> Surface:
