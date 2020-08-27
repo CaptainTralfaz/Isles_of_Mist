@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Tuple, TypeVar, TYPE_CHECKING
-
-from pygame import Surface
+from typing import TypeVar, TYPE_CHECKING
 
 from utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
 from tile import tile_size

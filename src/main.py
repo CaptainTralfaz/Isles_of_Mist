@@ -4,7 +4,6 @@ import copy
 import entity_factory
 
 from engine import Engine
-from entity import Entity
 from input_handlers import MainEventHandler
 from procgen import generate_map
 

@@ -5,7 +5,6 @@ from queue import Queue
 from random import randint, random, choice
 from math import pow
 from opensimplex import OpenSimplex
-from entity import Entity
 import entity_factory
 
 
