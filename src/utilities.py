@@ -87,5 +87,3 @@ def cube_neighbor(cube, direction) -> Cube:
     :return: cubic coordinates of neighbor in the given direction
     """
     return cube_add(cube1=cube, cube2=cube_direction(direction))
-
-

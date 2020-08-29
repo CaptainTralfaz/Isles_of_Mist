@@ -4,52 +4,67 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity
 
 
 class Action:
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    """Generic Action"""
+    
+    def __init__(self):
+        pass
+    
+    def perform(self) -> bool:
         """Perform this action with the objects needed to determine its scope.
-        `engine` is the scope this action is being performed in.
-        `entity` is the object performing the action.
+        `self.engine` is the scope this action is being performed in.
+        `self.entity` is the object performing the action.
         This method must be overridden by Action subclasses.
         """
         raise NotImplementedError()
 
 
-class EscapeAction(Action):
-    def perform(self, engine: Engine, entity: Entity) -> None:
+class ActionEscape(Action):
+    def perform(self) -> None:
         raise SystemExit()
-
-
-class MovementAction(Action):
-    def __init__(self, direction: int):
-        super().__init__()
-        
-        self.direction = direction
-    
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        x, y = entity.get_next_hex()
-        if engine.game_map.in_bounds(x, y) and engine.game_map.can_sail_to(x, y):
-            entity.move()
-
-
-class RotateAction(Action):
-    def __init__(self, rotate: int):
-        super().__init__()
-        self.rotate = rotate
-    
-    def perform(self, engine: Engine, entity: Entity) -> None:
-        direction = self.rotate
-        entity.rotate(direction)
 
 
 class ActionQuit(Action):
     """Action that quits the game"""
     
-    def __init__(self):
-        """Space intentionally left blank"""
-        pass
-    
-    def perform(self, engine: Engine, entity: Entity) -> None:
+    def perform(self) -> None:
         raise SystemExit()
+
+
+class MovementAction(Action):
+    def __init__(self, entity):
+        super().__init__()
+        self.entity = entity
+    
+    @property
+    def engine(self) -> Engine:
+        """Return the engine for this action"""
+        return self.entity.parent.engine
+    
+    def perform(self) -> bool:
+        x, y = self.entity.get_next_hex()
+        print(x, y)
+        print(self.entity.facing)
+        print(bool(self.entity.parent.can_sail_to(x, y)))
+        if self.entity.parent.in_bounds(x, y) and self.entity.parent.can_sail_to(x, y):
+            self.entity.move()
+            return True
+        return False
+
+
+class RotateAction(Action):
+    def __init__(self, entity, direction):
+        super().__init__()
+        self.entity = entity
+        self.direction = direction
+    
+    @property
+    def engine(self) -> Engine:
+        """Return the engine for this action"""
+        return self.entity.game_map.engine
+    
+    def perform(self) -> bool:
+        self.entity.rotate(self.direction)
+        # return True

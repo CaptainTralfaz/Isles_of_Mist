@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import pygame
 import copy
-import entity_factory
 
+import pygame
+
+import entity_factory
 from engine import Engine
-from input_handlers import MainEventHandler
 from procgen import generate_map
 
 
@@ -14,7 +14,7 @@ def main() -> None:
     
     caption = "Isles of Mist"
     icon = pygame.image.load("assets/ship_icon.png")
-
+    
     tile_size = 32
     map_width = 30
     map_height = 20
@@ -29,22 +29,18 @@ def main() -> None:
     
     should_quit = False
     
-    event_handler = MainEventHandler()
-
     player = copy.deepcopy(entity_factory.player)
     
-    game_map = generate_map(map_width, map_height, entities={player})
+    engine = Engine(player=player)
     
-    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
+    engine.game_map = generate_map(map_width, map_height, engine=engine)
     
     while not should_quit:
         try:
             engine.render(main_surface=game_display)
             pygame.display.flip()
             
-            events = pygame.event.get(pump=True)
-            
-            engine.handle_events(events=events)
+            engine.event_handler.handle_events()
         
         except SystemExit:
             should_quit = True

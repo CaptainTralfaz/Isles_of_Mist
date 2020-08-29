@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from pygame import display, image
-
 from typing import Iterable, List, Tuple, TYPE_CHECKING
 
-from tile import Elevation, Terrain, tile_size
-from render_functions import get_rotated_image
-from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube
+from pygame import display, image
+
 from entity_factory import images
+from render_functions import get_rotated_image
+from tile import Elevation, Terrain, tile_size
+from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube
 
 if TYPE_CHECKING:
     from entity import Entity
-
+    from engine import Engine
 
 ocean = image.load("assets/ocean.png")
 water = image.load("assets/water.png")
@@ -24,13 +24,14 @@ volcano = image.load("assets/volcano.png")
 
 
 class GameMap:
-    def __init__(self, width, height, entities: Iterable[Entity] = (), terrain=None):
+    def __init__(self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = (), terrain=None):
         """
         The GameMap object, which holds the game map, map width, map height, tile information
         :param width: width of the game map
         :param height: height of the game map
         :param terrain: list of lists of Terrain tiles
         """
+        self.engine = engine
         self.width = width
         self.height = height
         self.entities = set(entities)
@@ -38,8 +39,9 @@ class GameMap:
         if terrain:
             self.terrain = terrain
         else:
-            self.terrain = [[Terrain(elevation=Elevation.OCEAN, explored=False) for y in range(height)] for x in range(width)]
-        
+            self.terrain = [[Terrain(elevation=Elevation.OCEAN, explored=False) for y in range(height)] for x in
+                            range(width)]
+    
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height

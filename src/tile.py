@@ -1,6 +1,5 @@
 from enum import auto, Enum
 
-
 tile_size = 32
 
 

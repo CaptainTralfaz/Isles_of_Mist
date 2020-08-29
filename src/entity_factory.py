@@ -1,5 +1,6 @@
-from entity import Entity
 from pygame import image
+
+from entity import Entity
 
 player_image = image.load("assets/ship_icon.png")
 turtle_image = image.load("assets/turtle.png")
@@ -12,7 +13,6 @@ images = {
     'serpent_image': serpent_image,
     'bat_image': bat_image,
 }
-
 
 player = Entity(x=0, y=0, facing=0, icon='player_image')
 

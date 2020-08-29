@@ -1,15 +1,25 @@
-from game_map import GameMap, get_hex_water_neighbors
-from tile import Elevation, tile_size, Terrain
-from typing import Set, List, Tuple
+from __future__ import annotations
+
+from math import pow
 from queue import Queue
 from random import randint, random, choice
-from math import pow
+from typing import List, Tuple
+from typing import TYPE_CHECKING
+
 from opensimplex import OpenSimplex
+
 import entity_factory
+from game_map import GameMap, get_hex_water_neighbors
+from tile import Elevation, tile_size, Terrain
+
+if TYPE_CHECKING:
+    from engine import Engine
 
 
-def generate_map(map_width: int, map_height: int, entities: Set) -> GameMap:
-    island_map = GameMap(map_width, map_height, entities)
+def generate_map(map_width: int, map_height: int, engine: Engine) -> GameMap:
+    player = engine.player
+    
+    island_map = GameMap(engine, map_width, map_height, entities=[player])
     # noise_map = [[0.0 for y in range(map_height)] for x in range(map_width)]
     
     center_x = (map_width - 1) / 2.0
@@ -38,7 +48,7 @@ def generate_map(map_width: int, map_height: int, entities: Set) -> GameMap:
             x_ratio = 1 - pow(x_dist / center_x, rand_pow_x)
             y_ratio = 1 - pow(y_dist / center_y, rand_pow_y)
             ratio = min(x_ratio, y_ratio)
-
+            
             # noise_map[x][y] = ratio
             
             height = round(256 * elevation * ratio)
@@ -59,18 +69,8 @@ def generate_map(map_width: int, map_height: int, entities: Set) -> GameMap:
             else:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=True)
     
-    # generate monsters here, add to entities list
-    monster_count = (map_width * map_height) // 50
-    for i in range(monster_count):
-        rnd = random()
-        if rnd < .4:
-            entity_factory.turtle.spawn(island_map, 0, 0)
-        elif rnd < .7:
-            entity_factory.bat.spawn(island_map, 0, 0)
-        else:
-            entity_factory.serpent.spawn(island_map, 0, 0)
-    
-    place_entities(island_map)
+    player_x, player_y = place_entities(island_map)
+    player.place(player_x * tile_size, player_y * tile_size, island_map)
     
     return island_map
 
@@ -80,14 +80,22 @@ def noise(gen, nx, ny):
     return gen.noise2d(nx, ny) / 2.0 + 0.5
 
 
-def place_entities(island_map: GameMap) -> None:
+def place_entities(island_map: GameMap) -> Tuple[int, int]:
     water = explore_water_iterative(island_map, 0, 0)
-    for entity in island_map.entities:
+    
+    for entity in range((island_map.width * island_map.height) // 50):
         water_tile = choice(water)
         water.remove(water_tile)
-        entity.x = water_tile[0] * tile_size
-        entity.y = water_tile[1] * tile_size
-        entity.facing = randint(0, 5)
+        # generate monsters here, add to entities list
+        rnd = random()
+        if rnd < .4:
+            entity_factory.turtle.spawn(island_map, water_tile[0] * tile_size, water_tile[1] * tile_size, randint(0, 5))
+        elif rnd < .7:
+            entity_factory.bat.spawn(island_map, water_tile[0] * tile_size, water_tile[1] * tile_size, randint(0, 5))
+        else:
+            entity_factory.serpent.spawn(island_map, water_tile[0] * tile_size, water_tile[1] * tile_size,
+                                         randint(0, 5))
+    return choice(water)
 
 
 def explore_water_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int, int]]:
@@ -110,6 +118,3 @@ def explore_water_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int
                 frontier.put(neighbor)
                 visited.append(neighbor)
     return visited
-
-
-
