@@ -4,14 +4,20 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from engine import Engine
+    from entity import Actor
 
 
 class Action:
     """Generic Action"""
     
-    def __init__(self):
-        pass
-    
+    def __init__(self, entity: Actor):
+        self.entity = entity
+
+    @property
+    def engine(self) -> Engine:
+        """Return engine for this action"""
+        return self.entity.parent.engine
+
     def perform(self) -> bool:
         """Perform this action with the objects needed to determine its scope.
         `self.engine` is the scope this action is being performed in.
@@ -21,21 +27,30 @@ class Action:
         raise NotImplementedError()
 
 
-class ActionEscape(Action):
-    def perform(self) -> None:
-        raise SystemExit()
+# class ActionEscape(Action):
+#     def perform(self) -> None:
+#         raise SystemExit()
 
 
 class ActionQuit(Action):
     """Action that quits the game"""
-    
     def perform(self) -> None:
         raise SystemExit()
 
 
+class WaitAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+        self.entity = entity
+
+    def perform(self) -> bool:
+        print("{} waits...".format(self.entity.name))
+        return True
+
+
 class MovementAction(Action):
     def __init__(self, entity):
-        super().__init__()
+        super().__init__(entity)
         self.entity = entity
     
     @property
@@ -45,9 +60,6 @@ class MovementAction(Action):
     
     def perform(self) -> bool:
         x, y = self.entity.get_next_hex()
-        print(x, y)
-        print(self.entity.facing)
-        print(bool(self.entity.parent.can_sail_to(x, y)))
         if self.entity.parent.in_bounds(x, y) and self.entity.parent.can_sail_to(x, y):
             self.entity.move()
             return True
@@ -56,7 +68,7 @@ class MovementAction(Action):
 
 class RotateAction(Action):
     def __init__(self, entity, direction):
-        super().__init__()
+        super().__init__(entity)
         self.entity = entity
         self.direction = direction
     
@@ -67,4 +79,4 @@ class RotateAction(Action):
     
     def perform(self) -> bool:
         self.entity.rotate(self.direction)
-        # return True
+        return True

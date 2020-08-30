@@ -4,7 +4,7 @@ from typing import Optional, TYPE_CHECKING
 
 import pygame.event
 
-from actions import Action, ActionQuit, MovementAction, RotateAction
+from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -16,6 +16,10 @@ ROTATE_KEYS = {
 
 MOVEMENT_KEYS = {
     pygame.K_UP: 1
+}
+
+WAIT_KEYS = {
+    pygame.K_SPACE
 }
 
 
@@ -52,14 +56,16 @@ class MainEventHandler(EventHandler):
         player = self.engine.player
         response = None
         if event.type == pygame.QUIT:
-            response = ActionQuit()
+            response = ActionQuit(player)
         if event.type == pygame.KEYDOWN:
             if event.key in ROTATE_KEYS:
                 response = RotateAction(player, ROTATE_KEYS[event.key])
             elif event.key in MOVEMENT_KEYS:
                 response = MovementAction(player)
+            elif event.key in WAIT_KEYS:
+                response = WaitAction(player)
             elif event.key == pygame.K_ESCAPE:
-                response = ActionQuit()
+                response = ActionQuit(player)
         
         if response is not None:
             return response

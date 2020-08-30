@@ -87,3 +87,64 @@ def cube_neighbor(cube, direction) -> Cube:
     :return: cubic coordinates of neighbor in the given direction
     """
     return cube_add(cube1=cube, cube2=cube_direction(direction))
+
+
+def cube_distance(cube1, cube2):
+    """
+    Distance between two tiles in cubic coordinates
+    :param cube1: origin cube
+    :param cube2: target cube
+    :return: int distance between cubes
+    """
+    return max(abs(cube1.x - cube2.x), abs(cube1.y - cube2.y), abs(cube1.z - cube2.z))
+
+
+def cube_line_draw(cube1, cube2):
+    """
+    function to return a list of cube coordinates in a line from cube1 to cube2
+    :param cube1: starting cube coordinates
+    :param cube2: ending cube coordinates
+    :return: list of cubes from cube1 to cube2 inclusive
+    """
+    n = cube_distance(cube1=cube1, cube2=cube2)
+    cube_line = []
+    for i in range(0, n + 1):
+        cube_line.append(cube_round(cube=cube_lerp(a=cube1, b=cube2, t=1.0 / n * i)))
+    return cube_line[1:]
+
+
+def cube_round(cube):
+    """
+    cubic line drawing helper
+    """
+    rx = round(cube.x)
+    ry = round(cube.y)
+    rz = round(cube.z)
+    
+    x_diff = abs(rx - cube.x)
+    y_diff = abs(ry - cube.y)
+    z_diff = abs(rz - cube.z)
+    
+    if x_diff > y_diff and x_diff > z_diff:
+        rx = -ry - rz
+    elif y_diff > z_diff:
+        ry = -rx - rz
+    else:
+        rz = -rx - ry
+    return Cube(rx, ry, rz)
+
+
+def lerp(a, b, t):
+    """
+    cubic line drawing helper
+    """
+    return a + (b - a) * t
+
+
+def cube_lerp(a, b, t):
+    """
+    cubic line drawing helper
+    """
+    return Cube(x=lerp(a.x, b.x, t), y=lerp(a.y, b.y, t), z=lerp(a.z, b.z, t))
+
+
