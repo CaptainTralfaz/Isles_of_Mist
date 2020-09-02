@@ -6,6 +6,7 @@ import pygame
 import entity_factory
 from engine import Engine
 from procgen import generate_map
+from tile import tile_size
 
 
 def main() -> None:
@@ -15,7 +16,6 @@ def main() -> None:
     caption = "Isles of Mist"
     icon = pygame.image.load("assets/ship_icon.png")
     
-    tile_size = 32
     map_width = 30
     map_height = 20
     screen_width = map_width * tile_size - 10

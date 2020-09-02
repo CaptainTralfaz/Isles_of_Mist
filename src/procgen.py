@@ -10,7 +10,7 @@ from opensimplex import OpenSimplex
 
 import entity_factory
 from game_map import GameMap, get_hex_water_neighbors
-from tile import Elevation, tile_size, Terrain
+from tile import Elevation, Terrain
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -53,24 +53,25 @@ def generate_map(map_width: int, map_height: int, engine: Engine) -> GameMap:
             
             height = round(256 * elevation * ratio)
             if height < 100:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN, explored=False)
             elif height < 125:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER, explored=False)
             elif height < 150:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS, explored=False)
             elif height < 160:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH, explored=False)
             elif height < 170:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS, explored=False)
             elif height < 200:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE, explored=False)
             elif height < 210:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN, explored=False)
             else:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=False)
     
     player_x, player_y = place_entities(island_map)
-    player.place(player_x * tile_size, player_y * tile_size, island_map)
+    player.place(player_x, player_y, island_map)
+    player.view.set_fov()
     
     return island_map
 
@@ -84,17 +85,19 @@ def place_entities(island_map: GameMap) -> Tuple[int, int]:
     water = explore_water_iterative(island_map, 0, 0)
     
     for entity in range((island_map.width * island_map.height) // 50):
-        water_tile = choice(water)
-        water.remove(water_tile)
+        (x, y) = choice(water)
+        water.remove((x, y))
         # generate monsters here, add to entities list
         rnd = random()
         if rnd < .4:
-            entity_factory.turtle.spawn(island_map, water_tile[0] * tile_size, water_tile[1] * tile_size, randint(0, 5))
+            turtle = entity_factory.turtle.spawn(island_map, x, y, randint(0, 5))
+            turtle.view.set_fov()
         elif rnd < .7:
-            entity_factory.bat.spawn(island_map, water_tile[0] * tile_size, water_tile[1] * tile_size, randint(0, 5))
+            bat = entity_factory.bat.spawn(island_map, x, y, randint(0, 5))
+            bat.view.set_fov()
         else:
-            entity_factory.serpent.spawn(island_map, water_tile[0] * tile_size, water_tile[1] * tile_size,
-                                         randint(0, 5))
+            serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
+            serpent.view.set_fov()
     return choice(water)
 
 

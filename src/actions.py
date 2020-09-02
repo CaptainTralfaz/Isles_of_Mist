@@ -62,6 +62,8 @@ class MovementAction(Action):
         x, y = self.entity.get_next_hex()
         if self.entity.parent.in_bounds(x, y) and self.entity.parent.can_sail_to(x, y):
             self.entity.move()
+            self.entity.view.set_fov()
+            
             return True
         return False
 

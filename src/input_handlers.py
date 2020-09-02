@@ -45,13 +45,13 @@ class MainEventHandler(EventHandler):
                     continue
                 try:
                     something_happened = action.perform()
+
                 except Exception:
                     return False
             
             if something_happened:
                 self.engine.handle_enemy_turns()
-                # update FOV
-    
+                
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None
