@@ -21,6 +21,7 @@ grass = image.load("assets/grass.png")
 jungle = image.load("assets/jungle.png")
 mountain = image.load("assets/mountain.png")
 volcano = image.load("assets/volcano.png")
+fog_of_war = image.load("assets/fog_of_war.png")
 
 
 class GameMap:
@@ -98,17 +99,22 @@ class GameMap:
                         tile = mountain
                     else:
                         tile = volcano
-                    # TODO magic numbers
-                    #  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
-                    #  16 is half the vertical standard Tile size - offset is due to hexes
                     main_display.blit(tile, map_to_surface_coords_terrain(x, y))
-                    
+        
+        for x in range(self.width):
+            for y in range(self.height):
+                if (x, y) not in self.engine.player.view.fov:
+                    main_display.blit(fog_of_war, map_to_surface_coords_terrain(x, y))
+
         for entity in self.entities:
             if (entity.x, entity.y) in self.engine.player.view.fov:
                 main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
                                   map_to_surface_coords_entities(entity.x, entity.y))
 
 
+# TODO magic numbers
+#  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
+#  16 is half the vertical standard Tile size - offset is due to hexes
 def map_to_surface_coords_terrain(x: int, y: int) -> Tuple[int, int]:
     terrain_overlap = 10
     half_hex_terrain_height = 16
