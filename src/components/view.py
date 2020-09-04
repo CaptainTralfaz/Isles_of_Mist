@@ -17,11 +17,17 @@ class View(BaseComponent):
         """
         :return: Nothing - modify current map
         """
-        visible_tiles = self.parent.game_map.get_fov(self.distance, self.parent.x, self.parent.y)
+        
+        # TODO if sailing
+        visible_tiles = self.parent.game_map.get_ocean_fov(self.distance, self.parent.x, self.parent.y)
         # print(self.parent.name, visible_tiles)
+        # TODO else flying
+        # visible_tiles = self.parent.game_map.get_AIR_fov(self.distance, self.parent.x, self.parent.y)
+
         for (x, y) in visible_tiles:
             if self.parent.name == "Player" \
                     and self.parent.game_map.in_bounds(x, y) \
                     and not self.parent.game_map.terrain[x][y].explored:
                 self.parent.game_map.terrain[x][y].explored = True
         self.fov = visible_tiles
+

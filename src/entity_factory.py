@@ -1,7 +1,7 @@
 from pygame import image
 
 from entity import Actor
-from components.ai import NeutralEnemy
+from components.ai import NeutralEnemy, HostileEnemy
 from components.fighter import Fighter
 from components.view import View
 
@@ -44,7 +44,7 @@ serpent = Actor(x=0,
                 facing=0,
                 icon='serpent_image',
                 name='Serpent',
-                ai_cls=NeutralEnemy,
+                ai_cls=HostileEnemy,
                 fighter=Fighter(hp=10,
                                 defense=2,
                                 power=5),
@@ -55,7 +55,7 @@ bat = Actor(x=0,
             facing=0,
             icon='bat_image',
             name='Bat',
-            ai_cls=NeutralEnemy,
+            ai_cls=HostileEnemy,
             fighter=Fighter(hp=10,
                             defense=2,
                             power=5),

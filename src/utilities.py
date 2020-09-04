@@ -89,7 +89,7 @@ def cube_neighbor(cube, direction) -> Cube:
     return cube_add(cube1=cube, cube2=cube_direction(direction))
 
 
-def cube_distance(cube1, cube2):
+def cube_distance(cube1: Cube, cube2: Cube) -> int:
     """
     Distance between two tiles in cubic coordinates
     :param cube1: origin cube
@@ -97,6 +97,10 @@ def cube_distance(cube1, cube2):
     :return: int distance between cubes
     """
     return max(abs(cube1.x - cube2.x), abs(cube1.y - cube2.y), abs(cube1.z - cube2.z))
+
+
+def get_distance(x1: int, y1: int, x2: int, y2: int) -> int:
+    return cube_distance(hex_to_cube(Hex(x1, y1)), hex_to_cube(Hex(x2, y2)))
 
 
 def cube_line_draw(cube1, cube2):

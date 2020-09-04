@@ -47,31 +47,73 @@ class GameMap:
     def game_map(self) -> GameMap:
         return self
     
-    def get_fov(self, distance, x, y):  # TODO magic numbers
+    # TODO add fog LOS Blocking
+    def get_ocean_fov(self, distance, x, y):
         viewed_hexes = []
         center_coords = hex_to_cube(hexagon=Hex(column=x, row=y))
         viewed_hexes.append(Hex(column=x, row=y))
         current = center_coords
     
+        # set up starting cube
         for k in range(0, distance):
             current = cube_neighbor(cube=current, direction=4)
     
         for i in range(0, 6):
             for j in range(0, distance):
                 cube_line = cube_line_draw(cube1=center_coords, cube2=current)
+                
+                previous_elevation = Elevation.OCEAN
                 for cube in cube_line:
                     hx = cube_to_hex(cube)
+                    if not self.in_bounds(hx.col, hx.row):
+                        break
+                    if self.terrain[hx.col][hx.row].elevation < previous_elevation:
+                        break
+                    previous_elevation = self.terrain[hx.col][hx.row].elevation
+                    if self.terrain[hx.col][hx.row].elevation <= Elevation.SHALLOWS:
+                        previous_elevation = Elevation.OCEAN
+                        
                     if hx not in viewed_hexes[1:]:
                         viewed_hexes.append(hx)
-                    # break
-            
+                        
                 current = cube_neighbor(current, i)
+                
         viewed = []
         for tile in viewed_hexes:
             if (0 <= tile.col < self.width) and (0 <= tile.row < self.height):
                 viewed.append((tile.col, tile.row))
         return set(viewed)
-   
+
+    # TODO add FOG LOS BLOCKING
+    def get_flying_fov(self, distance, x, y):
+        viewed_hexes = []
+        center_coords = hex_to_cube(hexagon=Hex(column=x, row=y))
+        viewed_hexes.append(Hex(column=x, row=y))
+        current = center_coords
+    
+        # set up starting cube
+        for k in range(0, distance):
+            current = cube_neighbor(cube=current, direction=4)
+    
+        for i in range(0, 6):
+            for j in range(0, distance):
+                cube_line = cube_line_draw(cube1=center_coords, cube2=current)
+            
+                for cube in cube_line:
+                    hx = cube_to_hex(cube)
+                    if not self.in_bounds(hx.col, hx.row):
+                        break
+                    if hx not in viewed_hexes[1:]:
+                        viewed_hexes.append(hx)
+            
+                current = cube_neighbor(current, i)
+    
+        viewed = []
+        for tile in viewed_hexes:
+            if (0 <= tile.col < self.width) and (0 <= tile.row < self.height):
+                viewed.append((tile.col, tile.row))
+        return set(viewed)
+
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
@@ -111,6 +153,9 @@ class GameMap:
                 main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
                                   map_to_surface_coords_entities(entity.x, entity.y))
 
+    def get_path(self, x1: int, y1: int, x2: int, y2: int, flying: bool = False) -> List[Tuple[int, int]]:
+        pass
+
 
 # TODO magic numbers
 #  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
@@ -127,7 +172,7 @@ def map_to_surface_coords_entities(x: int, y: int) -> Tuple[int, int]:
     half_terrain_overlap = 5
     half_hex_terrain_height = 16
     return (x * tile_size - half_terrain_overlap,
-            y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height )
+            y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height)
 
 
 def get_hex_water_neighbors(game_map: GameMap, x: int, y: int) -> List[Tuple[int, int]]:
