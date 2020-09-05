@@ -65,12 +65,13 @@ class GameMap:
                 previous_elevation = Elevation.OCEAN
                 for cube in cube_line:
                     hx = cube_to_hex(cube)
-                    if not self.in_bounds(hx.col, hx.row):
+                    if self.in_bounds(hx.col, hx.row) \
+                            and self.terrain[hx.col][hx.row].elevation < previous_elevation:
                         break
-                    if self.terrain[hx.col][hx.row].elevation < previous_elevation:
-                        break
-                    previous_elevation = self.terrain[hx.col][hx.row].elevation
-                    if self.terrain[hx.col][hx.row].elevation <= Elevation.SHALLOWS:
+                    if self.in_bounds(hx.col, hx.row):
+                        previous_elevation = self.terrain[hx.col][hx.row].elevation
+                    if self.in_bounds(hx.col, hx.row) \
+                            and self.terrain[hx.col][hx.row].elevation <= Elevation.SHALLOWS:
                         previous_elevation = Elevation.OCEAN
                         
                     if hx not in viewed_hexes[1:]:
@@ -101,8 +102,6 @@ class GameMap:
             
                 for cube in cube_line:
                     hx = cube_to_hex(cube)
-                    if not self.in_bounds(hx.col, hx.row):
-                        break
                     if hx not in viewed_hexes[1:]:
                         viewed_hexes.append(hx)
             
