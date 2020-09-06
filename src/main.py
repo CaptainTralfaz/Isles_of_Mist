@@ -16,7 +16,7 @@ def main() -> None:
     caption = "Isles of Mist"
     icon = pygame.image.load("assets/ship_icon.png")
     
-    map_width = 30
+    map_width = 35
     map_height = 20
     screen_width = map_width * tile_size - 10
     screen_height = map_height * tile_size - 16

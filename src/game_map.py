@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Iterable, List, Tuple, TYPE_CHECKING
 
-from pygame import display, image
+from pygame import display, image, font
+from queue import Queue
 
 from entity_factory import images
 from render_functions import get_rotated_image
@@ -12,6 +13,10 @@ from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, 
 if TYPE_CHECKING:
     from entity import Entity
     from engine import Engine
+
+font.init()
+
+game_font = font.Font('freesansbold.ttf', 16)
 
 ocean = image.load("assets/ocean.png")
 water = image.load("assets/water.png")
@@ -121,6 +126,7 @@ class GameMap:
         return self.terrain[x][y].elevation < Elevation.BEACH
     
     def render(self, main_display: display) -> None:
+        # sail_map = self.gen_sail_distance_map(self.engine.player.x, self.engine.player.y)
         for x in range(self.width):
             for y in range(self.height):
                 if self.terrain[x][y].explored:
@@ -141,6 +147,11 @@ class GameMap:
                     else:
                         tile = volcano
                     main_display.blit(tile, map_to_surface_coords_terrain(x, y))
+                    # display distance_map
+                    # xx, yy = map_to_surface_coords_terrain(x, y)
+                    # if sail_map.get((x, y)):
+                    #     main_display.blit(game_font.render("{}".format(sail_map[x, y]), True, (0, 0, 0)),
+                    #                       (xx + 15, yy + 20))
         
         for x in range(self.width):
             for y in range(self.height):
@@ -148,13 +159,78 @@ class GameMap:
                     main_display.blit(fog_of_war, map_to_surface_coords_terrain(x, y))
 
         for entity in self.entities:
-            if (entity.x, entity.y) in self.engine.player.view.fov:
-                main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
+            # if (entity.x, entity.y) in self.engine.player.view.fov:
+            main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
                                   map_to_surface_coords_entities(entity.x, entity.y))
 
     def get_path(self, x1: int, y1: int, x2: int, y2: int, flying: bool = False) -> List[Tuple[int, int]]:
+        if flying:
+            path_map = self.gen_flying_path_map(x1, y1)
+        else:
+            path_map = self.gen_sail_path_map(x1, y1)
+        
+        current = (x2, y2)
+        path = []
+        while current != (x1, y1):
+            path.append(current)
+            if not current:
+                break
+            current = path_map[current]
+        return path
+
+    def gen_sail_distance_map(self, x: int, y: int):
+        sail_map = self.gen_sail_path_map(x, y)
+        distance_sail_map = dict()
+        for w in range(self.width):
+            for h in range(self.height):
+                path = []
+                if sail_map.get((w, h)):
+                    current = (w, h)
+                    while current != (x, y):
+                        path.append(current)
+                        if not current:
+                            break
+                        current = sail_map[current]
+                if path:
+                    distance_sail_map[(w, h)] = len(path)
+        return distance_sail_map
+    
+    def gen_sail_path_map(self, x: int, y: int):
+        frontier = Queue()
+        frontier.put((x, y))
+        came_from = dict()
+        came_from[(x, y)] = None
+        
+        while not frontier.empty():
+            current = frontier.get()
+            x, y = current
+            for neighbor in get_hex_water_neighbors(game_map=self, x=x, y=y):
+                if neighbor not in came_from:
+                    frontier.put(neighbor)
+                    came_from[(neighbor[0], neighbor[1])] = current
+        return came_from
+        
+    def gen_flying_path_map(self, x: int, y: int) -> List[List[Tuple[int, int]]]:
         pass
 
+    def get_neighbors(self, x, y) -> List[Tuple[int, int]]:
+        neighbors = []
+        for direction in cube_directions:
+            start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
+            neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
+            if self.in_bounds(neighbor_hex.col, neighbor_hex.row):
+                neighbors.append((neighbor_hex.col, neighbor_hex.row))
+        return neighbors
+        
+
+    
+# TODO
+#   get valid neighbors from distance_map
+#   find smallest valid neighbors
+#   if facing a smallest:
+#       move forward
+#   else not facing a smallest: find shortest rotation to smallest (random dir if tied)
+#       rotate given direction
 
 # TODO magic numbers
 #  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)

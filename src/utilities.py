@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 direction_angle = [0, 60, 120, 180, 240, 300]
 
 
@@ -70,7 +72,7 @@ def cube_add(cube1, cube2) -> Cube:
     return Cube(x=cube1.x + cube2.x, y=cube1.y + cube2.y, z=cube1.z + cube2.z)
 
 
-def cube_direction(direction) -> Cube:
+def cube_direction(direction: int) -> Cube:
     """
     Returns neighboring cubic relational values in a given hex direction
     :param direction: int direction
@@ -79,7 +81,7 @@ def cube_direction(direction) -> Cube:
     return cube_directions[direction]
 
 
-def cube_neighbor(cube, direction) -> Cube:
+def cube_neighbor(cube: Cube, direction: int) -> Cube:
     """
     Returns neighboring cubic coordinates in a given hex direction
     :param cube: cubic coordinates
@@ -89,6 +91,11 @@ def cube_neighbor(cube, direction) -> Cube:
     return cube_add(cube1=cube, cube2=cube_direction(direction))
 
 
+def get_neighbor(x: int, y: int, direction: int) -> Tuple[int, int]:
+    neighbor = cube_to_hex(cube_neighbor(hex_to_cube(Hex(x, y)), direction))
+    return (neighbor.col, neighbor.row)
+
+    
 def cube_distance(cube1: Cube, cube2: Cube) -> int:
     """
     Distance between two tiles in cubic coordinates
@@ -100,10 +107,18 @@ def cube_distance(cube1: Cube, cube2: Cube) -> int:
 
 
 def get_distance(x1: int, y1: int, x2: int, y2: int) -> int:
+    """
+    Distance between two tiles on hex grid
+    :param x1: x coordinate of source hex
+    :param y1: y coordinate of source hex
+    :param x2: x coordinate of destination hex
+    :param y2: y coordinate of destination hex
+    :return: int distance between hexes
+    """
     return cube_distance(hex_to_cube(Hex(x1, y1)), hex_to_cube(Hex(x2, y2)))
 
 
-def cube_line_draw(cube1, cube2):
+def cube_line_draw(cube1: Cube, cube2: Cube) -> List[Cube]:
     """
     function to return a list of cube coordinates in a line from cube1 to cube2
     :param cube1: starting cube coordinates
@@ -117,7 +132,7 @@ def cube_line_draw(cube1, cube2):
     return cube_line[1:]
 
 
-def cube_round(cube):
+def cube_round(cube: Cube) -> Cube:
     """
     cubic line drawing helper
     """
@@ -138,14 +153,14 @@ def cube_round(cube):
     return Cube(rx, ry, rz)
 
 
-def lerp(a, b, t):
+def lerp(a: int, b: int, t):
     """
     cubic line drawing helper
     """
     return a + (b - a) * t
 
 
-def cube_lerp(a, b, t):
+def cube_lerp(a: Cube, b: Cube, t) -> Cube:
     """
     cubic line drawing helper
     """
