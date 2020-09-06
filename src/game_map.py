@@ -123,10 +123,14 @@ class GameMap:
         return 0 <= x < self.width and 0 <= y < self.height
     
     def can_sail_to(self, x: int, y: int) -> bool:
-        return self.terrain[x][y].elevation < Elevation.BEACH
+        return self.terrain[x][y].elevation <= Elevation.SHALLOWS
+    
+    def can_fly_to(self, x: int, y: int) -> bool:
+        return self.terrain[x][y].elevation <= Elevation.JUNGLE
     
     def render(self, main_display: display) -> None:
         # sail_map = self.gen_sail_distance_map(self.engine.player.x, self.engine.player.y)
+        # flying_map = self.gen_flying_distance_map(self.engine.player.x, self.engine.player.y)
         for x in range(self.width):
             for y in range(self.height):
                 if self.terrain[x][y].explored:
@@ -147,10 +151,10 @@ class GameMap:
                     else:
                         tile = volcano
                     main_display.blit(tile, map_to_surface_coords_terrain(x, y))
-                    # display distance_map
+                    # display distance maps
                     # xx, yy = map_to_surface_coords_terrain(x, y)
-                    # if sail_map.get((x, y)):
-                    #     main_display.blit(game_font.render("{}".format(sail_map[x, y]), True, (0, 0, 0)),
+                    # if flying_map.get((x, y)):
+                    #     main_display.blit(game_font.render("{}".format(flying_map[x, y]), True, (0, 0, 0)),
                     #                       (xx + 15, yy + 20))
         
         for x in range(self.width):
@@ -163,24 +167,16 @@ class GameMap:
                 main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
                                   map_to_surface_coords_entities(entity.x, entity.y))
 
-    def get_path(self, x1: int, y1: int, x2: int, y2: int, flying: bool = False) -> List[Tuple[int, int]]:
-        if flying:
-            path_map = self.gen_flying_path_map(x1, y1)
+    def gen_distance_map(self, x: int, y: int, flying: bool = False) -> dict:
+        if not flying:
+            return self.gen_sail_distance_map(x, y)
         else:
-            path_map = self.gen_sail_path_map(x1, y1)
+            return self.gen_flying_distance_map(x, y)
         
-        current = (x2, y2)
-        path = []
-        while current != (x1, y1):
-            path.append(current)
-            if not current:
-                break
-            current = path_map[current]
-        return path
-
-    def gen_sail_distance_map(self, x: int, y: int):
+    def gen_sail_distance_map(self, x: int, y: int) -> dict:
         sail_map = self.gen_sail_path_map(x, y)
         distance_sail_map = dict()
+        
         for w in range(self.width):
             for h in range(self.height):
                 path = []
@@ -194,8 +190,26 @@ class GameMap:
                 if path:
                     distance_sail_map[(w, h)] = len(path)
         return distance_sail_map
+
+    def gen_flying_distance_map(self, x: int, y: int) -> dict:
+        flying_map = self.gen_flying_path_map(x, y)
+        distance_flying_map = dict()
     
-    def gen_sail_path_map(self, x: int, y: int):
+        for w in range(self.width):
+            for h in range(self.height):
+                path = []
+                if flying_map.get((w, h)):
+                    current = (w, h)
+                    while current != (x, y):
+                        path.append(current)
+                        if not current:
+                            break
+                        current = flying_map[current]
+                if path:
+                    distance_flying_map[(w, h)] = len(path)
+        return distance_flying_map
+
+    def gen_sail_path_map(self, x: int, y: int) -> dict:
         frontier = Queue()
         frontier.put((x, y))
         came_from = dict()
@@ -204,14 +218,26 @@ class GameMap:
         while not frontier.empty():
             current = frontier.get()
             x, y = current
-            for neighbor in get_hex_water_neighbors(game_map=self, x=x, y=y):
+            for neighbor in self.get_water_neighbors(x=x, y=y):
                 if neighbor not in came_from:
                     frontier.put(neighbor)
                     came_from[(neighbor[0], neighbor[1])] = current
         return came_from
         
-    def gen_flying_path_map(self, x: int, y: int) -> List[List[Tuple[int, int]]]:
-        pass
+    def gen_flying_path_map(self, x: int, y: int) -> dict:
+        frontier = Queue()
+        frontier.put((x, y))
+        came_from = dict()
+        came_from[(x, y)] = None
+    
+        while not frontier.empty():
+            current = frontier.get()
+            x, y = current
+            for neighbor in self.get_neighbors(x=x, y=y):
+                if neighbor not in came_from:
+                    frontier.put(neighbor)
+                    came_from[(neighbor[0], neighbor[1])] = current
+        return came_from
 
     def get_neighbors(self, x, y) -> List[Tuple[int, int]]:
         neighbors = []
@@ -221,16 +247,17 @@ class GameMap:
             if self.in_bounds(neighbor_hex.col, neighbor_hex.row):
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
-        
 
-    
-# TODO
-#   get valid neighbors from distance_map
-#   find smallest valid neighbors
-#   if facing a smallest:
-#       move forward
-#   else not facing a smallest: find shortest rotation to smallest (random dir if tied)
-#       rotate given direction
+    def get_water_neighbors(self, x: int, y: int) -> List[Tuple[int, int]]:
+        neighbors = []
+        for direction in cube_directions:
+            start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
+            neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
+            if self.in_bounds(neighbor_hex.col, neighbor_hex.row) \
+                    and self.terrain[neighbor_hex.col][neighbor_hex.row].elevation < Elevation.BEACH:
+                neighbors.append((neighbor_hex.col, neighbor_hex.row))
+        return neighbors
+
 
 # TODO magic numbers
 #  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
@@ -250,19 +277,3 @@ def map_to_surface_coords_entities(x: int, y: int) -> Tuple[int, int]:
             y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height)
 
 
-def get_hex_water_neighbors(game_map: GameMap, x: int, y: int) -> List[Tuple[int, int]]:
-    """
-    Returns neighboring water tiles of a given (x, y) map coordinate
-    :param game_map: GameMap
-    :param x: int x of the game map coordinate
-    :param y: int y of the game map coordinate
-    :return: list of tile coordinate (x, y) tuples
-    """
-    neighbors = []
-    for direction in cube_directions:
-        start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
-        neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
-        if game_map.in_bounds(neighbor_hex.col, neighbor_hex.row) \
-                and game_map.terrain[neighbor_hex.col][neighbor_hex.row].elevation < Elevation.BEACH:
-            neighbors.append((neighbor_hex.col, neighbor_hex.row))
-    return neighbors

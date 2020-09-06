@@ -59,4 +59,5 @@ bat = Actor(x=0,
             fighter=Fighter(hp=10,
                             defense=2,
                             power=5),
-            view=View(4))
+            view=View(4),
+            flying=True)

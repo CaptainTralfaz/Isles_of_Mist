@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from opensimplex import OpenSimplex
 
 import entity_factory
-from game_map import GameMap, get_hex_water_neighbors
+from game_map import GameMap
 from tile import Elevation, Terrain
 
 if TYPE_CHECKING:
@@ -116,7 +116,7 @@ def explore_water_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int
     while not frontier.empty():
         current = frontier.get()
         x, y = current
-        for neighbor in get_hex_water_neighbors(game_map=game_map, x=x, y=y):
+        for neighbor in game_map.get_water_neighbors(x=x, y=y):
             if neighbor not in visited:
                 frontier.put(neighbor)
                 visited.append(neighbor)

@@ -60,11 +60,15 @@ class MovementAction(Action):
     
     def perform(self) -> bool:
         x, y = self.entity.get_next_hex()
-        if self.entity.parent.in_bounds(x, y) and self.entity.parent.can_sail_to(x, y):
-            self.entity.move()
-            self.entity.view.set_fov()
-            
-            return True
+        if self.entity.parent.in_bounds(x, y):
+            if self.entity.flying:
+                can_move = self.entity.parent.game_map.can_fly_to(x, y)
+            else:
+                can_move = self.entity.parent.game_map.can_sail_to(x, y)
+            if can_move:
+                self.entity.move()
+                self.entity.view.set_fov()
+                return True
         return False
 
 

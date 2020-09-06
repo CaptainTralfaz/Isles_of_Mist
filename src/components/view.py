@@ -18,11 +18,11 @@ class View(BaseComponent):
         :return: Nothing - modify current map
         """
         
-        # TODO if sailing
-        visible_tiles = self.parent.game_map.get_ocean_fov(self.distance, self.parent.x, self.parent.y)
-        # print(self.parent.name, visible_tiles)
         # TODO else flying
-        # visible_tiles = self.parent.game_map.get_AIR_fov(self.distance, self.parent.x, self.parent.y)
+        if self.parent.flying:
+            visible_tiles = self.parent.game_map.get_flying_fov(self.distance, self.parent.x, self.parent.y)
+        else:
+            visible_tiles = self.parent.game_map.get_ocean_fov(self.distance, self.parent.x, self.parent.y)
 
         for (x, y) in visible_tiles:
             if self.parent.name == "Player" \

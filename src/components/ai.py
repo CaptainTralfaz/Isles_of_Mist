@@ -40,34 +40,43 @@ class HostileEnemy(BaseAI):
         self.current_target_y = None
 
     def perform(self) -> bool:
-        
+        """
+        Hostile entity will wander randomly until player is spotted, making that location its target
+        Hostile entity will update target each subsequent turn player is visible
+        Hostile will move or rotate toward target location
+        if target location is empty, Hostile will patrol around the edge that location
+        :return: action -> bool
+        """
+        # in view, set new target location
         if (self.engine.player.x, self.engine.player.y) in self.entity.view.fov:
             print("{} updating target: ({}, {})".format(self.entity.name, self.engine.player.x, self.engine.player.y))
             self.current_target_x = self.engine.player.x
             self.current_target_y = self.engine.player.y
-            
+
             distance = get_distance(self.entity.x, self.entity.y, self.current_target_x, self.current_target_y)
             # melee attack if close enough
             if distance < 2:
                 print("{} bites you!".format(self.entity.name))
                 return True  # return MeleeAction(self.entity, self.target).perform()
-            
-        # have a target, find path, then move or rotate
-        if self.current_target_x is not None and self.current_target_y is not None:
-            # print("({}, {}) -> ({}, {})".format(self.entity.x, self.entity.y, self.current_target_x, self.current_target_y))
 
-            sail_distance_map = self.engine.game_map.gen_sail_distance_map(self.current_target_x, self.current_target_y)
+        # have a target location: find path, then move or rotate
+        if self.current_target_x is not None and self.current_target_y is not None:
+
+            if self.entity.flying:
+                distance_map = self.engine.game_map.gen_flying_distance_map(self.current_target_x,
+                                                                            self.current_target_y)
+            else:
+                distance_map = self.engine.game_map.gen_sail_distance_map(self.current_target_x,
+                                                                          self.current_target_y)
             
             neighbors = self.engine.game_map.get_neighbors(self.entity.x, self.entity.y)
             shortest_dist_coords = []
-            shortest_dist = get_distance(self.entity.x, self.entity.y, self.current_target_x, self.current_target_y)
-            # print("origin ({}, {}) shortest dist: {}".format(self.entity.x, self.entity.y, shortest_dist))
-            # print("target ({}, {})".format(self.current_target_x, self.current_target_y))
+            shortest_dist = get_distance(self.entity.x, self.entity.y,
+                                         self.current_target_x, self.current_target_y)
 
             # print(neighbors)
             for neighbor in neighbors:
-                neighbor_dist = sail_distance_map.get((neighbor[0], neighbor[1]))
-                # print("neighbor ({}, {}) dist: {}".format(neighbor[0], neighbor[1], neighbor_dist))
+                neighbor_dist = distance_map.get((neighbor[0], neighbor[1]))
                 if neighbor_dist is not None:
                     if neighbor_dist < shortest_dist:
                         shortest_dist_coords = [neighbor]
@@ -76,8 +85,14 @@ class HostileEnemy(BaseAI):
                         shortest_dist_coords.append(neighbor)
             
             facing_x, facing_y = get_neighbor(self.entity.x, self.entity.y, self.entity.facing)
-            if sail_distance_map.get((facing_x, facing_y)) == shortest_dist \
-                    and self.entity.game_map.can_sail_to(facing_x, facing_y):
+            can_move_to = False
+            if self.entity.game_map.in_bounds(facing_x, facing_y):
+                if self.entity.flying:
+                    can_move_to = self.entity.game_map.can_fly_to(facing_x, facing_y)
+                else:
+                    can_move_to = self.entity.game_map.can_sail_to(facing_x, facing_y)
+            if distance_map.get((facing_x, facing_y)) == shortest_dist \
+                    and can_move_to:
                 return MovementAction(self.entity).perform()
             
             left_shortest = 3
@@ -87,7 +102,7 @@ class HostileEnemy(BaseAI):
                 if facing_left < 0:
                     facing_left = 5
                 left_x, left_y = get_neighbor(self.entity.x, self.entity.y, facing_left)
-                left_current = sail_distance_map.get((left_x, left_y))
+                left_current = distance_map.get((left_x, left_y))
                 if left_current is not None \
                         and left_current == shortest_dist:
                     left_shortest = left_count
@@ -99,34 +114,22 @@ class HostileEnemy(BaseAI):
                 if facing_right > 5:
                     facing_right = 0
                 right_x, right_y = get_neighbor(self.entity.x, self.entity.y, facing_right)
-                right_current = sail_distance_map.get((right_x, right_y))
+                right_current = distance_map.get((right_x, right_y))
                 if right_current is not None \
                         and right_current == shortest_dist:
                     right_shortest = right_count
                 
             if left_shortest == right_shortest:
                 # rotate randomly
-                # print("{} rotates randomly".format(self.entity.name))
                 return RotateAction(self.entity, choice([-1, 1])).perform()
             elif left_shortest < right_shortest:
                 return RotateAction(self.entity, -1).perform()
             elif right_shortest < left_shortest:
                 return RotateAction(self.entity, 1).perform()
-
-            # TODO - this code never gets reached... currently AI just circles the target for some reason...
-            #       which is fine :)  FEATURE > BUG, right??
-            # print("({}, {}) -> ({}, {})".format(self.entity.x, self.entity.y,
-            #                                     self.current_target_x, self.current_target_y))
-            # if ((self.engine.player.x, self.engine.player.y) not in self.entity.view.fov) \
-            #         and (self.current_target_x == self.entity.x) \
-            #         and (self.current_target_y == self.entity.y):
-            #     self.current_target_x = None
-            #     self.current_target_y = None
-            #     print("{} stops following you".format(self.entity.name))
-
-        # self.current_target_x = None
-        # self.current_target_y = None
-        # print("{} wanders...".format(self.entity.name))
+        
+        # this is hit if current_target_x / and _y are None
+        assert self.current_target_x is None
+        assert self.current_target_y is None
         decision = randint(-1, 1)
         if decision in [-1, 1]:
             return RotateAction(self.entity, decision).perform()
