@@ -159,8 +159,8 @@ class GameMap:
                     main_display.blit(fog_of_war, map_to_surface_coords_terrain(x, y))
 
         for entity in self.entities:
-            # if (entity.x, entity.y) in self.engine.player.view.fov:
-            main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
+            if (entity.x, entity.y) in self.engine.player.view.fov:
+                main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
                                   map_to_surface_coords_entities(entity.x, entity.y))
 
     def get_path(self, x1: int, y1: int, x2: int, y2: int, flying: bool = False) -> List[Tuple[int, int]]:
