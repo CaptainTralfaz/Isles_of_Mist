@@ -31,7 +31,7 @@ class Fighter(BaseComponent):
             self.engine.event_handler = GameOverEventHandler(self.engine)
         else:
             death_message = f"{self.parent.name} is dead!"
-            if self.game_map.terrain[self.parent.x][self.parent.y].elevation < Elevation.SHALLOWS:
+            if self.game_map.terrain[self.parent.x][self.parent.y].elevation < Elevation.BEACH:
                 self.parent.icon = "carcass"
             else:
                 self.parent.icon = None
