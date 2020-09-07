@@ -166,7 +166,8 @@ class GameMap:
         )
         
         for entity in entities_sorted_for_rendering:
-            if (entity.x, entity.y) in self.engine.player.view.fov:
+            if (entity.x, entity.y) in self.engine.player.view.fov \
+                    and entity.icon is not None:
                 main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
                                   map_to_surface_coords_entities(entity.x, entity.y))
     
@@ -260,6 +261,13 @@ class GameMap:
                     and self.terrain[neighbor_hex.col][neighbor_hex.row].elevation < Elevation.BEACH:
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
+    
+    def get_targets_at_location(self, x: int, y: int) -> List[Actor]:
+        targets = []
+        for entity in self.entities:
+            if entity.x == x and entity.y == y and entity.is_alive:
+                targets.append(entity)
+        return targets
 
 
 # TODO magic numbers

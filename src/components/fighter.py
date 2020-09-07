@@ -1,5 +1,6 @@
 from components.base import BaseComponent
 from entity import Actor
+from game_map import Elevation
 from input_handlers import GameOverEventHandler
 from render_functions import RenderOrder
 
@@ -30,12 +31,16 @@ class Fighter(BaseComponent):
             self.engine.event_handler = GameOverEventHandler(self.engine)
         else:
             death_message = f"{self.parent.name} is dead!"
-            self.parent.icon = "carcass"
+            if self.game_map.terrain[self.parent.x][self.parent.y].elevation < Elevation.SHALLOWS:
+                self.parent.icon = "carcass"
+            else:
+                self.parent.icon = None
         
         self.parent.facing = 0
         self.parent.ai = None
         self.parent.name = f"remains of {self.parent.name}"
         self.parent.render_order = RenderOrder.CORPSE
         self.parent.view.distance = 0
+        self.parent.flying = False
         
         print(death_message)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from random import randint
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -111,5 +111,45 @@ class MeleeAction(Action):
         
         else:
             print(f"{attack_desc} but does no damage.")
-        
         return True
+
+
+class SplitDamageAction(Action):
+    def __init__(self, entity: Actor, targets: List[Actor]):
+        super().__init__(entity)
+        self.targets = targets
+    
+    def perform(self) -> bool:
+        if len(self.targets) > 0:
+            split_damage = self.entity.fighter.power // len(self.targets)
+            for target in self.targets:
+                damage = split_damage - target.fighter.defense
+                
+                attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+                if damage > 0:
+                    print(f"{attack_desc} for {damage} hit points.")
+                    target.fighter.hp -= damage
+                    print(f"{target.fighter.hp}/{target.fighter.max_hp}")
+                
+                else:
+                    print(f"{attack_desc} but does no damage.")
+            return True
+        print("No Targets")
+        return False
+
+
+class ArrowAction(SplitDamageAction):
+    def __init__(self, entity: Actor):
+        self.entity = entity
+        targets = []
+        neighbor_tiles = self.engine.game_map.get_neighbors(self.entity.x, self.entity.y)
+        neighbor_tiles.append((entity.x, entity.y))
+        for tile_x, tile_y in neighbor_tiles:
+            targets.extend(self.engine.game_map.get_targets_at_location(tile_x, tile_y))
+        if self.entity in targets:
+            targets.remove(self.entity)
+        print(f"length of targets list: {len(targets)}")
+        super().__init__(entity, targets)
+    
+    def perform(self) -> bool:
+        return super().perform()
