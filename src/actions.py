@@ -100,9 +100,7 @@ class MeleeAction(Action):
         return self.engine.player
     
     def perform(self) -> bool:
-        
         damage = self.entity.fighter.power - self.target.fighter.defense
-        
         attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}"
         if damage > 0:
             print(f"{attack_desc} for {damage} hit points.")
@@ -148,7 +146,6 @@ class ArrowAction(SplitDamageAction):
             targets.extend(self.engine.game_map.get_targets_at_location(tile_x, tile_y))
         if self.entity in targets:
             targets.remove(self.entity)
-        print(f"length of targets list: {len(targets)}")
         super().__init__(entity, targets)
     
     def perform(self) -> bool:
