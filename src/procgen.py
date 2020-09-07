@@ -1,15 +1,25 @@
-from game_map import GameMap, get_hex_water_neighbors
-from tile import Elevation, tile_size, Terrain
-from typing import Set, List, Tuple
+from __future__ import annotations
+
+from math import pow
 from queue import Queue
 from random import randint, random, choice
-from math import pow
+from typing import List, Tuple
+from typing import TYPE_CHECKING
+
 from opensimplex import OpenSimplex
+
 import entity_factory
+from game_map import GameMap
+from tile import Elevation, Terrain
+
+if TYPE_CHECKING:
+    from engine import Engine
 
 
-def generate_map(map_width: int, map_height: int, entities: Set) -> GameMap:
-    island_map = GameMap(map_width, map_height, entities)
+def generate_map(map_width: int, map_height: int, engine: Engine) -> GameMap:
+    player = engine.player
+    
+    island_map = GameMap(engine, map_width, map_height, entities=[player])
     # noise_map = [[0.0 for y in range(map_height)] for x in range(map_width)]
     
     center_x = (map_width - 1) / 2.0
@@ -38,39 +48,30 @@ def generate_map(map_width: int, map_height: int, entities: Set) -> GameMap:
             x_ratio = 1 - pow(x_dist / center_x, rand_pow_x)
             y_ratio = 1 - pow(y_dist / center_y, rand_pow_y)
             ratio = min(x_ratio, y_ratio)
-
+            
             # noise_map[x][y] = ratio
             
             height = round(256 * elevation * ratio)
             if height < 100:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN, explored=False)
             elif height < 125:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER, explored=False)
             elif height < 150:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS, explored=False)
             elif height < 160:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH, explored=False)
             elif height < 170:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS, explored=False)
             elif height < 200:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE, explored=False)
             elif height < 210:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN, explored=False)
             else:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=True)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=False)
     
-    # generate monsters here, add to entities list
-    monster_count = (map_width * map_height) // 50
-    for i in range(monster_count):
-        rnd = random()
-        if rnd < .4:
-            entity_factory.turtle.spawn(island_map, 0, 0)
-        elif rnd < .7:
-            entity_factory.bat.spawn(island_map, 0, 0)
-        else:
-            entity_factory.serpent.spawn(island_map, 0, 0)
-    
-    place_entities(island_map)
+    player_x, player_y = place_entities(island_map)
+    player.place(player_x, player_y, island_map)
+    player.view.set_fov()
     
     return island_map
 
@@ -80,14 +81,24 @@ def noise(gen, nx, ny):
     return gen.noise2d(nx, ny) / 2.0 + 0.5
 
 
-def place_entities(island_map: GameMap) -> None:
+def place_entities(island_map: GameMap) -> Tuple[int, int]:
     water = explore_water_iterative(island_map, 0, 0)
-    for entity in island_map.entities:
-        water_tile = choice(water)
-        water.remove(water_tile)
-        entity.x = water_tile[0] * tile_size
-        entity.y = water_tile[1] * tile_size
-        entity.facing = randint(0, 5)
+    
+    for entity in range((island_map.width * island_map.height) // 50):
+        (x, y) = choice(water)
+        water.remove((x, y))
+        # generate monsters here, add to entities list
+        rnd = random()
+        if rnd < .4:
+            turtle = entity_factory.turtle.spawn(island_map, x, y, randint(0, 5))
+            turtle.view.set_fov()
+        elif rnd < .7:
+            bat = entity_factory.bat.spawn(island_map, x, y, randint(0, 5))
+            bat.view.set_fov()
+        else:
+            serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
+            serpent.view.set_fov()
+    return choice(water)
 
 
 def explore_water_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int, int]]:
@@ -105,11 +116,8 @@ def explore_water_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int
     while not frontier.empty():
         current = frontier.get()
         x, y = current
-        for neighbor in get_hex_water_neighbors(game_map=game_map, x=x, y=y):
+        for neighbor in game_map.get_water_neighbors(x=x, y=y):
             if neighbor not in visited:
                 frontier.put(neighbor)
                 visited.append(neighbor)
     return visited
-
-
-
