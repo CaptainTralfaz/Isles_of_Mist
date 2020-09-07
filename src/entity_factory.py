@@ -1,9 +1,9 @@
 from pygame import image
 
-from entity import Actor
 from components.ai import NeutralEnemy, HostileEnemy
 from components.fighter import Fighter
 from components.view import View
+from entity import Actor
 
 player_image = image.load("assets/ship_icon.png")
 turtle_image = image.load("assets/turtle.png")

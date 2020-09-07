@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from random import randint, choice
+from typing import TYPE_CHECKING
+
 from actions import Action, WaitAction, RotateAction, MovementAction
 from utilities import get_distance, get_neighbor
 
@@ -38,7 +39,7 @@ class HostileEnemy(BaseAI):
         super().__init__(entity)
         self.current_target_x = None
         self.current_target_y = None
-
+    
     def perform(self) -> bool:
         """
         Hostile entity will wander randomly until player is spotted, making that location its target
@@ -52,16 +53,16 @@ class HostileEnemy(BaseAI):
             print("{} updating target: ({}, {})".format(self.entity.name, self.engine.player.x, self.engine.player.y))
             self.current_target_x = self.engine.player.x
             self.current_target_y = self.engine.player.y
-
+            
             distance = get_distance(self.entity.x, self.entity.y, self.current_target_x, self.current_target_y)
             # melee attack if close enough
             if distance < 2:
                 print("{} bites you!".format(self.entity.name))
                 return True  # return MeleeAction(self.entity, self.target).perform()
-
+        
         # have a target location: find path, then move or rotate
         if self.current_target_x is not None and self.current_target_y is not None:
-
+            
             if self.entity.flying:
                 distance_map = self.engine.game_map.gen_flying_distance_map(self.current_target_x,
                                                                             self.current_target_y)
@@ -73,7 +74,7 @@ class HostileEnemy(BaseAI):
             shortest_dist_coords = []
             shortest_dist = get_distance(self.entity.x, self.entity.y,
                                          self.current_target_x, self.current_target_y)
-
+            
             # print(neighbors)
             for neighbor in neighbors:
                 neighbor_dist = distance_map.get((neighbor[0], neighbor[1]))
@@ -118,7 +119,7 @@ class HostileEnemy(BaseAI):
                 if right_current is not None \
                         and right_current == shortest_dist:
                     right_shortest = right_count
-                
+            
             if left_shortest == right_shortest:
                 # rotate randomly
                 return RotateAction(self.entity, choice([-1, 1])).perform()

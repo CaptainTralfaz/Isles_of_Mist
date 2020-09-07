@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from queue import Queue
 from typing import Iterable, List, Tuple, TYPE_CHECKING
 
 from pygame import display, image, font
-from queue import Queue
 
 from entity_factory import images
 from render_functions import get_rotated_image
@@ -58,11 +58,11 @@ class GameMap:
         center_coords = hex_to_cube(hexagon=Hex(column=x, row=y))
         viewed_hexes.append(Hex(column=x, row=y))
         current = center_coords
-    
+        
         # set up starting cube
         for k in range(0, distance):
             current = cube_neighbor(cube=current, direction=4)
-    
+        
         for i in range(0, 6):
             for j in range(0, distance):
                 cube_line = cube_line_draw(cube1=center_coords, cube2=current)
@@ -78,46 +78,46 @@ class GameMap:
                     if self.in_bounds(hx.col, hx.row) \
                             and self.terrain[hx.col][hx.row].elevation <= Elevation.SHALLOWS:
                         previous_elevation = Elevation.OCEAN
-                        
+                    
                     if hx not in viewed_hexes[1:]:
                         viewed_hexes.append(hx)
-                        
-                current = cube_neighbor(current, i)
                 
+                current = cube_neighbor(current, i)
+        
         viewed = []
         for tile in viewed_hexes:
             if (0 <= tile.col < self.width) and (0 <= tile.row < self.height):
                 viewed.append((tile.col, tile.row))
         return set(viewed)
-
+    
     # TODO add FOG LOS BLOCKING
     def get_flying_fov(self, distance, x, y):
         viewed_hexes = []
         center_coords = hex_to_cube(hexagon=Hex(column=x, row=y))
         viewed_hexes.append(Hex(column=x, row=y))
         current = center_coords
-    
+        
         # set up starting cube
         for k in range(0, distance):
             current = cube_neighbor(cube=current, direction=4)
-    
+        
         for i in range(0, 6):
             for j in range(0, distance):
                 cube_line = cube_line_draw(cube1=center_coords, cube2=current)
-            
+                
                 for cube in cube_line:
                     hx = cube_to_hex(cube)
                     if hx not in viewed_hexes[1:]:
                         viewed_hexes.append(hx)
-            
+                
                 current = cube_neighbor(current, i)
-    
+        
         viewed = []
         for tile in viewed_hexes:
             if (0 <= tile.col < self.width) and (0 <= tile.row < self.height):
                 viewed.append((tile.col, tile.row))
         return set(viewed)
-
+    
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
@@ -161,18 +161,18 @@ class GameMap:
             for y in range(self.height):
                 if (x, y) not in self.engine.player.view.fov:
                     main_display.blit(fog_of_war, map_to_surface_coords_terrain(x, y))
-
+        
         for entity in self.entities:
             if (entity.x, entity.y) in self.engine.player.view.fov:
                 main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
                                   map_to_surface_coords_entities(entity.x, entity.y))
-
+    
     def gen_distance_map(self, x: int, y: int, flying: bool = False) -> dict:
         if not flying:
             return self.gen_sail_distance_map(x, y)
         else:
             return self.gen_flying_distance_map(x, y)
-        
+    
     def gen_sail_distance_map(self, x: int, y: int) -> dict:
         sail_map = self.gen_sail_path_map(x, y)
         distance_sail_map = dict()
@@ -190,11 +190,11 @@ class GameMap:
                 if path:
                     distance_sail_map[(w, h)] = len(path)
         return distance_sail_map
-
+    
     def gen_flying_distance_map(self, x: int, y: int) -> dict:
         flying_map = self.gen_flying_path_map(x, y)
         distance_flying_map = dict()
-    
+        
         for w in range(self.width):
             for h in range(self.height):
                 path = []
@@ -208,7 +208,7 @@ class GameMap:
                 if path:
                     distance_flying_map[(w, h)] = len(path)
         return distance_flying_map
-
+    
     def gen_sail_path_map(self, x: int, y: int) -> dict:
         frontier = Queue()
         frontier.put((x, y))
@@ -223,13 +223,13 @@ class GameMap:
                     frontier.put(neighbor)
                     came_from[(neighbor[0], neighbor[1])] = current
         return came_from
-        
+    
     def gen_flying_path_map(self, x: int, y: int) -> dict:
         frontier = Queue()
         frontier.put((x, y))
         came_from = dict()
         came_from[(x, y)] = None
-    
+        
         while not frontier.empty():
             current = frontier.get()
             x, y = current
@@ -238,7 +238,7 @@ class GameMap:
                     frontier.put(neighbor)
                     came_from[(neighbor[0], neighbor[1])] = current
         return came_from
-
+    
     def get_neighbors(self, x, y) -> List[Tuple[int, int]]:
         neighbors = []
         for direction in cube_directions:
@@ -247,7 +247,7 @@ class GameMap:
             if self.in_bounds(neighbor_hex.col, neighbor_hex.row):
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
-
+    
     def get_water_neighbors(self, x: int, y: int) -> List[Tuple[int, int]]:
         neighbors = []
         for direction in cube_directions:
@@ -275,5 +275,3 @@ def map_to_surface_coords_entities(x: int, y: int) -> Tuple[int, int]:
     half_hex_terrain_height = 16
     return (x * tile_size - half_terrain_overlap,
             y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height)
-
-

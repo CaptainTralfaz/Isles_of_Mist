@@ -12,12 +12,12 @@ class Action:
     
     def __init__(self, entity: Actor):
         self.entity = entity
-
+    
     @property
     def engine(self) -> Engine:
         """Return engine for this action"""
         return self.entity.parent.engine
-
+    
     def perform(self) -> bool:
         """Perform this action with the objects needed to determine its scope.
         `self.engine` is the scope this action is being performed in.
@@ -34,6 +34,7 @@ class Action:
 
 class ActionQuit(Action):
     """Action that quits the game"""
+    
     def perform(self) -> None:
         raise SystemExit()
 
@@ -42,7 +43,7 @@ class WaitAction(Action):
     def __init__(self, entity):
         super().__init__(entity)
         self.entity = entity
-
+    
     def perform(self) -> bool:
         print("{} waits...".format(self.entity.name))
         return True

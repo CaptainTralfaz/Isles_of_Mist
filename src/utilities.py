@@ -95,7 +95,7 @@ def get_neighbor(x: int, y: int, direction: int) -> Tuple[int, int]:
     neighbor = cube_to_hex(cube_neighbor(hex_to_cube(Hex(x, y)), direction))
     return (neighbor.col, neighbor.row)
 
-    
+
 def cube_distance(cube1: Cube, cube2: Cube) -> int:
     """
     Distance between two tiles in cubic coordinates
@@ -165,5 +165,3 @@ def cube_lerp(a: Cube, b: Cube, t) -> Cube:
     cubic line drawing helper
     """
     return Cube(x=lerp(a.x, b.x, t), y=lerp(a.y, b.y, t), z=lerp(a.z, b.z, t))
-
-

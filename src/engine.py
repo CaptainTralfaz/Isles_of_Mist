@@ -7,7 +7,7 @@ from pygame import Surface
 from input_handlers import MainEventHandler
 
 if TYPE_CHECKING:
-    from entity import Entity, Actor
+    from entity import Actor
     from game_map import GameMap
 
 
@@ -17,7 +17,7 @@ class Engine:
     def __init__(self, player: Actor):
         self.event_handler: MainEventHandler = MainEventHandler(self)
         self.player = player
-
+    
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             if entity.ai:

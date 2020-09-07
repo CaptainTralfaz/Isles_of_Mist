@@ -10,7 +10,7 @@ class Fighter(BaseComponent):
         self._hp = hp
         self.defense = defense
         self.power = power
-        
+    
     @property
     def hp(self) -> int:
         return self._hp

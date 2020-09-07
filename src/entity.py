@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from components.ai import BaseAI
     from components.fighter import Fighter
     from components.view import View
-    
+
 T = TypeVar("T", bound="Entity")
 
 
@@ -22,24 +22,22 @@ class Entity:
     
     def __init__(self, x: int,
                  y: int,
-                 facing: int,
                  icon: str,
                  parent: Optional[GameMap] = None,
                  name: str = "<Unnamed>"):
         self.x = x
         self.y = y
-        self.facing = facing  # TODO move to Actor
         self.icon = icon
         self.name = name
         if parent:
             self.parent = parent
             parent.entities.add(self)
-
+    
     @property
     def game_map(self) -> GameMap:
         return self.parent.game_map
     
-    def spawn(self: T, game_map: GameMap, x: int, y: int, facing: int) -> T:
+    def spawn(self: T, game_map: GameMap, x: int, y: int, facing: int = None) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
         clone.x = x
@@ -48,7 +46,7 @@ class Entity:
         clone.parent = game_map
         game_map.entities.add(clone)
         return clone
-        
+    
     def place(self, x: int, y: int, game_map: Optional[GameMap] = None) -> None:
         """Place this entity at a new location.  Handles moving across GameMaps."""
         self.x = x
@@ -75,38 +73,37 @@ class Actor(Entity):
         super().__init__(
             x=x,
             y=y,
-            facing=facing,
             icon=icon,
             name=name,
         )
-
+        
         self.ai: Optional[BaseAI] = ai_cls(self)
         self.fighter = fighter
         self.fighter.parent = self
         self.view = view
         self.view.parent = self
         self.flying = flying
-        
+        self.facing = facing
+    
     @property
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
-
+    
     def move(self) -> None:
         old_cube = hex_to_cube(Hex(self.x, self.y))
         new_hex = cube_to_hex(cube_neighbor(old_cube, self.facing))
         self.x = new_hex.col
         self.y = new_hex.row
-
+    
     def rotate(self, direction: int):
         self.facing += direction
         if self.facing >= len(direction_angle):
             self.facing = 0
         elif self.facing < 0:
             self.facing = len(direction_angle) - 1
-
+    
     def get_next_hex(self):
         old_cube = hex_to_cube(Hex(self.x, self.y))
         new_hex = cube_to_hex(cube_neighbor(old_cube, self.facing))
         return new_hex.col, new_hex.row
-

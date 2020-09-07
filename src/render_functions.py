@@ -14,7 +14,6 @@ def rot_center(image: Surface, angle: int) -> Surface:
     :param image: Surface icon
     :param angle: how much to rotate image
     :return: rotated icon as a Surface
-
     """
     orig_rect = image.get_rect()
     rot_image = transform.rotate(image, 360 - angle)  # 360 converts to clockwise
