@@ -5,13 +5,12 @@ from typing import Iterable, List, Tuple, TYPE_CHECKING
 
 from pygame import display, image, font
 
-from entity_factory import images
 from render_functions import get_rotated_image
 from tile import Elevation, Terrain, tile_size
-from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
+from utilities import images, Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
 
 if TYPE_CHECKING:
-    from entity import Entity
+    from entity import Actor
     from engine import Engine
 
 font.init()
@@ -30,7 +29,7 @@ fog_of_war = image.load("assets/fog_of_war.png")
 
 
 class GameMap:
-    def __init__(self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = (), terrain=None):
+    def __init__(self, engine: Engine, width: int, height: int, entities: Iterable[Actor] = (), terrain=None):
         """
         The GameMap object, which holds the game map, map width, map height, tile information
         :param width: width of the game map
@@ -162,7 +161,11 @@ class GameMap:
                 if (x, y) not in self.engine.player.view.fov:
                     main_display.blit(fog_of_war, map_to_surface_coords_terrain(x, y))
         
-        for entity in self.entities:
+        entities_sorted_for_rendering = sorted(
+            self.entities, key=lambda i: i.render_order.value
+        )
+        
+        for entity in entities_sorted_for_rendering:
             if (entity.x, entity.y) in self.engine.player.view.fov:
                 main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
                                   map_to_surface_coords_entities(entity.x, entity.y))

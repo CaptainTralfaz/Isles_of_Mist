@@ -1,3 +1,5 @@
+from enum import auto, Enum
+
 import pygame.transform as transform
 from pygame import Surface
 
@@ -21,3 +23,10 @@ def rot_center(image: Surface, angle: int) -> Surface:
     rot_rect.center = rot_image.get_rect().center
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
+
+
+class RenderOrder(Enum):
+    CORPSE = auto()
+    FLOATER = auto()
+    SWIMMER = auto()
+    FLYER = auto()

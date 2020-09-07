@@ -17,8 +17,6 @@ class View(BaseComponent):
         """
         :return: Nothing - modify current map
         """
-        
-        # TODO else flying
         if self.parent.flying:
             visible_tiles = self.parent.game_map.get_flying_fov(self.distance, self.parent.x, self.parent.y)
         else:

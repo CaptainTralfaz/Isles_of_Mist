@@ -1,5 +1,7 @@
 from components.base import BaseComponent
 from entity import Actor
+from input_handlers import GameOverEventHandler
+from render_functions import RenderOrder
 
 
 class Fighter(BaseComponent):
@@ -17,4 +19,23 @@ class Fighter(BaseComponent):
     
     @hp.setter
     def hp(self, value: int) -> None:
-        self._hp - max(0, min(value, self.max_hp))
+        self._hp = max(0, min(value, self.max_hp))
+        if self._hp == 0 and self.parent.ai:
+            self.die()
+    
+    def die(self) -> None:
+        if self.engine.player is self.parent:
+            death_message = "You died!"
+            self.parent.icon = "sunken_ship"
+            self.engine.event_handler = GameOverEventHandler(self.engine)
+        else:
+            death_message = f"{self.parent.name} is dead!"
+            self.parent.icon = "carcass"
+        
+        self.parent.facing = 0
+        self.parent.ai = None
+        self.parent.name = f"remains of {self.parent.name}"
+        self.parent.render_order = RenderOrder.CORPSE
+        self.parent.view.distance = 0
+        
+        print(death_message)

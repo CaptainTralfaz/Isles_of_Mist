@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from random import randint
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -42,7 +43,6 @@ class ActionQuit(Action):
 class WaitAction(Action):
     def __init__(self, entity):
         super().__init__(entity)
-        self.entity = entity
     
     def perform(self) -> bool:
         print("{} waits...".format(self.entity.name))
@@ -52,12 +52,6 @@ class WaitAction(Action):
 class MovementAction(Action):
     def __init__(self, entity):
         super().__init__(entity)
-        self.entity = entity
-    
-    @property
-    def engine(self) -> Engine:
-        """Return the engine for this action"""
-        return self.entity.parent.engine
     
     def perform(self) -> bool:
         x, y = self.entity.get_next_hex()
@@ -76,14 +70,46 @@ class MovementAction(Action):
 class RotateAction(Action):
     def __init__(self, entity, direction):
         super().__init__(entity)
-        self.entity = entity
         self.direction = direction
-    
-    @property
-    def engine(self) -> Engine:
-        """Return the engine for this action"""
-        return self.entity.game_map.engine
     
     def perform(self) -> bool:
         self.entity.rotate(self.direction)
+        return True
+
+
+class WanderAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        decision = randint(-1, 1)
+        if decision in [-1, 1]:
+            return RotateAction(self.entity, decision).perform()
+        elif decision == 0:
+            return MovementAction(self.entity).perform()
+        else:
+            return WaitAction(self.entity).perform()
+
+
+class MeleeAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+    
+    @property
+    def target(self) -> Optional[Actor]:
+        return self.engine.player
+    
+    def perform(self) -> bool:
+        
+        damage = self.entity.fighter.power - self.target.fighter.defense
+        
+        attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}"
+        if damage > 0:
+            print(f"{attack_desc} for {damage} hit points.")
+            self.target.fighter.hp -= damage
+            print(f"{self.target.fighter.hp}/{self.target.fighter.max_hp}")
+        
+        else:
+            print(f"{attack_desc} but does no damage.")
+        
         return True

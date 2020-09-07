@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from random import randint, choice
+from random import choice
 from typing import TYPE_CHECKING
 
-from actions import Action, WaitAction, RotateAction, MovementAction
+from actions import Action, MeleeAction, RotateAction, MovementAction, WanderAction
 from utilities import get_distance, get_neighbor
 
 if TYPE_CHECKING:
@@ -20,18 +20,11 @@ class NeutralEnemy(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)
     
-    # Wander Action
     def perform(self) -> bool:
-        decision = randint(-1, 1)
         target = self.engine.player
         if (target.x, target.y) in self.entity.view.fov:
-            print("{} says HI".format(self.entity.name))
-        if decision in [-1, 1]:
-            return RotateAction(self.entity, decision).perform()
-        elif decision == 0:
-            return MovementAction(self.entity).perform()
-        else:
-            return WaitAction(self.entity).perform()
+            print(f"{self.entity.name} says HI")
+        return WanderAction(self.entity).perform()
 
 
 class HostileEnemy(BaseAI):
@@ -50,15 +43,14 @@ class HostileEnemy(BaseAI):
         """
         # in view, set new target location
         if (self.engine.player.x, self.engine.player.y) in self.entity.view.fov:
-            print("{} updating target: ({}, {})".format(self.entity.name, self.engine.player.x, self.engine.player.y))
+            print(f"{self.entity.name} updating target: ({self.engine.player.x}, {self.engine.player.y})")
             self.current_target_x = self.engine.player.x
             self.current_target_y = self.engine.player.y
             
             distance = get_distance(self.entity.x, self.entity.y, self.current_target_x, self.current_target_y)
             # melee attack if close enough
             if distance < 2:
-                print("{} bites you!".format(self.entity.name))
-                return True  # return MeleeAction(self.entity, self.target).perform()
+                return MeleeAction(self.entity).perform()
         
         # have a target location: find path, then move or rotate
         if self.current_target_x is not None and self.current_target_y is not None:
@@ -128,13 +120,9 @@ class HostileEnemy(BaseAI):
             elif right_shortest < left_shortest:
                 return RotateAction(self.entity, 1).perform()
         
-        # this is hit if current_target_x / and _y are None
+        # this is hit if current_target_x and current_target_y are None
+        # currently, this is never reset - enemies are unable to actually reach their target coordinates,
+        #  and will patrol around their target location instead
         assert self.current_target_x is None
         assert self.current_target_y is None
-        decision = randint(-1, 1)
-        if decision in [-1, 1]:
-            return RotateAction(self.entity, decision).perform()
-        elif decision == 0:
-            return MovementAction(self.entity).perform()
-        else:
-            return WaitAction(self.entity).perform()
+        return WanderAction(self.entity).perform()

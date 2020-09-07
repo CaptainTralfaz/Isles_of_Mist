@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 from typing import Optional, Type, TypeVar, TYPE_CHECKING
 
+from render_functions import RenderOrder
 from utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
 
 if TYPE_CHECKING:
@@ -24,11 +25,13 @@ class Entity:
                  y: int,
                  icon: str,
                  parent: Optional[GameMap] = None,
-                 name: str = "<Unnamed>"):
+                 name: str = "<Unnamed>",
+                 render_order: RenderOrder = RenderOrder.FLOATER):
         self.x = x
         self.y = y
         self.icon = icon
         self.name = name
+        self.render_order = render_order
         if parent:
             self.parent = parent
             parent.entities.add(self)
@@ -69,12 +72,14 @@ class Actor(Entity):
                  facing: int = 0,
                  icon: str = "",
                  name: str = "<Unnamed>",
-                 flying: bool = False):
+                 flying: bool = False,
+                 render_order: RenderOrder = RenderOrder.SWIMMER):
         super().__init__(
             x=x,
             y=y,
             icon=icon,
             name=name,
+            render_order=render_order
         )
         
         self.ai: Optional[BaseAI] = ai_cls(self)
@@ -84,6 +89,7 @@ class Actor(Entity):
         self.view.parent = self
         self.flying = flying
         self.facing = facing
+        self.render_order = render_order if not flying else RenderOrder.FLYER
     
     @property
     def is_alive(self) -> bool:

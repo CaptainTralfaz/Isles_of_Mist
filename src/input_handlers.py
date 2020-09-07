@@ -69,3 +69,31 @@ class MainEventHandler(EventHandler):
         
         if response is not None:
             return response
+
+
+class GameOverEventHandler(EventHandler):
+    def handle_events(self):
+        something_happened = False
+        events = pygame.event.get(pump=True)
+        if len(events) > 0:
+            for event in events:
+                action = self.process_event(event)
+                if action is None:
+                    continue
+                try:
+                    something_happened = action.perform()
+                
+                except Exception:
+                    return False
+    
+    def process_event(self, event) -> Optional[Action]:
+        player = self.engine.player
+        response = None
+        if event.type == pygame.QUIT:
+            response = ActionQuit(player)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                response = ActionQuit(player)
+        
+        if response is not None:
+            return response
