@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 import pygame.event
-
-from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, ArrowAction
+import pygame.mouse as mouse
+from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, ArrowAction, MouseMoveAction
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -73,6 +73,9 @@ class MainEventHandler(EventHandler):
             elif event.key == pygame.K_ESCAPE:
                 response = ActionQuit(player)
         
+        if event.type == pygame.MOUSEMOTION:
+            response = MouseMoveAction(player, mouse.get_pos())
+
         if response is not None:
             return response
 

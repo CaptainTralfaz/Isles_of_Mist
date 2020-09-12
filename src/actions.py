@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from random import randint
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, Optional, List, Tuple
+
+from colors import colors
+from utilities import surface_to_map_coords
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -45,7 +48,7 @@ class WaitAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        print("{} waits...".format(self.entity.name))
+        self.engine.message_log.add_message(f"{self.entity.name} waits...")
         return True
 
 
@@ -87,8 +90,6 @@ class WanderAction(Action):
             return RotateAction(self.entity, decision).perform()
         elif decision == 0:
             return MovementAction(self.entity).perform()
-        else:
-            return WaitAction(self.entity).perform()
 
 
 class MeleeAction(Action):
@@ -102,13 +103,14 @@ class MeleeAction(Action):
     def perform(self) -> bool:
         damage = self.entity.fighter.power - self.target.fighter.defense
         attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}"
+        
         if damage > 0:
-            print(f"{attack_desc} for {damage} hit points.")
             self.target.fighter.hp -= damage
-            print(f"{self.target.fighter.hp}/{self.target.fighter.max_hp}")
+
+            self.engine.message_log.add_message(f"{attack_desc} for {damage} hit points.", colors["enemy_atk"])
         
         else:
-            print(f"{attack_desc} but does no damage.")
+            self.engine.message_log.add_message(f"{attack_desc} but does no damage.", colors["enemy_atk"])
         return True
 
 
@@ -125,14 +127,14 @@ class SplitDamageAction(Action):
                 
                 attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
                 if damage > 0:
-                    print(f"{attack_desc} for {damage} hit points.")
                     target.fighter.hp -= damage
-                    print(f"{target.fighter.hp}/{target.fighter.max_hp}")
-                
+                    self.engine.message_log.add_message(f"{attack_desc} for {damage} hit points.",
+                                                        colors["player_atk"])
                 else:
-                    print(f"{attack_desc} but does no damage.")
+                    self.engine.message_log.add_message(f"{attack_desc} but does no damage.",
+                                                        colors["player_atk"])
             return True
-        print("No Targets")
+        self.engine.message_log.add_message("No Targets")
         return False
 
 
@@ -150,3 +152,21 @@ class ArrowAction(SplitDamageAction):
     
     def perform(self) -> bool:
         return super().perform()
+
+
+class MouseMoveAction(Action):
+    def __init__(self, entity: Actor, position: Tuple[int, int]):
+        self.x = position[0]
+        self.y = position[1]
+        super().__init__(entity)
+        
+    @property
+    def position(self):
+        return self.x, self.y
+    
+    def perform(self) -> bool:
+        # print(f"{self.engine.mouse_location} -> {self.position}")
+        self.engine.mouse_location = self.position
+        return False
+        # map_x, map_y = surface_to_map_coords(self.position[0], self.position[1])
+        # print(f"{self.position} -> {map_position}")

@@ -21,9 +21,9 @@ class NeutralEnemy(BaseAI):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        target = self.engine.player
-        if (target.x, target.y) in self.entity.view.fov:
-            print(f"{self.entity.name} says HI")
+        # target = self.engine.player
+        # if (target.x, target.y) in self.entity.view.fov:
+        #     print(f"{self.entity.name} says HI")
         return WanderAction(self.entity).perform()
 
 
@@ -43,7 +43,7 @@ class HostileEnemy(BaseAI):
         """
         # in view, set new target location
         if (self.engine.player.x, self.engine.player.y) in self.entity.view.fov:
-            print(f"{self.entity.name} updating target: ({self.engine.player.x}, {self.engine.player.y})")
+            # print(f"{self.entity.name} updating target: ({self.engine.player.x}, {self.engine.player.y})")
             self.current_target_x = self.engine.player.x
             self.current_target_y = self.engine.player.y
             

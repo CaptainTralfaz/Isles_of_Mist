@@ -3,6 +3,7 @@ from entity import Actor
 from game_map import Elevation
 from input_handlers import GameOverEventHandler
 from render_functions import RenderOrder
+from colors import colors
 
 
 class Fighter(BaseComponent):
@@ -29,18 +30,20 @@ class Fighter(BaseComponent):
             death_message = "You died!"
             self.parent.icon = "sunken_ship"
             self.engine.event_handler = GameOverEventHandler(self.engine)
+            death_message_color = colors["player_die"]
         else:
             death_message = f"{self.parent.name} is dead!"
             if self.game_map.terrain[self.parent.x][self.parent.y].elevation < Elevation.BEACH:
                 self.parent.icon = "carcass"
             else:
                 self.parent.icon = None
-        
+            death_message_color = colors["enemy_die"]
+
         self.parent.facing = 0
         self.parent.ai = None
-        self.parent.name = f"remains of {self.parent.name}"
+        self.parent.name = f"{self.parent.name} corpse"
         self.parent.render_order = RenderOrder.CORPSE
         self.parent.view.distance = 0
         self.parent.flying = False
-        
-        print(death_message)
+
+        self.engine.message_log.add_message(death_message, death_message_color)

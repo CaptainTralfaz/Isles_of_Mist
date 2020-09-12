@@ -3,7 +3,7 @@ from __future__ import annotations
 from queue import Queue
 from typing import Iterable, List, Tuple, TYPE_CHECKING
 
-from pygame import display, image, font
+from pygame import display, image
 
 from render_functions import get_rotated_image
 from tile import Elevation, Terrain, tile_size
@@ -12,10 +12,6 @@ from utilities import images, Hex, cube_directions, cube_add, cube_to_hex, hex_t
 if TYPE_CHECKING:
     from entity import Actor
     from engine import Engine
-
-font.init()
-
-game_font = font.Font('freesansbold.ttf', 16)
 
 ocean = image.load("assets/ocean.png")
 water = image.load("assets/water.png")
@@ -262,11 +258,15 @@ class GameMap:
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
     
-    def get_targets_at_location(self, x: int, y: int) -> List[Actor]:
+    def get_targets_at_location(self, x: int, y: int, living_targets: bool = True) -> List[Actor]:
         targets = []
         for entity in self.entities:
-            if entity.x == x and entity.y == y and entity.is_alive:
-                targets.append(entity)
+            if entity.x == x and entity.y == y:
+                if living_targets:
+                    if entity.is_alive:
+                        targets.append(entity)
+                else:
+                    targets.append(entity)
         return targets
 
 
@@ -286,3 +286,5 @@ def map_to_surface_coords_entities(x: int, y: int) -> Tuple[int, int]:
     half_hex_terrain_height = 16
     return (x * tile_size - half_terrain_overlap,
             y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height)
+
+
