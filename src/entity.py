@@ -89,8 +89,13 @@ class Actor(Entity):
         self.view.parent = self
         self.flying = flying
         self.facing = facing
-        self.render_order = render_order if not flying else RenderOrder.FLYER
-    
+        if self.flying:
+            self.render_order = RenderOrder.FLYER
+        elif self.name == "Player":
+            self.render_order = RenderOrder.PLAYER
+        else:
+            self.render_order = RenderOrder.SWIMMER
+
     @property
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""

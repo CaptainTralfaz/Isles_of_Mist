@@ -183,3 +183,15 @@ def cube_lerp(a: Cube, b: Cube, t) -> Cube:
     cubic line drawing helper
     """
     return Cube(x=lerp(a.x, b.x, t), y=lerp(a.y, b.y, t), z=lerp(a.z, b.z, t))
+
+
+# TODO this will need to change when camera changes - or add boundaries
+def surface_to_map_coords(x: int, y: int) -> Tuple[int, int]:
+    terrain_overlap = 10
+    half_hex_terrain_height = 16
+    half_hex_terrain_width = 16
+    x_grid = (x + terrain_overlap // 2) // 32
+    y_grid = ((y + half_hex_terrain_height) - (x_grid % 2) * half_hex_terrain_width) // 32
+    return x_grid, y_grid
+
+
