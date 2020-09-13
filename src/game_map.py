@@ -286,5 +286,3 @@ def map_to_surface_coords_entities(x: int, y: int) -> Tuple[int, int]:
     half_hex_terrain_height = 16
     return (x * tile_size - half_terrain_overlap,
             y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height)
-
-

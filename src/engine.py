@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
+from custom_exceptions import Impossible
 from input_handlers import MainEventHandler
-from render_functions import render_bar, render_entity_info
 from message_log import MessageLog
+from render_functions import render_bar, render_entity_info
 from tile import tile_size
 
 if TYPE_CHECKING:
@@ -22,26 +23,32 @@ class Engine:
         self.player = player
         self.mouse_location = (0, 0)
         self.message_log = MessageLog()
-
+    
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             if entity.ai:
-                entity.ai.perform()
+                try:
+                    entity.ai.perform()
+                except Impossible:
+                    pass
     
     def render(self, main_surface: Surface) -> None:
-        self.game_map.render(main_surface)
-
+        self.game_map.render(main_display=main_surface)
+        
         self.message_log.render(console=main_surface,
                                 x=0,
                                 y=self.game_map.height * tile_size - 16,
                                 width=self.game_map.width * tile_size - 10,
                                 height=8)
         
-        health_bar = render_bar("Hull Points", self.player.fighter.hp, self.player.fighter.max_hp, 200)
-        main_surface.blit(health_bar, (10, 10))
+        health_bar = render_bar(f"{self.player.fighter.name.capitalize()} Points",
+                                self.player.fighter.hp,
+                                self.player.fighter.max_hp,
+                                200)
+        main_surface.blit(health_bar, (10, 300))
         
-        render_entity_info(main_surface,
-                           self.game_map,
-                           self.player.view.fov,
-                           self.mouse_location[0],
-                           self.mouse_location[1])
+        render_entity_info(console=main_surface,
+                           game_map=self.game_map,
+                           fov=self.player.view.fov,
+                           mouse_x=self.mouse_location[0],
+                           mouse_y=self.mouse_location[1])

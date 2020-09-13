@@ -2,8 +2,9 @@
 import copy
 
 import pygame
-from colors import colors
+
 import entity_factory
+from colors import colors
 from engine import Engine
 from procgen import generate_map
 from tile import tile_size
@@ -34,7 +35,7 @@ def main() -> None:
     engine = Engine(player=player)
     
     engine.game_map = generate_map(map_width, map_height, engine=engine)
-
+    
     engine.message_log.add_message(
         "Hello and welcome, adventurer, to yet another dungeon!", colors["welcome_text"]
     )
@@ -44,10 +45,10 @@ def main() -> None:
         
         except SystemExit:
             should_quit = True
-
+        
         engine.render(main_surface=game_display)
         pygame.display.flip()
-
+    
     pygame.quit()
 
 

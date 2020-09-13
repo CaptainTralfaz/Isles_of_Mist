@@ -111,7 +111,7 @@ def cube_neighbor(cube: Cube, direction: int) -> Cube:
 
 def get_neighbor(x: int, y: int, direction: int) -> Tuple[int, int]:
     neighbor = cube_to_hex(cube_neighbor(hex_to_cube(Hex(x, y)), direction))
-    return (neighbor.col, neighbor.row)
+    return neighbor.col, neighbor.row
 
 
 def cube_distance(cube1: Cube, cube2: Cube) -> int:
@@ -193,5 +193,3 @@ def surface_to_map_coords(x: int, y: int) -> Tuple[int, int]:
     x_grid = (x + terrain_overlap // 2) // 32
     y_grid = ((y + half_hex_terrain_height) - (x_grid % 2) * half_hex_terrain_width) // 32
     return x_grid, y_grid
-
-

@@ -1,5 +1,5 @@
-from typing import List, Reversible, Tuple
 import textwrap
+from typing import Iterable, List, Reversible, Tuple
 
 from pygame import Surface
 
@@ -13,7 +13,7 @@ class Message:
         self.plain_text = text
         self.color = color
         self.count = 1
-
+    
     @property
     def full_text(self) -> str:
         """The full text of this message, including the count if necessary."""
@@ -25,9 +25,9 @@ class Message:
 class MessageLog:
     def __init__(self) -> None:
         self.messages: List[Message] = []
-
+    
     def add_message(
-        self, text: str, text_color: Tuple[int, int, int] = colors["white"], *, stack: bool = True,
+            self, text: str, text_color: Tuple[int, int, int] = colors["white"], *, stack: bool = True,
     ) -> None:
         """Add a message to this log.
         `text` is the message text, `fg` is the text color.
@@ -38,9 +38,9 @@ class MessageLog:
             self.messages[-1].count += 1
         else:
             self.messages.append(Message(text, text_color))
-
+    
     def render(
-        self, console: Surface, x: int, y: int, width: int, height: int,
+            self, console: Surface, x: int, y: int, width: int, height: int,
     ) -> None:
         """Render this log over the given area.
         `x`, `y`, `width`, `height` is the rectangular region to render onto
@@ -54,24 +54,33 @@ class MessageLog:
         render_border(message_surf, colors['white'])
         self.render_messages(message_surf, x, panel_height - 10, width - 10, height, self.messages)
         console.blit(message_surf, (0, screen_height - panel_height))
-
+    
     @staticmethod
+    def wrap(string: str, width: int) -> Iterable[str]:
+        """Return a wrapped text message."""
+        for line in string.splitlines():  # Handle newlines in messages.
+            yield from textwrap.wrap(
+                line, width, expand_tabs=True,
+            )
+    
+    @classmethod
     def render_messages(
-        message_surf: Surface,
-        x: int,
-        y: int,
-        width: int,
-        height: int,  # height in messages
-        messages: Reversible[Message],
+            cls,
+            message_surf: Surface,
+            x: int,
+            y: int,
+            width: int,
+            height: int,  # height in messages
+            messages: Reversible[Message],
     ) -> Surface:
         """Render the messages provided.
         The `messages` are rendered starting at the last message and working
         backwards.
         """
         y_offset = 1
-
+        
         for message in reversed(messages):
-            for line in reversed(textwrap.wrap(message.full_text, width)):
+            for line in reversed(list(cls.wrap(message.full_text, width))):
                 message_surf.blit(game_font.render(f"{line}", True, message.color),
                                   (x + 5, y + 5 - y_offset * game_font.get_height()))
                 y_offset += 1

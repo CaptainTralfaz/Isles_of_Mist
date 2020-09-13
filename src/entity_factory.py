@@ -11,7 +11,8 @@ player = Actor(x=0,
                ai_cls=NeutralEnemy,
                fighter=Fighter(hp=20,
                                defense=2,
-                               power=5),
+                               power=5,
+                               name="hull"),
                view=View(5))
 
 turtle = Actor(x=0,
