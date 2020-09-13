@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from random import randint
+from random import randint, choice
 from typing import TYPE_CHECKING, Optional, List, Tuple
 
 from colors import colors
-from utilities import surface_to_map_coords
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -67,7 +67,11 @@ class MovementAction(Action):
                 self.entity.move()
                 self.entity.view.set_fov()
                 return True
-        return False
+            elif self.entity == self.engine.player:
+                raise Impossible("Blocked")
+            else:
+                print(f"{self.entity.name} is blocked")
+                return False
 
 
 class RotateAction(Action):
@@ -86,10 +90,14 @@ class WanderAction(Action):
     
     def perform(self) -> bool:
         decision = randint(-1, 1)
-        if decision in [-1, 1]:
-            return RotateAction(self.entity, decision).perform()
-        elif decision == 0:
+        x, y = self.entity.get_next_hex()
+        if decision == 0 \
+                and self.engine.game_map.in_bounds(x, y) \
+                and self.engine.game_map.can_sail_to(x, y):
             return MovementAction(self.entity).perform()
+        else:
+            decision = choice([-1, 1])
+            return RotateAction(self.entity, decision).perform()
 
 
 class MeleeAction(Action):
@@ -106,11 +114,13 @@ class MeleeAction(Action):
         
         if damage > 0:
             self.target.fighter.hp -= damage
-
-            self.engine.message_log.add_message(f"{attack_desc} for {damage} hit points.", colors["enemy_atk"])
-        
+            
+            self.engine.message_log.add_message(f"{attack_desc} for {damage} " +
+                                                f"{self.target.fighter.name} damage",
+                                                colors["enemy_atk"])
         else:
-            self.engine.message_log.add_message(f"{attack_desc} but does no damage.", colors["enemy_atk"])
+            self.engine.message_log.add_message(f"{attack_desc} but does no damage",
+                                                colors["enemy_atk"])
         return True
 
 
@@ -128,14 +138,14 @@ class SplitDamageAction(Action):
                 attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
                 if damage > 0:
                     target.fighter.hp -= damage
-                    self.engine.message_log.add_message(f"{attack_desc} for {damage} hit points.",
+                    self.engine.message_log.add_message(f"{attack_desc} for {damage} " +
+                                                        f"{target.fighter.name} damage",
                                                         colors["player_atk"])
                 else:
-                    self.engine.message_log.add_message(f"{attack_desc} but does no damage.",
+                    self.engine.message_log.add_message(f"{attack_desc} but does no damage",
                                                         colors["player_atk"])
             return True
-        self.engine.message_log.add_message("No Targets")
-        return False
+        raise Impossible("No Targets")
 
 
 class ArrowAction(SplitDamageAction):
@@ -159,14 +169,11 @@ class MouseMoveAction(Action):
         self.x = position[0]
         self.y = position[1]
         super().__init__(entity)
-        
+    
     @property
     def position(self):
         return self.x, self.y
     
     def perform(self) -> bool:
-        # print(f"{self.engine.mouse_location} -> {self.position}")
         self.engine.mouse_location = self.position
         return False
-        # map_x, map_y = surface_to_map_coords(self.position[0], self.position[1])
-        # print(f"{self.position} -> {map_position}")

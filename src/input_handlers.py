@@ -4,7 +4,10 @@ from typing import Optional, TYPE_CHECKING
 
 import pygame.event
 import pygame.mouse as mouse
+
 from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, ArrowAction, MouseMoveAction
+from colors import colors
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -50,7 +53,8 @@ class MainEventHandler(EventHandler):
                 try:
                     something_happened = action.perform()
                 
-                except Exception:
+                except Impossible as e:
+                    self.engine.message_log.add_message(e.args[0], colors["impossible"])
                     return False
             
             if something_happened:
@@ -75,7 +79,7 @@ class MainEventHandler(EventHandler):
         
         if event.type == pygame.MOUSEMOTION:
             response = MouseMoveAction(player, mouse.get_pos())
-
+        
         if response is not None:
             return response
 

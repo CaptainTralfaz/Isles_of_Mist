@@ -18,7 +18,7 @@ class RenderOrder(Enum):
     SWIMMER = auto()
     PLAYER = auto()
     FLYER = auto()
-    
+
 
 def get_rotated_image(image: Surface, facing: int) -> Surface:
     return rot_center(image, direction_angle[facing])
@@ -87,22 +87,22 @@ def render_entity_info(console, game_map, fov, mouse_x, mouse_y):
         entities_sorted_for_rendering = sorted(
             visible_entities, key=lambda i: i.render_order.value, reverse=True
         )
-
+        
         widths = []
         entity_names = []
         for entity in entities_sorted_for_rendering:
             name = game_font.render(f"{entity.name}", True, colors["white"])
             widths.append(name.get_width())
             entity_names.append(name)
-            
+        
         info_surf = Surface((max(widths) + 10, len(entities) * game_font.get_height() + 10))
         render_border(info_surf, colors["white"])
         height = 0
         for name in entity_names:
             info_surf.blit(name, (5, 5 + height * game_font.get_height()))
             height += 1
-            
-        console.blit(info_surf, (mouse_x, mouse_y))
+        
+        console.blit(info_surf, (mouse_x + 16, mouse_y + 16))
 
 
 def render_border(panel, color):

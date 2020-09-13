@@ -95,7 +95,7 @@ class Actor(Entity):
             self.render_order = RenderOrder.PLAYER
         else:
             self.render_order = RenderOrder.SWIMMER
-
+    
     @property
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
