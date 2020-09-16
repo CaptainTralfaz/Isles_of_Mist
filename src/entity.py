@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from game_map import GameMap
     from components.ai import BaseAI
     from components.fighter import Fighter
+    from components.sails import Sails
     from components.view import View
 
 T = TypeVar("T", bound="Entity")
@@ -66,6 +67,7 @@ class Actor(Entity):
                  *,
                  ai_cls: Type[BaseAI],
                  fighter: Fighter,
+                 sails: Sails = None,
                  view: View,
                  x: int = 0,
                  y: int = 0,
@@ -85,6 +87,9 @@ class Actor(Entity):
         self.ai: Optional[BaseAI] = ai_cls(self)
         self.fighter = fighter
         self.fighter.parent = self
+        if sails:
+            self.sails = sails
+            self.sails.parent = self
         self.view = view
         self.view.parent = self
         self.flying = flying

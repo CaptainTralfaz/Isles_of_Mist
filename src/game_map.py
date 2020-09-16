@@ -3,9 +3,10 @@ from __future__ import annotations
 from queue import Queue
 from typing import Iterable, List, Tuple, TYPE_CHECKING
 
-from pygame import display, image
+from pygame import display, image, Surface
 
-from render_functions import get_rotated_image
+from colors import colors
+from render_functions import get_rotated_image, render_border
 from tile import Elevation, Terrain, tile_size
 from utilities import images, Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
 
@@ -123,12 +124,52 @@ class GameMap:
     def can_fly_to(self, x: int, y: int) -> bool:
         return self.terrain[x][y].elevation <= Elevation.JUNGLE
     
-    def render(self, main_display: display) -> None:
-        # sail_map = self.gen_sail_distance_map(self.engine.player.x, self.engine.player.y)
-        # flying_map = self.gen_flying_distance_map(self.engine.player.x, self.engine.player.y)
+    def render_mini(self, main_display: display) -> None:
+        margin = 5
+        block_size = 4
+        mini_surf = Surface((self.width * block_size + 2 * margin,
+                             self.height * block_size + 1 * margin))
+        block = Surface((block_size, block_size))
         for x in range(self.width):
             for y in range(self.height):
                 if self.terrain[x][y].explored:
+                    block.fill(colors[self.terrain[x][y].elevation.name.lower()])
+                    mini_surf.blit(block, (margin + x * block_size,
+                                           margin + y * block_size + (x % 2) * block_size // 2 - 2))
+        
+        for entity in self.entities:
+            if (entity.x, entity.y) in self.engine.player.view.fov \
+                    and entity.icon is not None:
+                if entity == self.engine.player:
+                    block.fill(colors["white"])
+                elif entity.is_alive:
+                    block.fill(colors["player_die"])
+                else:
+                    block.fill(colors["enemy_die"])
+                mini_surf.blit(block, (margin + entity.x * block_size,
+                                       margin + entity.y * block_size + (entity.x % 2) * block_size // 2 - 2))
+
+        render_border(mini_surf, color=colors['white'])
+        main_display.blit(mini_surf, (0, 0))
+
+    def render(self, main_display: display) -> None:
+        half_tile = tile_size // 2
+        margin = 5
+        view = 7
+        
+        left = self.engine.player.x - view
+        right = left + 2 * view + 1
+        
+        top = self.engine.player.y - view - 1
+        bottom = top + 2 * view + 3
+
+        map_surf = Surface(((2 * view + 1) * tile_size, (2 * view + 1) * tile_size + 2 * margin))
+        offset = self.engine.player.x % 2 * half_tile
+
+        for x in range(left, right):
+            for y in range(top, bottom):
+                if self.in_bounds(x, y) and self.terrain[x][y].explored:
+    
                     if self.terrain[x][y].elevation == Elevation.OCEAN:
                         tile = ocean
                     elif self.terrain[x][y].elevation == Elevation.WATER:
@@ -145,17 +186,15 @@ class GameMap:
                         tile = mountain
                     else:
                         tile = volcano
-                    main_display.blit(tile, map_to_surface_coords_terrain(x, y))
-                    # display distance maps
-                    # xx, yy = map_to_surface_coords_terrain(x, y)
-                    # if flying_map.get((x, y)):
-                    #     main_display.blit(game_font.render("{}".format(flying_map[x, y]), True, (0, 0, 0)),
-                    #                       (xx + 15, yy + 20))
-        
-        for x in range(self.width):
-            for y in range(self.height):
+
+                    map_surf.blit(tile, ((x - left) * tile_size - margin,
+                                         (y - top - 1) * tile_size + x % 2 * half_tile - margin - offset))
+                    
+        for x in range(left, right):
+            for y in range(top, bottom):
                 if (x, y) not in self.engine.player.view.fov:
-                    main_display.blit(fog_of_war, map_to_surface_coords_terrain(x, y))
+                    map_surf.blit(fog_of_war, ((x - left) * tile_size - margin,
+                                               (y - top - 1) * tile_size + x % 2 * half_tile - margin - offset))
         
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda i: i.render_order.value
@@ -164,9 +203,13 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
             if (entity.x, entity.y) in self.engine.player.view.fov \
                     and entity.icon is not None:
-                main_display.blit(get_rotated_image(images[entity.icon], entity.facing),
-                                  map_to_surface_coords_entities(entity.x, entity.y))
-    
+                map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
+                              ((entity.x - left) * tile_size,
+                               (entity.y - top - 1) * tile_size + entity.x % 2 * half_tile + margin - offset))
+
+        render_border(map_surf, (255, 255, 255))
+        main_display.blit(map_surf, (205, 0))
+        
     def gen_distance_map(self, x: int, y: int, flying: bool = False) -> dict:
         if not flying:
             return self.gen_sail_distance_map(x, y)

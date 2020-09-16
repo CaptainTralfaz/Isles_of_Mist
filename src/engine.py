@@ -7,7 +7,7 @@ from pygame import Surface
 from custom_exceptions import Impossible
 from input_handlers import MainEventHandler
 from message_log import MessageLog
-from render_functions import render_bar, render_entity_info
+from render_functions import render_bar, render_entity_info, status_panel_render
 from tile import tile_size
 
 if TYPE_CHECKING:
@@ -35,18 +35,17 @@ class Engine:
     def render(self, main_surface: Surface) -> None:
         self.game_map.render(main_display=main_surface)
         
+        self.game_map.render_mini(main_display=main_surface)
+        
         self.message_log.render(console=main_surface,
                                 x=0,
                                 y=self.game_map.height * tile_size - 16,
                                 width=self.game_map.width * tile_size - 10,
                                 height=8)
         
-        health_bar = render_bar(f"{self.player.fighter.name.capitalize()} Points",
-                                self.player.fighter.hp,
-                                self.player.fighter.max_hp,
-                                200)
-        main_surface.blit(health_bar, (10, 300))
-        
+        status_panel_render(console=main_surface, entity=self.player)
+
+        # stuff under mouse
         render_entity_info(console=main_surface,
                            game_map=self.game_map,
                            fov=self.player.view.fov,

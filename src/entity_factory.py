@@ -1,5 +1,6 @@
 from components.ai import NeutralEnemy, HostileEnemy
 from components.fighter import Fighter
+from components.sails import Sails
 from components.view import View
 from entity import Actor
 
@@ -13,6 +14,10 @@ player = Actor(x=0,
                                defense=2,
                                power=5,
                                name="hull"),
+               sails=Sails(hp=5,
+                           defense=0,
+                           raised=True,
+                           name="sail"),
                view=View(5))
 
 turtle = Actor(x=0,
