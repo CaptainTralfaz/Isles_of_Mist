@@ -17,10 +17,10 @@ def main() -> None:
     caption = "Isles of Mist"
     icon = pygame.image.load("assets/ship_icon.png")
     
-    map_width = 30
-    map_height = 20
-    screen_width = map_width * tile_size - 10
-    screen_height = map_height * tile_size - 16
+    map_width = 24
+    map_height = 24
+    screen_width = 20 * tile_size - 10 + 200
+    screen_height = 20 * tile_size - 16 + 200
     
     game_display = pygame.display.set_mode((screen_width, screen_height))
     game_display.fill(colors["black"])

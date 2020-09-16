@@ -7,9 +7,11 @@ from pygame import Surface, font, draw
 from colors import colors
 from utilities import direction_angle, surface_to_map_coords
 
+
 font.init()
 
 game_font = font.Font('freesansbold.ttf', 16)
+margin = 5
 
 
 class RenderOrder(Enum):
@@ -95,14 +97,31 @@ def render_entity_info(console, game_map, fov, mouse_x, mouse_y):
             widths.append(name.get_width())
             entity_names.append(name)
         
-        info_surf = Surface((max(widths) + 10, len(entities) * game_font.get_height() + 10))
+        info_surf = Surface((max(widths) + margin * 2, len(entities) * game_font.get_height() + margin * 2))
         render_border(info_surf, colors["white"])
         height = 0
         for name in entity_names:
-            info_surf.blit(name, (5, 5 + height * game_font.get_height()))
+            info_surf.blit(name, (margin, margin + height * game_font.get_height()))
             height += 1
         
         console.blit(info_surf, (mouse_x + 16, mouse_y + 16))
+
+
+def status_panel_render(console: Surface, entity):
+    status_panel = Surface((200, 200))
+    render_border(status_panel, colors["white"])
+    health_bar = render_bar(f"{entity.fighter.name.capitalize()}",
+                            entity.fighter.hp,
+                            entity.fighter.max_hp,
+                            status_panel.get_width() - margin * 2)
+    status_panel.blit(health_bar, (margin, margin))
+    if entity.sails:
+        sail_bar = render_bar(f"{entity.sails.name.capitalize()}",
+                              entity.sails.hp,
+                              entity.sails.max_hp,
+                              status_panel.get_width() - margin * 2)
+        status_panel.blit(sail_bar, (margin, margin + game_font.get_height()))
+    console.blit(status_panel, (0, 300))
 
 
 def render_border(panel, color):
@@ -112,6 +131,11 @@ def render_border(panel, color):
     :param color: color of the border
     :return: None
     """
+    draw.lines(panel, (0, 0, 0), True,
+               ((2, 2),
+                (panel.get_width() - 3, 2),
+                (panel.get_width() - 3, panel.get_height() - 3),
+                (2, panel.get_height() - 3)), 5)
     draw.lines(panel, color, True,
                ((2, 2),
                 (panel.get_width() - 3, 2),
