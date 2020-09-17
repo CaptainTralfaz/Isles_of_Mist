@@ -41,13 +41,13 @@ def rot_center(image: Surface, angle: int) -> Surface:
     return rot_image
 
 
-def render_bar(text: str,
-               current: int,
-               maximum: int,
-               bar_width: int,
-               font_color: str = "bar_text",
-               top_color: str = "bar_filled",
-               bottom_color: str = "bar_empty") -> Surface:
+def render_hp_bar(text: str,
+                  current: int,
+                  maximum: int,
+                  bar_width: int,
+                  font_color: str = "bar_text",
+                  top_color: str = "bar_filled",
+                  bottom_color: str = "bar_empty") -> Surface:
     """
     Renders a visual meter
     :param text: name of the values to render
@@ -148,16 +148,16 @@ def render_entity_info(console, game_map, fov, player_x, player_y, mouse_x, mous
 def status_panel_render(console: Surface, entity, ui_layout):
     status_panel = Surface((ui_layout.status_width, ui_layout.status_height))
     render_border(status_panel, colors["white"])
-    health_bar = render_bar(f"{entity.fighter.name.capitalize()}",
-                            entity.fighter.hp,
-                            entity.fighter.max_hp,
-                            status_panel.get_width() - margin * 2)
+    health_bar = render_hp_bar(f"{entity.fighter.name.capitalize()}",
+                               entity.fighter.hp,
+                               entity.fighter.max_hp,
+                               status_panel.get_width() - margin * 2)
     status_panel.blit(health_bar, (margin, margin))
     if entity.sails:
-        sail_bar = render_bar(f"{entity.sails.name.capitalize()}",
-                              entity.sails.hp,
-                              entity.sails.max_hp,
-                              status_panel.get_width() - margin * 2)
+        sail_bar = render_hp_bar(f"{entity.sails.name.capitalize()}",
+                                 entity.sails.hp,
+                                 entity.sails.max_hp,
+                                 status_panel.get_width() - margin * 2)
         status_panel.blit(sail_bar, (margin, margin + margin // 2 + game_font.get_height()))
     console.blit(status_panel, (0, ui_layout.mini_height))
 
@@ -173,9 +173,9 @@ def render_border(panel, color):
                ((2, 2),
                 (panel.get_width() - 3, 2),
                 (panel.get_width() - 3, panel.get_height() - 3),
-                (2, panel.get_height() - 3)), 5)
+                (2, panel.get_height() - 3)), 5)  # Black band 5 wide
     draw.lines(panel, color, True,
                ((2, 2),
                 (panel.get_width() - 3, 2),
                 (panel.get_width() - 3, panel.get_height() - 3),
-                (2, panel.get_height() - 3)), 1)
+                (2, panel.get_height() - 3)), 1)  # White line 1 wide
