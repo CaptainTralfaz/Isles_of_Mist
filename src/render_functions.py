@@ -2,16 +2,11 @@ from enum import auto, Enum
 from math import floor
 
 import pygame.transform as transform
-from pygame import Surface, font, draw
+from pygame import Surface, draw
 
-from colors import colors
+from constants import colors
 from utilities import direction_angle, surface_to_map_coords
-
-font.init()
-
-game_font = font.Font('freesansbold.ttf', 16)
-margin = 5
-view_port = 8
+from constants import view_port, margin, game_font
 
 
 class RenderOrder(Enum):

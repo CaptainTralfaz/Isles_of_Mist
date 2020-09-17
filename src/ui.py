@@ -1,9 +1,5 @@
 from render_functions import game_font, margin
-from tile import tile_size
-
-message_count = 8
-block_size = 4
-view_port = 8
+from constants import message_count, block_size, view_port, tile_size
 
 
 class DisplayInfo:

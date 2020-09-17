@@ -4,7 +4,7 @@ import copy
 import pygame
 
 import entity_factory
-from colors import colors
+from constants import colors, map_width, map_height, caption, icon
 from engine import Engine
 from procgen import generate_map
 from ui import DisplayInfo
@@ -13,12 +13,6 @@ from ui import DisplayInfo
 def main() -> None:
     pygame.init()
     fps_clock = pygame.time.Clock()
-    
-    caption = "Isles of Mist"
-    icon = pygame.image.load("assets/ship_icon.png")
-    
-    map_width = 48
-    map_height = 48
     
     player = copy.deepcopy(entity_factory.player)
     ui_layout = DisplayInfo(map_width, map_height)
