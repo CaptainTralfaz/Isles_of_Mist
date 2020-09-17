@@ -4,6 +4,8 @@ from pygame import image
 
 from tile import tile_size
 
+margin = 5
+
 player_image = image.load("assets/ship_icon.png")
 turtle_image = image.load("assets/turtle.png")
 serpent_image = image.load("assets/serpent.png")
@@ -187,9 +189,12 @@ def cube_lerp(a: Cube, b: Cube, t) -> Cube:
     return Cube(x=lerp(a.x, b.x, t), y=lerp(a.y, b.y, t), z=lerp(a.z, b.z, t))
 
 
-# TODO this will need to change when camera changes - or add boundaries
-def surface_to_map_coords(x: int, y: int) -> Tuple[int, int]:
+def surface_to_map_coords(x: int, y: int, player_x: int) -> Tuple[int, int]:
     half_tile_size = tile_size // 2
     x_grid = x // tile_size
-    y_grid = (y - (x_grid % 2) * half_tile_size) // tile_size
+    y_grid = (y + 2 * margin - half_tile_size
+              + (player_x % 2) * half_tile_size
+              - ((player_x - x_grid) % 2) * half_tile_size
+              ) // tile_size
+    
     return x_grid, y_grid
