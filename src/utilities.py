@@ -2,6 +2,8 @@ from typing import List, Tuple
 
 from pygame import image
 
+from tile import tile_size
+
 player_image = image.load("assets/ship_icon.png")
 turtle_image = image.load("assets/turtle.png")
 serpent_image = image.load("assets/serpent.png")
@@ -187,9 +189,7 @@ def cube_lerp(a: Cube, b: Cube, t) -> Cube:
 
 # TODO this will need to change when camera changes - or add boundaries
 def surface_to_map_coords(x: int, y: int) -> Tuple[int, int]:
-    terrain_overlap = 10
-    half_hex_terrain_height = 16
-    half_hex_terrain_width = 16
-    x_grid = (x + terrain_overlap // 2) // 32
-    y_grid = ((y + half_hex_terrain_height) - (x_grid % 2) * half_hex_terrain_width) // 32
+    half_tile_size = tile_size // 2
+    x_grid = x // tile_size
+    y_grid = (y - (x_grid % 2) * half_tile_size) // tile_size
     return x_grid, y_grid

@@ -8,6 +8,7 @@ from pygame import display, image, Surface
 from colors import colors
 from render_functions import get_rotated_image, render_border
 from tile import Elevation, Terrain, tile_size
+from ui import view_port, DisplayInfo, margin, block_size
 from utilities import images, Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
 
 if TYPE_CHECKING:
@@ -124,11 +125,8 @@ class GameMap:
     def can_fly_to(self, x: int, y: int) -> bool:
         return self.terrain[x][y].elevation <= Elevation.JUNGLE
     
-    def render_mini(self, main_display: display) -> None:
-        margin = 5
-        block_size = 4
-        mini_surf = Surface((self.width * block_size + 2 * margin,
-                             self.height * block_size + 1 * margin))
+    def render_mini(self, main_display: display, ui_layout: DisplayInfo) -> None:
+        mini_surf = Surface((ui_layout.mini_width, ui_layout.mini_height))
         block = Surface((block_size, block_size))
         for x in range(self.width):
             for y in range(self.height):
@@ -148,28 +146,26 @@ class GameMap:
                     block.fill(colors["enemy_die"])
                 mini_surf.blit(block, (margin + entity.x * block_size,
                                        margin + entity.y * block_size + (entity.x % 2) * block_size // 2 - 2))
-
+        
         render_border(mini_surf, color=colors['white'])
         main_display.blit(mini_surf, (0, 0))
-
-    def render(self, main_display: display) -> None:
+    
+    def render(self, main_display: display, ui_layout: DisplayInfo) -> None:
         half_tile = tile_size // 2
-        margin = 5
-        view = 7
         
-        left = self.engine.player.x - view
-        right = left + 2 * view + 1
+        left = self.engine.player.x - view_port
+        right = left + 2 * view_port + 1
         
-        top = self.engine.player.y - view - 1
-        bottom = top + 2 * view + 3
-
-        map_surf = Surface(((2 * view + 1) * tile_size, (2 * view + 1) * tile_size + 2 * margin))
+        top = self.engine.player.y - view_port - 1
+        bottom = top + 2 * view_port + 3
+        
+        map_surf = Surface(((2 * view_port + 1) * tile_size, (2 * view_port + 1) * tile_size + 2 * margin))
         offset = self.engine.player.x % 2 * half_tile
-
+        
         for x in range(left, right):
             for y in range(top, bottom):
                 if self.in_bounds(x, y) and self.terrain[x][y].explored:
-    
+                    
                     if self.terrain[x][y].elevation == Elevation.OCEAN:
                         tile = ocean
                     elif self.terrain[x][y].elevation == Elevation.WATER:
@@ -186,10 +182,10 @@ class GameMap:
                         tile = mountain
                     else:
                         tile = volcano
-
+                    
                     map_surf.blit(tile, ((x - left) * tile_size - margin,
                                          (y - top - 1) * tile_size + x % 2 * half_tile - margin - offset))
-                    
+        
         for x in range(left, right):
             for y in range(top, bottom):
                 if (x, y) not in self.engine.player.view.fov:
@@ -206,10 +202,10 @@ class GameMap:
                 map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
                               ((entity.x - left) * tile_size,
                                (entity.y - top - 1) * tile_size + entity.x % 2 * half_tile + margin - offset))
-
-        render_border(map_surf, (255, 255, 255))
-        main_display.blit(map_surf, (205, 0))
         
+        render_border(map_surf, (255, 255, 255))
+        main_display.blit(map_surf, (ui_layout.mini_width, 0))
+    
     def gen_distance_map(self, x: int, y: int, flying: bool = False) -> dict:
         if not flying:
             return self.gen_sail_distance_map(x, y)
@@ -301,10 +297,12 @@ class GameMap:
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
     
-    def get_targets_at_location(self, x: int, y: int, living_targets: bool = True) -> List[Actor]:
+    def get_targets_at_location(self, grid_x: int, grid_y: int, living_targets: bool = True) -> List[Actor]:
         targets = []
+        # player_x = self.engine.player.x
+        # player_y = self.engine.player.y
         for entity in self.entities:
-            if entity.x == x and entity.y == y:
+            if entity.x == grid_x and entity.y == grid_y:
                 if living_targets:
                     if entity.is_alive:
                         targets.append(entity)
@@ -312,20 +310,19 @@ class GameMap:
                     targets.append(entity)
         return targets
 
-
-# TODO magic numbers
-#  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
-#  16 is half the vertical standard Tile size - offset is due to hexes
-def map_to_surface_coords_terrain(x: int, y: int) -> Tuple[int, int]:
-    terrain_overlap = 10
-    half_hex_terrain_height = 16
-    half_hex_terrain_width = 16
-    return (x * tile_size - terrain_overlap,
-            y * tile_size + x % 2 * half_hex_terrain_width - half_hex_terrain_height - terrain_overlap)
-
-
-def map_to_surface_coords_entities(x: int, y: int) -> Tuple[int, int]:
-    half_terrain_overlap = 5
-    half_hex_terrain_height = 16
-    return (x * tile_size - half_terrain_overlap,
-            y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height)
+# # TODO magic numbers
+# #  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
+# #  16 is half the vertical standard Tile size - offset is due to hexes
+# def map_to_surface_coords_terrain(x: int, y: int) -> Tuple[int, int]:
+#     terrain_overlap = 10
+#     half_hex_terrain_height = 16
+#     half_hex_terrain_width = 16
+#     return (x * tile_size - terrain_overlap,
+#             y * tile_size + x % 2 * half_hex_terrain_width - half_hex_terrain_height - terrain_overlap)
+#
+#
+# def map_to_surface_coords_entities(x: int, y: int) -> Tuple[int, int]:
+#     half_terrain_overlap = 5
+#     half_hex_terrain_height = 16
+#     return (x * tile_size - half_terrain_overlap,
+#             y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height)

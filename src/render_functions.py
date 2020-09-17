@@ -7,11 +7,11 @@ from pygame import Surface, font, draw
 from colors import colors
 from utilities import direction_angle, surface_to_map_coords
 
-
 font.init()
 
 game_font = font.Font('freesansbold.ttf', 16)
 margin = 5
+view_port = 8
 
 
 class RenderOrder(Enum):
@@ -76,9 +76,13 @@ def render_bar(text: str,
     return max_bar
 
 
-def render_entity_info(console, game_map, fov, mouse_x, mouse_y):
-    coord_x, coord_y = surface_to_map_coords(mouse_x, mouse_y)
-    entities = game_map.get_targets_at_location(coord_x, coord_y, living_targets=False)
+def render_entity_info(console, game_map, fov, player_x, player_y, mouse_x, mouse_y, offset):
+    coord_x, coord_y = surface_to_map_coords(mouse_x, mouse_y - 10)
+    print(
+        f"{mouse_x}.{mouse_y} -> {coord_x}.{coord_y} ({coord_x + player_x - view_port}.{coord_y + player_y - view_port})")
+    
+    entities = game_map.get_targets_at_location(coord_x + player_x - view_port, coord_y + player_y - view_port,
+                                                living_targets=False)
     visible_entities = []
     for entity in entities:
         if (entity.x, entity.y) in fov:
@@ -104,11 +108,11 @@ def render_entity_info(console, game_map, fov, mouse_x, mouse_y):
             info_surf.blit(name, (margin, margin + height * game_font.get_height()))
             height += 1
         
-        console.blit(info_surf, (mouse_x + 16, mouse_y + 16))
+        console.blit(info_surf, (mouse_x + offset + margin * 2, mouse_y + 16))
 
 
-def status_panel_render(console: Surface, entity):
-    status_panel = Surface((200, 200))
+def status_panel_render(console: Surface, entity, ui_layout):
+    status_panel = Surface((ui_layout.status_width, ui_layout.status_height))
     render_border(status_panel, colors["white"])
     health_bar = render_bar(f"{entity.fighter.name.capitalize()}",
                             entity.fighter.hp,
@@ -120,8 +124,8 @@ def status_panel_render(console: Surface, entity):
                               entity.sails.hp,
                               entity.sails.max_hp,
                               status_panel.get_width() - margin * 2)
-        status_panel.blit(sail_bar, (margin, margin + game_font.get_height()))
-    console.blit(status_panel, (0, 300))
+        status_panel.blit(sail_bar, (margin, margin + margin // 2 + game_font.get_height()))
+    console.blit(status_panel, (0, ui_layout.mini_height))
 
 
 def render_border(panel, color):
