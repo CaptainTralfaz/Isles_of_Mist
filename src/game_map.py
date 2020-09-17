@@ -299,8 +299,6 @@ class GameMap:
     
     def get_targets_at_location(self, grid_x: int, grid_y: int, living_targets: bool = True) -> List[Actor]:
         targets = []
-        # player_x = self.engine.player.x
-        # player_y = self.engine.player.y
         for entity in self.entities:
             if entity.x == grid_x and entity.y == grid_y:
                 if living_targets:
@@ -309,20 +307,3 @@ class GameMap:
                 else:
                     targets.append(entity)
         return targets
-
-# # TODO magic numbers
-# #  (10 is the difference between the standard Tile size (32) and the Terrain tile size (42)
-# #  16 is half the vertical standard Tile size - offset is due to hexes
-# def map_to_surface_coords_terrain(x: int, y: int) -> Tuple[int, int]:
-#     terrain_overlap = 10
-#     half_hex_terrain_height = 16
-#     half_hex_terrain_width = 16
-#     return (x * tile_size - terrain_overlap,
-#             y * tile_size + x % 2 * half_hex_terrain_width - half_hex_terrain_height - terrain_overlap)
-#
-#
-# def map_to_surface_coords_entities(x: int, y: int) -> Tuple[int, int]:
-#     half_terrain_overlap = 5
-#     half_hex_terrain_height = 16
-#     return (x * tile_size - half_terrain_overlap,
-#             y * tile_size + x % 2 * half_hex_terrain_height - half_hex_terrain_height)

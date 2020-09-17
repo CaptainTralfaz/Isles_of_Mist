@@ -76,12 +76,39 @@ def render_bar(text: str,
     return max_bar
 
 
-def render_entity_info(console, game_map, fov, player_x, player_y, mouse_x, mouse_y, offset):
-    coord_x, coord_y = surface_to_map_coords(mouse_x, mouse_y - 10)
-    print(
-        f"{mouse_x}.{mouse_y} -> {coord_x}.{coord_y} ({coord_x + player_x - view_port}.{coord_y + player_y - view_port})")
+def render_simple_bar(current: int,
+                      maximum: int,
+                      bar_width: int,
+                      top_color: str = "bar_filled",
+                      bottom_color: str = "bar_empty") -> Surface:
+    """
+    Renders a visual meter
+    :param current: current value
+    :param maximum: maximum value
+    :param top_color: brighter top color of bar
+    :param bottom_color: darker background color of bar
+    :param bar_width: width of the bar surface
+    :return: Surface to render
+    """
+    max_bar = Surface((bar_width, game_font.get_height()))
+    max_bar.fill(colors[bottom_color])
+    if maximum > 0:
+        current_bar_length = floor(float(current / maximum * bar_width))
+        if current_bar_length < 0:
+            current_bar_length = 0
+        current_bar = Surface((current_bar_length, game_font.get_height()))
+        current_bar.fill(colors[top_color])
+        max_bar.blit(current_bar, (0, 0))
     
-    entities = game_map.get_targets_at_location(coord_x + player_x - view_port, coord_y + player_y - view_port,
+    return max_bar
+
+
+def render_entity_info(console, game_map, fov, player_x, player_y, mouse_x, mouse_y, offset):
+    coord_x, coord_y = surface_to_map_coords(mouse_x, mouse_y, player_x)
+    # print(f"{player_x}.{player_y} -> {coord_x}.{coord_y}" +
+    #       f"({coord_x + player_x - view_port}.{coord_y + player_y - view_port})")
+    entities = game_map.get_targets_at_location(coord_x + player_x - view_port,
+                                                coord_y + player_y - view_port,
                                                 living_targets=False)
     visible_entities = []
     for entity in entities:
@@ -95,20 +122,27 @@ def render_entity_info(console, game_map, fov, player_x, player_y, mouse_x, mous
         )
         
         widths = []
-        entity_names = []
+        entity_list = []
         for entity in entities_sorted_for_rendering:
             name = game_font.render(f"{entity.name}", True, colors["white"])
             widths.append(name.get_width())
-            entity_names.append(name)
+            if entity.fighter:
+                entity_list.append((name, entity.fighter.hp, entity.fighter.max_hp))
+            else:
+                entity_list.append((name, None, None))
         
-        info_surf = Surface((max(widths) + margin * 2, len(entities) * game_font.get_height() + margin * 2))
+        info_surf = Surface((max(widths) + margin * 2,
+                             (len(entities) - 1) * 2 + len(entities) * game_font.get_height() + margin * 2))
         render_border(info_surf, colors["white"])
         height = 0
-        for name in entity_names:
-            info_surf.blit(name, (margin, margin + height * game_font.get_height()))
+        for name, hp, max_hp in entity_list:
+            if hp is not None and hp > 0:
+                info_surf.blit(render_simple_bar(hp, max_hp, max(widths)),
+                               (margin, margin + height * game_font.get_height() + 2 * height))
+            info_surf.blit(name, (margin, margin + height * game_font.get_height() + 2 * height))
             height += 1
         
-        console.blit(info_surf, (mouse_x + offset + margin * 2, mouse_y + 16))
+        console.blit(info_surf, (mouse_x + offset + margin * 2, mouse_y + margin * 2))
 
 
 def status_panel_render(console: Surface, entity, ui_layout):
