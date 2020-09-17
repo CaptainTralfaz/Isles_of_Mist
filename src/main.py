@@ -7,7 +7,7 @@ import entity_factory
 from colors import colors
 from engine import Engine
 from procgen import generate_map
-from tile import tile_size
+from ui import DisplayInfo
 
 
 def main() -> None:
@@ -17,12 +17,20 @@ def main() -> None:
     caption = "Isles of Mist"
     icon = pygame.image.load("assets/ship_icon.png")
     
-    map_width = 24
-    map_height = 24
-    screen_width = 20 * tile_size - 10 + 200
-    screen_height = 20 * tile_size - 16 + 200
+    map_width = 48
+    map_height = 48
     
-    game_display = pygame.display.set_mode((screen_width, screen_height))
+    player = copy.deepcopy(entity_factory.player)
+    ui_layout = DisplayInfo(map_width, map_height)
+    
+    engine = Engine(player=player, ui_layout=ui_layout)
+    engine.game_map = generate_map(map_width, map_height, engine=engine)
+    
+    engine.message_log.add_message(
+        "Hello and welcome, adventurer, to the Isles of Mist", colors["welcome_text"]
+    )
+    
+    game_display = pygame.display.set_mode((ui_layout.display_width, ui_layout.display_height))
     game_display.fill(colors["black"])
     pygame.display.set_caption(caption)
     pygame.display.set_icon(icon)
@@ -30,15 +38,6 @@ def main() -> None:
     
     should_quit = False
     
-    player = copy.deepcopy(entity_factory.player)
-    
-    engine = Engine(player=player)
-    
-    engine.game_map = generate_map(map_width, map_height, engine=engine)
-    
-    engine.message_log.add_message(
-        "Hello and welcome, adventurer, to yet another dungeon!", colors["welcome_text"]
-    )
     while not should_quit:
         try:
             engine.event_handler.handle_events()

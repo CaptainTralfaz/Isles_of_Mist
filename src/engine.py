@@ -7,8 +7,8 @@ from pygame import Surface
 from custom_exceptions import Impossible
 from input_handlers import MainEventHandler
 from message_log import MessageLog
-from render_functions import render_bar, render_entity_info, status_panel_render
-from tile import tile_size
+from render_functions import render_entity_info, status_panel_render
+from ui import DisplayInfo
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -18,11 +18,12 @@ if TYPE_CHECKING:
 class Engine:
     game_map: GameMap
     
-    def __init__(self, player: Actor):
+    def __init__(self, player: Actor, ui_layout: DisplayInfo):
         self.event_handler: MainEventHandler = MainEventHandler(self)
         self.player = player
         self.mouse_location = (0, 0)
         self.message_log = MessageLog()
+        self.ui_layout = ui_layout
     
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
@@ -33,21 +34,22 @@ class Engine:
                     pass
     
     def render(self, main_surface: Surface) -> None:
-        self.game_map.render(main_display=main_surface)
+        self.game_map.render(main_display=main_surface, ui_layout=self.ui_layout)
         
-        self.game_map.render_mini(main_display=main_surface)
+        self.game_map.render_mini(main_display=main_surface, ui_layout=self.ui_layout)
         
-        self.message_log.render(console=main_surface,
-                                x=0,
-                                y=self.game_map.height * tile_size - 16,
-                                width=self.game_map.width * tile_size - 10,
-                                height=8)
+        self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
         
-        status_panel_render(console=main_surface, entity=self.player)
-
+        status_panel_render(console=main_surface, entity=self.player, ui_layout=self.ui_layout)
+        
         # stuff under mouse
-        render_entity_info(console=main_surface,
-                           game_map=self.game_map,
-                           fov=self.player.view.fov,
-                           mouse_x=self.mouse_location[0],
-                           mouse_y=self.mouse_location[1])
+        if self.ui_layout.mini_width <= self.mouse_location[0] < self.ui_layout.display_width - 1 \
+                and 0 < self.mouse_location[1] < self.ui_layout.viewport_height - 1:
+            render_entity_info(console=main_surface,
+                               game_map=self.game_map,
+                               fov=self.player.view.fov,
+                               player_x=self.player.x,
+                               player_y=self.player.y,
+                               mouse_x=self.mouse_location[0] - self.ui_layout.mini_width,
+                               mouse_y=self.mouse_location[1],
+                               offset=self.ui_layout.mini_width)

@@ -5,7 +5,7 @@ from pygame import Surface
 
 from colors import colors
 from render_functions import game_font, render_border
-from tile import tile_size
+from ui import DisplayInfo, message_count
 
 
 class Message:
@@ -39,29 +39,23 @@ class MessageLog:
         else:
             self.messages.append(Message(text, text_color))
     
-    def render(
-            self, console: Surface, x: int, y: int, width: int, height: int,
-    ) -> None:
+    def render(self, console: Surface, ui_layout: DisplayInfo) -> None:
         """Render this log over the given area.
         `x`, `y`, `width`, `height` is the rectangular region to render onto
         the `console`.
         """
         # TODO magic numbers
-        panel_width = 30 * tile_size - 10
-        screen_height = 20 * tile_size - 16
-        panel_height = game_font.get_height() * height + 10
-        message_surf = Surface((panel_width, panel_height))
+        message_surf = Surface((ui_layout.messages_width, ui_layout.messages_height))
         render_border(message_surf, colors['white'])
-        self.render_messages(message_surf, x, panel_height - 10, width - 10, height, self.messages)
-        console.blit(message_surf, (0, screen_height - panel_height))
+        self.render_messages(message_surf, 0, ui_layout.messages_height - 10,
+                             ui_layout.messages_width - 10, message_count, self.messages)
+        console.blit(message_surf, (ui_layout.status_width, ui_layout.viewport_height))
     
     @staticmethod
     def wrap(string: str, width: int) -> Iterable[str]:
         """Return a wrapped text message."""
         for line in string.splitlines():  # Handle newlines in messages.
-            yield from textwrap.wrap(
-                line, width, expand_tabs=True,
-            )
+            yield from textwrap.wrap(line, width, expand_tabs=True)
     
     @classmethod
     def render_messages(
