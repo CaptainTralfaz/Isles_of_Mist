@@ -5,11 +5,12 @@ from typing import Iterable, List, Tuple, TYPE_CHECKING
 
 from pygame import display, image, Surface
 
-from colors import colors
+from constants import colors
 from render_functions import get_rotated_image, render_border
-from tile import Elevation, Terrain, tile_size
+from tile import Elevation, Terrain
 from ui import view_port, DisplayInfo, margin, block_size
-from utilities import images, Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
+from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
+from constants import images, tile_size
 
 if TYPE_CHECKING:
     from entity import Actor

@@ -1,4 +1,4 @@
-from colors import colors
+from constants import colors
 from components.base import BaseComponent
 from entity import Actor
 from game_map import Elevation

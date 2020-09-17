@@ -1,0 +1,58 @@
+from pygame import image, font
+
+font.init()
+
+
+margin = 5
+block_size = 4
+tile_size = 32
+map_width = 48
+map_height = 48
+caption = "Isles of Mist"
+
+"""Variable later ?? """
+game_font = font.Font('freesansbold.ttf', 16)
+view_port = 8
+message_count = 10
+
+icon = image.load("assets/compass.png")
+player_image = image.load("assets/ship_icon.png")
+turtle_image = image.load("assets/turtle.png")
+serpent_image = image.load("assets/serpent.png")
+bat_image = image.load("assets/bat.png")
+carcass = image.load("assets/carcass.png")
+sunken_ship = image.load("assets/sunken_ship.png")
+
+images = {
+    'player_image': player_image,
+    'turtle_image': turtle_image,
+    'serpent_image': serpent_image,
+    'bat_image': bat_image,
+    'carcass': carcass,
+    'sunken_ship': sunken_ship,
+}
+
+colors = {
+    "white": (255, 255, 255),
+    "black": (0, 0, 0),
+    "player_atk": (225, 225, 225),
+    "enemy_atk": (255, 200, 200),
+    "player_die": (255, 50, 50),
+    "enemy_die": (255, 150, 50),
+    "welcome_text": (25, 150, 255),
+    "bar_text": (255, 255, 255),
+    "bar_filled": (0, 100, 0),
+    "bar_empty": (75, 25, 25),
+    "invalid": (255, 255, 0),
+    "impossible": (125, 125, 125),
+    "error": (255, 75, 75),
+    "health_recovered": (0, 255, 0),
+    'ocean': (0, 0, 175),
+    'water': (0, 50, 200),
+    'shallows': (0, 75, 225),
+    'beach': (225, 200, 125),
+    'grass': (50, 175, 50),
+    'jungle': (0, 125, 0),
+    'mountain': (225, 225, 225),
+    'volcano': (200, 0, 0),
+}

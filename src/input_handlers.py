@@ -6,7 +6,7 @@ import pygame.event
 import pygame.mouse as mouse
 
 from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, ArrowAction, MouseMoveAction
-from colors import colors
+from constants import colors
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:

@@ -1,26 +1,6 @@
 from typing import List, Tuple
 
-from pygame import image
-
-from tile import tile_size
-
-margin = 5
-
-player_image = image.load("assets/ship_icon.png")
-turtle_image = image.load("assets/turtle.png")
-serpent_image = image.load("assets/serpent.png")
-bat_image = image.load("assets/bat.png")
-carcass = image.load("assets/carcass.png")
-sunken_ship = image.load("assets/sunken_ship.png")
-
-images = {
-    'player_image': player_image,
-    'turtle_image': turtle_image,
-    'serpent_image': serpent_image,
-    'bat_image': bat_image,
-    'carcass': carcass,
-    'sunken_ship': sunken_ship,
-}
+from constants import tile_size, margin
 
 direction_angle = [0, 60, 120, 180, 240, 300]
 

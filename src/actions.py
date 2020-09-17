@@ -3,7 +3,7 @@ from __future__ import annotations
 from random import randint, choice
 from typing import TYPE_CHECKING, Optional, List, Tuple
 
-from colors import colors
+from constants import colors
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:

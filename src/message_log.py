@@ -3,9 +3,10 @@ from typing import Iterable, List, Reversible, Tuple
 
 from pygame import Surface
 
-from colors import colors
+from constants import colors
 from render_functions import game_font, render_border
-from ui import DisplayInfo, message_count
+from ui import DisplayInfo
+from constants import message_count, margin
 
 
 class Message:
@@ -47,8 +48,8 @@ class MessageLog:
         # TODO magic numbers
         message_surf = Surface((ui_layout.messages_width, ui_layout.messages_height))
         render_border(message_surf, colors['white'])
-        self.render_messages(message_surf, 0, ui_layout.messages_height - 10,
-                             ui_layout.messages_width - 10, message_count, self.messages)
+        self.render_messages(message_surf, 0, ui_layout.messages_height - 2 * margin,
+                             ui_layout.messages_width - 2 * margin, message_count, self.messages)
         console.blit(message_surf, (ui_layout.status_width, ui_layout.viewport_height))
     
     @staticmethod
@@ -76,7 +77,7 @@ class MessageLog:
         for message in reversed(messages):
             for line in reversed(list(cls.wrap(message.full_text, width))):
                 message_surf.blit(game_font.render(f"{line}", True, message.color),
-                                  (x + 5, y + 5 - y_offset * game_font.get_height()))
+                                  (x + margin, y + margin - y_offset * game_font.get_height()))
                 y_offset += 1
                 if y_offset > height:
                     return message_surf
