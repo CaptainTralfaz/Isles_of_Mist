@@ -5,7 +5,8 @@ from typing import Optional, TYPE_CHECKING
 import pygame.event
 import pygame.mouse as mouse
 
-from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, ArrowAction, MouseMoveAction
+from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, ArrowAction, MouseMoveAction, \
+    SailAction
 from constants import colors
 from custom_exceptions import Impossible
 
@@ -27,6 +28,11 @@ WAIT_KEYS = {
 
 ATTACK_KEYS = {
     pygame.K_1
+}
+
+SAIL_KEYS = {
+    pygame.K_u: True,
+    pygame.K_i: False
 }
 
 
@@ -57,6 +63,10 @@ class MainEventHandler(EventHandler):
                     self.engine.message_log.add_message(e.args[0], colors["impossible"])
                     return False
             
+            # TODO add bonus movement
+            if something_happened:
+                self.engine.handle_bonus_movement()
+            
             if something_happened:
                 self.engine.handle_enemy_turns()
     
@@ -72,6 +82,8 @@ class MainEventHandler(EventHandler):
                 response = MovementAction(player)
             elif event.key in ATTACK_KEYS:
                 response = ArrowAction(player)
+            elif event.key in SAIL_KEYS:
+                response = SailAction(player, SAIL_KEYS[event.key])
             elif event.key in WAIT_KEYS:
                 response = WaitAction(player)
             elif event.key == pygame.K_ESCAPE:
@@ -107,6 +119,9 @@ class GameOverEventHandler(EventHandler):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 response = ActionQuit(player)
+        
+        if event.type == pygame.MOUSEMOTION:
+            response = MouseMoveAction(player, mouse.get_pos())
         
         if response is not None:
             return response

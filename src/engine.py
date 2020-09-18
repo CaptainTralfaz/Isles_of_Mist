@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
+from actions import MovementAction
 from custom_exceptions import Impossible
 from input_handlers import MainEventHandler
 from message_log import MessageLog
@@ -32,6 +33,13 @@ class Engine:
                     entity.ai.perform()
                 except Impossible:
                     pass
+    
+    def handle_bonus_movement(self) -> None:
+        if self.player.sails.raised:
+            try:
+                MovementAction(entity=self.player).perform()
+            except Impossible:
+                pass
     
     def render(self, main_surface: Surface) -> None:
         self.game_map.render(main_display=main_surface, ui_layout=self.ui_layout)

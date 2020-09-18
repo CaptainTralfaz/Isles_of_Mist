@@ -116,7 +116,7 @@ def explore_water_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int
     while not frontier.empty():
         current = frontier.get()
         x, y = current
-        for neighbor in game_map.get_water_neighbors(x=x, y=y):
+        for neighbor in game_map.get_neighbors(x=x, y=y, elevation=Elevation.BEACH):
             if neighbor not in visited:
                 frontier.put(neighbor)
                 visited.append(neighbor)

@@ -4,6 +4,7 @@ from random import choice
 from typing import TYPE_CHECKING
 
 from actions import Action, MeleeAction, RotateAction, MovementAction, WanderAction
+from tile import Elevation
 from utilities import get_distance, get_neighbor
 
 if TYPE_CHECKING:
@@ -43,7 +44,6 @@ class HostileEnemy(BaseAI):
         """
         # in view, set new target location
         if (self.engine.player.x, self.engine.player.y) in self.entity.view.fov:
-            # print(f"{self.entity.name} updating target: ({self.engine.player.x}, {self.engine.player.y})")
             self.current_target_x = self.engine.player.x
             self.current_target_y = self.engine.player.y
             
@@ -55,14 +55,13 @@ class HostileEnemy(BaseAI):
         # have a target location: find path, then move or rotate
         if self.current_target_x is not None and self.current_target_y is not None:
             
-            if self.entity.flying:
-                distance_map = self.engine.game_map.gen_flying_distance_map(self.current_target_x,
-                                                                            self.current_target_y)
-            else:
-                distance_map = self.engine.game_map.gen_sail_distance_map(self.current_target_x,
-                                                                          self.current_target_y)
+            distance_map = self.engine.game_map.gen_distance_map(self.current_target_x,
+                                                                 self.current_target_y,
+                                                                 # self.entity.x,
+                                                                 # self.entity.y,
+                                                                 self.entity.flying)
             
-            neighbors = self.engine.game_map.get_neighbors(self.entity.x, self.entity.y)
+            neighbors = self.engine.game_map.get_neighbors(self.entity.x, self.entity.y, Elevation.VOLCANO)
             shortest_dist_coords = []
             shortest_dist = get_distance(self.entity.x, self.entity.y,
                                          self.current_target_x, self.current_target_y)
