@@ -98,14 +98,17 @@ def render_simple_bar(current: int,
     return max_bar
 
 
-def render_entity_info(console, game_map, fov, player_x, player_y, mouse_x, mouse_y, offset):
-    coord_x, coord_y = game_map.surface_to_map_coords(mouse_x, mouse_y, player_x)
-    entities = game_map.get_targets_at_location(coord_x + player_x - view_port,
-                                                coord_y + player_y - view_port,
+def render_entity_info(console, game_map, player, mouse_x, mouse_y, offset):
+    coord_x, coord_y = game_map.surface_to_map_coords(mouse_x, mouse_y, player.x)
+    entities = game_map.get_targets_at_location(coord_x + player.x - view_port,
+                                                coord_y + player.y - view_port,
                                                 living_targets=False)
+    if player in entities:
+        entities.remove(player)
+    
     visible_entities = []
     for entity in entities:
-        if (entity.x, entity.y) in fov:
+        if (entity.x, entity.y) in player.view.fov:
             visible_entities.append(entity)
     
     if len(visible_entities) > 0:

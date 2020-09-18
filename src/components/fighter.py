@@ -1,5 +1,5 @@
-from constants import colors
 from components.base import BaseComponent
+from constants import colors
 from entity import Actor
 from game_map import Elevation
 from input_handlers import GameOverEventHandler
@@ -9,12 +9,16 @@ from render_functions import RenderOrder
 class Fighter(BaseComponent):
     parent: Actor
     
-    def __init__(self, hp: int, defense: int, power: int, name: str = "body"):
+    def __init__(self, hp: int, defense: int, power: int, name: str = "body", can_hit: dict = None):
         self.max_hp = hp
         self._hp = hp
         self.defense = defense
         self.power = power
         self.name = name
+        if can_hit is None:
+            self.can_hit = {"hull": 50, "sail": 20, "crew": 10, "weapon": 10, "cargo": 10}
+        else:
+            self.can_hit = can_hit
     
     @property
     def hp(self) -> int:

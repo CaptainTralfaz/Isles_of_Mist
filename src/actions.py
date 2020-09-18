@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, List, Tuple
 
 from constants import colors
 from custom_exceptions import Impossible
+from utilities import choice_from_dict
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -109,18 +110,45 @@ class MeleeAction(Action):
         return self.engine.player
     
     def perform(self) -> bool:
-        damage = self.entity.fighter.power - self.target.fighter.defense
-        attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}"
         
-        if damage > 0:
-            self.target.fighter.hp -= damage
+        if "sail" in self.entity.fighter.can_hit.keys() and self.target.sails.hp == 0:
+            self.entity.fighter.can_hit["sail"] = 0
+        
+        gets_hit = choice_from_dict(self.entity.fighter.can_hit)
+        
+        if gets_hit == "hull":
+            damage = self.entity.fighter.power - self.target.fighter.defense
+            attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.fighter.name}"
             
-            self.engine.message_log.add_message(f"{attack_desc} for {damage} " +
-                                                f"{self.target.fighter.name} damage",
-                                                colors["enemy_atk"])
-        else:
-            self.engine.message_log.add_message(f"{attack_desc} but does no damage",
-                                                colors["enemy_atk"])
+            if damage > 0:
+                self.target.fighter.hp -= damage
+                
+                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", colors["enemy_atk"])
+            else:
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors["enemy_atk"])
+        
+        elif gets_hit == "sail":
+            damage = self.entity.fighter.power - self.target.sails.defense
+            attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.sails.name}"
+            
+            if damage > 0:
+                self.target.sails.hp -= damage
+                
+                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", colors["enemy_atk"])
+            else:
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors["enemy_atk"])
+        
+        elif gets_hit == "crew":
+            damage = self.entity.fighter.power - self.target.crew.defense
+            attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.crew.name}"
+            
+            if damage > 0:
+                self.target.crew.count -= damage
+                
+                self.engine.message_log.add_message(f"{attack_desc} and kills {damage} members", colors["enemy_atk"])
+            else:
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors["enemy_atk"])
+        
         return True
 
 
@@ -135,7 +163,7 @@ class SplitDamageAction(Action):
             for target in self.targets:
                 damage = split_damage - target.fighter.defense
                 
-                attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+                attack_desc = f"{self.entity.name.capitalize()} shoots {target.name}"
                 if damage > 0:
                     target.fighter.hp -= damage
                     self.engine.message_log.add_message(f"{attack_desc} for {damage} " +
