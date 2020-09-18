@@ -5,8 +5,8 @@ import pygame.transform as transform
 from pygame import Surface, draw
 
 from constants import colors
-from utilities import direction_angle, surface_to_map_coords
 from constants import view_port, margin, game_font
+from utilities import direction_angle
 
 
 class RenderOrder(Enum):
@@ -99,9 +99,7 @@ def render_simple_bar(current: int,
 
 
 def render_entity_info(console, game_map, fov, player_x, player_y, mouse_x, mouse_y, offset):
-    coord_x, coord_y = surface_to_map_coords(mouse_x, mouse_y, player_x)
-    # print(f"{player_x}.{player_y} -> {coord_x}.{coord_y}" +
-    #       f"({coord_x + player_x - view_port}.{coord_y + player_y - view_port})")
+    coord_x, coord_y = game_map.surface_to_map_coords(mouse_x, mouse_y, player_x)
     entities = game_map.get_targets_at_location(coord_x + player_x - view_port,
                                                 coord_y + player_y - view_port,
                                                 living_targets=False)
@@ -155,6 +153,14 @@ def status_panel_render(console: Surface, entity, ui_layout):
                                  status_panel.get_width() - margin * 2)
         status_panel.blit(sail_bar, (margin, margin + margin // 2 + game_font.get_height()))
     console.blit(status_panel, (0, ui_layout.mini_height))
+    if entity.crew:
+        crew_bar = render_hp_bar(f"{entity.crew.name.capitalize()}",
+                                 entity.crew.count,
+                                 entity.crew.max_count,
+                                 status_panel.get_width() - margin * 2)
+        status_panel.blit(crew_bar, (margin, margin + 2 * (margin // 2 + game_font.get_height())))
+    console.blit(status_panel, (0, ui_layout.mini_height))
+    # TODO render weapons damage/cool-downs, and cargo
 
 
 def render_border(panel, color):

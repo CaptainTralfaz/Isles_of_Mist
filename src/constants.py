@@ -2,7 +2,6 @@ from pygame import image, font
 
 font.init()
 
-
 margin = 5
 block_size = 4
 tile_size = 32
@@ -23,6 +22,16 @@ bat_image = image.load("assets/bat.png")
 carcass = image.load("assets/carcass.png")
 sunken_ship = image.load("assets/sunken_ship.png")
 
+ocean = image.load("assets/ocean.png")
+water = image.load("assets/water.png")
+shallows = image.load("assets/shallows.png")
+beach = image.load("assets/beach.png")
+grass = image.load("assets/grass.png")
+jungle = image.load("assets/jungle.png")
+mountain = image.load("assets/mountain.png")
+volcano = image.load("assets/volcano.png")
+fog_of_war = image.load("assets/fog_of_war.png")
+
 images = {
     'player_image': player_image,
     'turtle_image': turtle_image,
@@ -30,6 +39,15 @@ images = {
     'bat_image': bat_image,
     'carcass': carcass,
     'sunken_ship': sunken_ship,
+    'ocean': ocean,
+    'water': water,
+    'shallows': shallows,
+    'beach': beach,
+    'grass': grass,
+    'jungle': jungle,
+    'mountain': mountain,
+    'volcano': volcano,
+    'fog_of_war': fog_of_war,
 }
 
 colors = {
