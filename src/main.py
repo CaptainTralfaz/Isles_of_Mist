@@ -4,7 +4,7 @@ import copy
 import pygame
 
 import entity_factory
-from constants import colors, map_width, map_height, caption, icon
+from constants import colors, map_width, map_height, caption, icon, FPS
 from engine import Engine
 from procgen import generate_map
 from ui import DisplayInfo
@@ -41,6 +41,7 @@ def main() -> None:
         
         engine.render(main_surface=game_display)
         pygame.display.flip()
+        engine.clock.tick(FPS)
     
     pygame.quit()
 

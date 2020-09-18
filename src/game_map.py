@@ -5,7 +5,7 @@ from typing import Iterable, List, Tuple, TYPE_CHECKING
 
 from pygame import display, Surface
 
-from constants import block_size, colors, images, margin, tile_size, view_port
+from constants import block_size, colors, images, margin, sprites, tile_size, view_port
 from render_functions import get_rotated_image, render_border
 from tile import Elevation, Terrain
 from ui import DisplayInfo
@@ -189,8 +189,13 @@ class GameMap:
         )
         
         for entity in entities_sorted_for_rendering:
-            if (entity.x, entity.y) in self.engine.player.view.fov \
-                    and entity.icon is not None:
+            if entity.sprite and (entity.x, entity.y) in self.engine.player.view.fov:
+                entity.sprite.update(self.engine.clock.get_fps())
+                map_surf.blit(get_rotated_image(sprites[entity.sprite.sprite_name][entity.sprite.pointer],
+                                                entity.facing),
+                              ((entity.x - left) * tile_size,
+                               (entity.y - top - 1) * tile_size + entity.x % 2 * half_tile + margin - offset))
+            elif (entity.x, entity.y) in self.engine.player.view.fov and entity.icon is not None:
                 map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
                               ((entity.x - left) * tile_size,
                                (entity.y - top - 1) * tile_size + entity.x % 2 * half_tile + margin - offset))

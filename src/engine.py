@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pygame import Surface
+from pygame import Surface, time
 
 from actions import MovementAction
 from custom_exceptions import Impossible
@@ -25,6 +25,7 @@ class Engine:
         self.mouse_location = (0, 0)
         self.message_log = MessageLog()
         self.ui_layout = ui_layout
+        self.clock = time.Clock()
     
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
