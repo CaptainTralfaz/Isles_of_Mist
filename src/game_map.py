@@ -3,28 +3,18 @@ from __future__ import annotations
 from queue import Queue
 from typing import Iterable, List, Tuple, TYPE_CHECKING
 
-from pygame import display, image, Surface
+from pygame import display, Surface
 
 from constants import colors
+from constants import images, tile_size
 from render_functions import get_rotated_image, render_border
 from tile import Elevation, Terrain
 from ui import view_port, DisplayInfo, margin, block_size
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
-from constants import images, tile_size
 
 if TYPE_CHECKING:
     from entity import Actor
     from engine import Engine
-
-ocean = image.load("assets/ocean.png")
-water = image.load("assets/water.png")
-shallows = image.load("assets/shallows.png")
-beach = image.load("assets/beach.png")
-grass = image.load("assets/grass.png")
-jungle = image.load("assets/jungle.png")
-mountain = image.load("assets/mountain.png")
-volcano = image.load("assets/volcano.png")
-fog_of_war = image.load("assets/fog_of_war.png")
 
 
 class GameMap:
@@ -168,30 +158,31 @@ class GameMap:
                 if self.in_bounds(x, y) and self.terrain[x][y].explored:
                     
                     if self.terrain[x][y].elevation == Elevation.OCEAN:
-                        tile = ocean
+                        tile = 'ocean'
                     elif self.terrain[x][y].elevation == Elevation.WATER:
-                        tile = water
+                        tile = 'water'
                     elif self.terrain[x][y].elevation == Elevation.SHALLOWS:
-                        tile = shallows
+                        tile = 'shallows'
                     elif self.terrain[x][y].elevation == Elevation.BEACH:
-                        tile = beach
+                        tile = 'beach'
                     elif self.terrain[x][y].elevation == Elevation.GRASS:
-                        tile = grass
+                        tile = 'grass'
                     elif self.terrain[x][y].elevation == Elevation.JUNGLE:
-                        tile = jungle
+                        tile = 'jungle'
                     elif self.terrain[x][y].elevation == Elevation.MOUNTAIN:
-                        tile = mountain
+                        tile = 'mountain'
                     else:
-                        tile = volcano
+                        tile = 'volcano'
                     
-                    map_surf.blit(tile, ((x - left) * tile_size - margin,
-                                         (y - top - 1) * tile_size + x % 2 * half_tile - margin - offset))
+                    map_surf.blit(images[tile], ((x - left) * tile_size - margin,
+                                                 (y - top - 1) * tile_size + x % 2 * half_tile - margin - offset))
         
         for x in range(left, right):
             for y in range(top, bottom):
                 if (x, y) not in self.engine.player.view.fov:
-                    map_surf.blit(fog_of_war, ((x - left) * tile_size - margin,
-                                               (y - top - 1) * tile_size + x % 2 * half_tile - margin - offset))
+                    map_surf.blit(images["fog_of_war"], ((x - left) * tile_size - margin,
+                                                         (
+                                                                 y - top - 1) * tile_size + x % 2 * half_tile - margin - offset))
         
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda i: i.render_order.value
@@ -308,3 +299,14 @@ class GameMap:
                 else:
                     targets.append(entity)
         return targets
+    
+    @staticmethod
+    def surface_to_map_coords(x: int, y: int, player_x: int) -> Tuple[int, int]:
+        half_tile_size = tile_size // 2
+        x_grid = x // tile_size
+        y_grid = (y + 2 * margin - half_tile_size
+                  + (player_x % 2) * half_tile_size
+                  - ((player_x - x_grid) % 2) * half_tile_size
+                  ) // tile_size
+        
+        return x_grid, y_grid

@@ -1,7 +1,5 @@
 from typing import List, Tuple
 
-from constants import tile_size, margin
-
 direction_angle = [0, 60, 120, 180, 240, 300]
 
 
@@ -167,14 +165,3 @@ def cube_lerp(a: Cube, b: Cube, t) -> Cube:
     cubic line drawing helper
     """
     return Cube(x=lerp(a.x, b.x, t), y=lerp(a.y, b.y, t), z=lerp(a.z, b.z, t))
-
-
-def surface_to_map_coords(x: int, y: int, player_x: int) -> Tuple[int, int]:
-    half_tile_size = tile_size // 2
-    x_grid = x // tile_size
-    y_grid = (y + 2 * margin - half_tile_size
-              + (player_x % 2) * half_tile_size
-              - ((player_x - x_grid) % 2) * half_tile_size
-              ) // tile_size
-    
-    return x_grid, y_grid
