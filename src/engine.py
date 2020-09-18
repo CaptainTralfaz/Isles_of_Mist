@@ -47,9 +47,7 @@ class Engine:
                 and 0 < self.mouse_location[1] < self.ui_layout.viewport_height - 1:
             render_entity_info(console=main_surface,
                                game_map=self.game_map,
-                               fov=self.player.view.fov,
-                               player_x=self.player.x,
-                               player_y=self.player.y,
+                               player=self.player,
                                mouse_x=self.mouse_location[0] - self.ui_layout.mini_width,
                                mouse_y=self.mouse_location[1],
                                offset=self.ui_layout.mini_width)

@@ -1,3 +1,4 @@
+from random import randint
 from typing import List, Tuple
 
 direction_angle = [0, 60, 120, 180, 240, 300]
@@ -165,3 +166,11 @@ def cube_lerp(a: Cube, b: Cube, t) -> Cube:
     cubic line drawing helper
     """
     return Cube(x=lerp(a.x, b.x, t), y=lerp(a.y, b.y, t), z=lerp(a.z, b.z, t))
+
+
+def choice_from_dict(dictionary: dict[str:int]) -> str:
+    count = randint(1, sum(dictionary.values()))
+    for key in dictionary.keys():
+        count -= dictionary[key]
+        if count <= 0:
+            return key

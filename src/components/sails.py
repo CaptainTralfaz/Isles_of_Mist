@@ -1,5 +1,6 @@
-from entity import Actor
 from components.base import BaseComponent
+from constants import colors
+from entity import Actor
 
 
 class Sails(BaseComponent):
@@ -21,6 +22,7 @@ class Sails(BaseComponent):
         self._hp = max(0, min(value, self.max_hp))
         if self._hp == 0:
             self.destroy()
-
+    
     def destroy(self):
-        print(f"Sails have been destroyed")
+        self.raised = False
+        self.engine.message_log.add_message(f"Sails have been destroyed!", colors["welcome_text"])
