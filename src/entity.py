@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from components.fighter import Fighter
     from components.sails import Sails
     from components.view import View
+    from sprite import Sprite
 
 T = TypeVar("T", bound="Entity")
 
@@ -26,12 +27,14 @@ class Entity:
     def __init__(self, x: int,
                  y: int,
                  icon: str,
+                 sprite: Optional[Sprite] = None,
                  parent: Optional[GameMap] = None,
                  name: str = "<Unnamed>",
                  render_order: RenderOrder = RenderOrder.FLOATER):
         self.x = x
         self.y = y
         self.icon = icon
+        self.sprite = sprite
         self.name = name
         self.render_order = render_order
         if parent:
@@ -75,6 +78,7 @@ class Actor(Entity):
                  y: int = 0,
                  facing: int = 0,
                  icon: str = "",
+                 sprite: Optional[Sprite] = None,
                  name: str = "<Unnamed>",
                  flying: bool = False,
                  render_order: RenderOrder = RenderOrder.SWIMMER):
@@ -82,6 +86,7 @@ class Actor(Entity):
             x=x,
             y=y,
             icon=icon,
+            sprite=sprite,
             name=name,
             render_order=render_order
         )

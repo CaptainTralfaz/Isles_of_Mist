@@ -44,6 +44,8 @@ class Fighter(BaseComponent):
                 self.parent.icon = None
             death_message_color = colors["enemy_die"]
         
+        if self.parent.sprite:
+            self.parent.sprite = None
         self.parent.facing = 0
         self.parent.ai = None
         self.parent.name = f"{self.parent.name} Corpse"

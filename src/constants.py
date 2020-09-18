@@ -9,10 +9,16 @@ map_width = 48
 map_height = 48
 caption = "Isles of Mist"
 
-"""Variable later ?? """
+# TODO Variable later ??
 game_font = font.Font('freesansbold.ttf', 16)
-view_port = 8
+view_port = 6
 message_count = 10
+
+FPS = 20
+sprite_count = 4
+animation_speed = 2.0
+flicker_timer = 0.0
+sprite_image = 0
 
 icon = image.load("assets/compass.png")
 player_image = image.load("assets/ship_icon.png")
@@ -31,6 +37,23 @@ jungle = image.load("assets/jungle.png")
 mountain = image.load("assets/mountain.png")
 volcano = image.load("assets/volcano.png")
 fog_of_war = image.load("assets/fog_of_war.png")
+
+sprite_sheet = image.load("assets/sprite_sheet.png")
+
+bat_sprite = []
+serpent_sprite = []
+turtle_sprite = []
+
+for i in range(sprite_count):
+    bat_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 0, tile_size, tile_size))
+    serpent_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 1, tile_size, tile_size))
+    turtle_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 2, tile_size, tile_size))
+
+sprites = {
+    'turtle_sprite': turtle_sprite,
+    'serpent_sprite': serpent_sprite,
+    'bat_sprite': bat_sprite,
+}
 
 images = {
     'player_image': player_image,
