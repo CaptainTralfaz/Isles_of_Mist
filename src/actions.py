@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, List, Tuple
 
 from constants import colors
 from custom_exceptions import Impossible
+from tile import Elevation
 from utilities import choice_from_dict
 
 if TYPE_CHECKING:
@@ -69,6 +70,8 @@ class MovementAction(Action):
                 self.entity.view.set_fov()
                 return True
             elif self.entity == self.engine.player:
+                if self.entity.sails.raised:
+                    self.entity.sails.adjust(False)
                 raise Impossible("Blocked")
             else:
                 print(f"{self.entity.name} is blocked")
@@ -82,6 +85,16 @@ class RotateAction(Action):
     
     def perform(self) -> bool:
         self.entity.rotate(self.direction)
+        return True
+
+
+class SailAction(Action):
+    def __init__(self, entity, sail):
+        super().__init__(entity)
+        self.sail = sail
+    
+    def perform(self) -> bool:
+        self.entity.sails.adjust(self.sail)
         return True
 
 
@@ -159,7 +172,7 @@ class SplitDamageAction(Action):
     
     def perform(self) -> bool:
         if len(self.targets) > 0:
-            split_damage = self.entity.fighter.power // len(self.targets)
+            split_damage = (self.entity.crew.count // 3) // len(self.targets)
             for target in self.targets:
                 damage = split_damage - target.fighter.defense
                 
@@ -180,7 +193,7 @@ class ArrowAction(SplitDamageAction):
     def __init__(self, entity: Actor):
         self.entity = entity
         targets = []
-        neighbor_tiles = self.engine.game_map.get_neighbors(self.entity.x, self.entity.y)
+        neighbor_tiles = self.engine.game_map.get_neighbors(self.entity.x, self.entity.y, Elevation.VOLCANO)
         neighbor_tiles.append((entity.x, entity.y))
         for tile_x, tile_y in neighbor_tiles:
             targets.extend(self.engine.game_map.get_targets_at_location(tile_x, tile_y))

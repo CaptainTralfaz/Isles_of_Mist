@@ -22,7 +22,7 @@ player = Actor(x=0,
                            name="sail"),
                crew=Crew(count=15,
                          max_count=15,
-                         defense=0,
+                         defense=1,
                          name="crew"),
                view=View(5))
 

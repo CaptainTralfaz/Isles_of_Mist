@@ -168,7 +168,7 @@ def cube_lerp(a: Cube, b: Cube, t) -> Cube:
     return Cube(x=lerp(a.x, b.x, t), y=lerp(a.y, b.y, t), z=lerp(a.z, b.z, t))
 
 
-def choice_from_dict(dictionary: dict[str:int]) -> str:
+def choice_from_dict(dictionary: dict) -> str:
     count = randint(1, sum(dictionary.values()))
     for key in dictionary.keys():
         count -= dictionary[key]
