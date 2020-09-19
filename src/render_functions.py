@@ -98,10 +98,14 @@ def render_simple_bar(current: int,
     return max_bar
 
 
-def render_entity_info(console, game_map, player, mouse_x, mouse_y, offset):
+def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     coord_x, coord_y = game_map.surface_to_map_coords(mouse_x, mouse_y, player.x)
-    entities = game_map.get_targets_at_location(coord_x + player.x - view_port,
-                                                coord_y + player.y - view_port,
+    trans_x = coord_x + player.x - view_port
+    trans_y = coord_y + player.y - view_port
+    # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y}")
+    
+    entities = game_map.get_targets_at_location(trans_x,
+                                                trans_y,
                                                 living_targets=False)
     if player in entities:
         entities.remove(player)
@@ -126,6 +130,7 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, offset):
                 entity_list.append((name, entity.fighter.hp, entity.fighter.max_hp))
             else:
                 entity_list.append((name, None, None))
+            # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y} ({entity.x}:{entity.y})")
         
         info_surf = Surface((max(widths) + margin * 2,
                              (len(entities) - 1) * 2 + len(entities) * game_font.get_height() + margin * 2))
@@ -138,7 +143,14 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, offset):
             info_surf.blit(name, (margin, margin + height * game_font.get_height() + 2 * height))
             height += 1
         
-        console.blit(info_surf, (mouse_x + offset + margin * 2, mouse_y + margin * 2))
+        blit_x = mouse_x + ui.mini_width + margin * 2
+        if blit_x + info_surf.get_width() > ui.mini_width + ui.viewport_width:
+            blit_x = ui.mini_width + ui.viewport_width - info_surf.get_width() - margin
+        blit_y = mouse_y + margin * 2
+        if blit_y > ui.viewport_height:
+            blit_y = ui.viewport_height - info_surf.get_height() - margin
+        
+        console.blit(info_surf, (blit_x, blit_y))
 
 
 def status_panel_render(console: Surface, entity, ui_layout):

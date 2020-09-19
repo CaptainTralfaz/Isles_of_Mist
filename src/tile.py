@@ -55,7 +55,6 @@ class Terrain:
         """
         self.elevation = elevation
         self.explored = explored
-        self.movable = True if elevation <= Elevation.SHALLOWS else True
         # self.decoration = decoration
         # self.fog = fog
         
