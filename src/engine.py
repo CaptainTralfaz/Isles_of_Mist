@@ -59,4 +59,4 @@ class Engine:
                                player=self.player,
                                mouse_x=self.mouse_location[0] - self.ui_layout.mini_width,
                                mouse_y=self.mouse_location[1],
-                               offset=self.ui_layout.mini_width)
+                               ui=self.ui_layout)
