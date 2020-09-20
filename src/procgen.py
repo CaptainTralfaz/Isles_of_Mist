@@ -51,24 +51,28 @@ def generate_map(map_width: int, map_height: int, engine: Engine) -> GameMap:
             
             # noise_map[x][y] = ratio
             
+            # add mist  TODO: add depending on weather
+            
+            mist = True if randint(0, 99) < 10 else False
+            
             height = round(256 * elevation * ratio)
             if height < 100:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN, explored=False)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN, explored=False, mist=mist)
             elif height < 125:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER, explored=False)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER, explored=False, mist=mist)
             elif height < 150:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS, explored=False)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS, explored=False, mist=mist)
             elif height < 160:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH, explored=False)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH, explored=False, mist=mist)
             elif height < 170:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS, explored=False)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS, explored=False, mist=mist)
             elif height < 200:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE, explored=False)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE, explored=False, mist=mist)
             elif height < 210:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN, explored=False)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN, explored=False, mist=mist)
             else:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=False)
-    
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=False, mist=mist)
+                
     player_x, player_y = place_entities(island_map)
     player.place(player_x, player_y, island_map)
     player.view.set_fov()

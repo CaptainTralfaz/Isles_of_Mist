@@ -10,6 +10,7 @@ from input_handlers import MainEventHandler
 from message_log import MessageLog
 from render_functions import render_entity_info, status_panel_render
 from ui import DisplayInfo
+from weather import Weather
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -26,6 +27,7 @@ class Engine:
         self.message_log = MessageLog()
         self.ui_layout = ui_layout
         self.clock = time.Clock()
+        self.weather = Weather()
     
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
@@ -41,6 +43,9 @@ class Engine:
                 MovementAction(entity=self.player).perform()
             except Impossible:
                 pass
+    
+    def handle_weather(self):
+        self.weather.roll_mist(self.game_map)
     
     def render(self, main_surface: Surface) -> None:
         self.game_map.render(main_display=main_surface, ui_layout=self.ui_layout)
