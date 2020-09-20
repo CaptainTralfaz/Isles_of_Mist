@@ -52,26 +52,58 @@ def generate_map(map_width: int, map_height: int, engine: Engine) -> GameMap:
             # noise_map[x][y] = ratio
             
             # add mist  TODO: add depending on weather
-            
             mist = True if randint(0, 99) < 10 else False
-            
+
             height = round(256 * elevation * ratio)
+
+            # decoration  TODO: use noise?
+            decoration = None
+            if height < 150:
+                rnd = randint(0, 250)
+                if rnd in [0]:
+                    decoration = "coral"
+                elif rnd in [1]:
+                    decoration = "rocks"
+                elif rnd in [2]:
+                    decoration = "sandbar"
+                elif rnd in [3, 4]:
+                    decoration = "seaweed"
+                    
             if height < 100:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN, explored=False, mist=mist)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN,
+                                                   explored=False,
+                                                   decoration=decoration,
+                                                   mist=mist)
             elif height < 125:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER, explored=False, mist=mist)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER,
+                                                   explored=False,
+                                                   decoration=decoration,
+                                                   mist=mist)
             elif height < 150:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS, explored=False, mist=mist)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS,
+                                                   explored=False,
+                                                   decoration=decoration,
+                                                   mist=mist)
             elif height < 160:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH, explored=False, mist=mist)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH,
+                                                   explored=False,
+                                                   mist=mist)
             elif height < 170:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS, explored=False, mist=mist)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS,
+                                                   explored=False,
+                                                   mist=mist)
             elif height < 200:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE, explored=False, mist=mist)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE,
+                                                   explored=False,
+                                                   mist=mist)
             elif height < 210:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN, explored=False, mist=mist)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN,
+                                                   explored=False,
+                                                   mist=mist)
             else:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO, explored=False, mist=mist)
+                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO,
+                                                   explored=False,
+                                                   mist=mist)
                 
     player_x, player_y = place_entities(island_map)
     player.place(player_x, player_y, island_map)

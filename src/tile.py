@@ -46,7 +46,7 @@ class Elevation(Enum):
 
 
 class Terrain:
-    def __init__(self, elevation: Elevation, explored: bool = False, mist: bool = False):
+    def __init__(self, elevation: Elevation, explored: bool = False, decoration: str = None, mist: bool = False):
         """
         Height of terrain determines the terrain Enum value, name, mini-map color, and icon
         This class will also track if the tile has been seen, contains fog, or contains a decoration
@@ -55,5 +55,5 @@ class Terrain:
         """
         self.elevation = elevation
         self.explored = explored
-        # self.decoration = decoration
+        self.decoration = decoration
         self.mist = mist
