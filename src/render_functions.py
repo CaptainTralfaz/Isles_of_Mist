@@ -103,7 +103,6 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     trans_x = coord_x + player.x - view_port
     trans_y = coord_y + player.y - view_port
     # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y}")
-    
     entities = game_map.get_targets_at_location(trans_x,
                                                 trans_y,
                                                 living_targets=False)
@@ -114,26 +113,39 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     for entity in entities:
         if (entity.x, entity.y) in player.view.fov:
             visible_entities.append(entity)
+        
+    entities_sorted_for_rendering = sorted(
+        visible_entities, key=lambda i: i.render_order.value, reverse=True
+    )
     
-    if len(visible_entities) > 0:
-        
-        entities_sorted_for_rendering = sorted(
-            visible_entities, key=lambda i: i.render_order.value, reverse=True
-        )
-        
-        widths = []
-        entity_list = []
-        for entity in entities_sorted_for_rendering:
-            name = game_font.render(f"{entity.name}", True, colors["white"])
+    widths = []
+    entity_list = []
+    for entity in entities_sorted_for_rendering:
+        name = game_font.render(f"{entity.name}", True, colors["white"])
+        widths.append(name.get_width())
+        if entity.fighter:
+            entity_list.append((name, entity.fighter.hp, entity.fighter.max_hp))
+        else:
+            entity_list.append((name, None, None))
+    if game_map.in_bounds(trans_x, trans_y) and game_map.terrain[trans_x][trans_y].explored:
+        if game_map.terrain[trans_x][trans_y].mist and (trans_x, trans_y) in player.view.fov:
+            name = game_font.render(f"Mist", True, colors["white"])
             widths.append(name.get_width())
-            if entity.fighter:
-                entity_list.append((name, entity.fighter.hp, entity.fighter.max_hp))
-            else:
-                entity_list.append((name, None, None))
-            # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y} ({entity.x}:{entity.y})")
-        
+            entity_list.append((name, None, None))
+        if game_map.terrain[trans_x][trans_y].decoration:
+            name = game_font.render(f"{game_map.terrain[trans_x][trans_y].decoration.capitalize()}",
+                                    True, colors["white"])
+            widths.append(name.get_width())
+            entity_list.append((name, None, None))
+        name = game_font.render(f"{game_map.terrain[trans_x][trans_y].elevation.name.lower().capitalize()}",
+                                True, colors["white"])
+        entity_list.append((name, None, None))
+        widths.append(name.get_width())
+
+    # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y} ({entity.x}:{entity.y})")
+    if len(entity_list) > 0:
         info_surf = Surface((max(widths) + margin * 2,
-                             (len(entities) - 1) * 2 + len(entities) * game_font.get_height() + margin * 2))
+                             (len(entities) - 1) * 2 + len(entity_list) * game_font.get_height() + margin * 2))
         render_border(info_surf, colors["white"])
         height = 0
         for name, hp, max_hp in entity_list:

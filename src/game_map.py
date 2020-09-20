@@ -99,13 +99,19 @@ class GameMap:
     def render_mini(self, main_display: display, ui_layout: DisplayInfo) -> None:
         mini_surf = Surface((ui_layout.mini_width, ui_layout.mini_height))
         block = Surface((block_size, block_size))
+        mini_block = Surface((block_size // 2, block_size // 2))
         for x in range(self.width):
             for y in range(self.height):
                 if self.terrain[x][y].explored:
                     block.fill(colors[self.terrain[x][y].elevation.name.lower()])
                     mini_surf.blit(block, (margin + x * block_size,
                                            margin + y * block_size + (x % 2) * block_size // 2 - 2))
-        
+                    if self.terrain[x][y].decoration:
+                        mini_block.fill(colors[self.terrain[x][y].decoration])
+                        mini_surf.blit(mini_block,
+                                       (margin + 1 + x * block_size,
+                                        margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
+
         for entity in self.entities:
             if (entity.x, entity.y) in self.engine.player.view.fov \
                     and entity.icon is not None:
@@ -139,6 +145,10 @@ class GameMap:
                     map_surf.blit(images[self.terrain[x][y].elevation.name.lower()],
                                   ((x - left) * tile_size - margin,
                                    (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                    if self.terrain[x][y].decoration:
+                        map_surf.blit(images[self.terrain[x][y].decoration],
+                                      ((x - left) * tile_size,
+                                       (y - top - 1) * tile_size + (x % 2) * half_tile + margin - offset))
                     # coord_text = game_font.render(f"{x}:{y}", False, (0, 0, 0))
                     # map_surf.blit(coord_text,
                     #               ((x - left) * tile_size,

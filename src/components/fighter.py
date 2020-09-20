@@ -43,14 +43,14 @@ class Fighter(BaseComponent):
             else:
                 self.parent.icon = None
             death_message_color = colors["enemy_die"]
-        
+            self.parent.view.distance = 0
+
         if self.parent.sprite:
             self.parent.sprite = None
         self.parent.facing = 0
         self.parent.ai = None
         self.parent.name = f"{self.parent.name} Corpse"
         self.parent.render_order = RenderOrder.CORPSE
-        self.parent.view.distance = 0
         self.parent.flying = False
         
         self.engine.message_log.add_message(death_message, death_message_color)

@@ -67,6 +67,18 @@ class MovementAction(Action):
                 can_move = self.entity.parent.game_map.can_sail_to(x, y)
             if can_move:
                 self.entity.move()
+                if self.entity.fighter.name == "hull":
+                    if self.entity.parent.game_map.terrain[x][y].decoration:
+                        decoration = self.entity.parent.game_map.terrain[x][y].decoration
+                        if decoration in ["rocks"]:
+                            self.entity.parent.engine.message_log.add_message(
+                                f"{self.entity.name} takes 2 hull damage while dodging rocks")
+                            self.entity.fighter.take_damage(2)
+                        elif decoration in ["coral"]:
+                            self.entity.parent.engine.message_log.add_message(
+                                f"{self.entity.name} takes 1 hull damage from scraping coral")
+                            self.entity.fighter.take_damage(1)
+                    
                 return True
             elif self.entity == self.engine.player:
                 if self.entity.sails.raised:
