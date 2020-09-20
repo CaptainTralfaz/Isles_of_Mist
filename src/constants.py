@@ -37,6 +37,7 @@ jungle = image.load("assets/jungle.png")
 mountain = image.load("assets/mountain.png")
 volcano = image.load("assets/volcano.png")
 fog_of_war = image.load("assets/fog_of_war.png")
+mist = image.load("assets/mist.png")
 
 sprite_sheet = image.load("assets/sprite_sheet.png")
 
@@ -71,6 +72,7 @@ images = {
     'mountain': mountain,
     'volcano': volcano,
     'fog_of_war': fog_of_war,
+    'mist': mist
 }
 
 colors = {

@@ -66,10 +66,9 @@ class MainEventHandler(EventHandler):
             # TODO add bonus movement
             if something_happened:
                 self.engine.handle_bonus_movement()
-            
-            if something_happened:
                 self.engine.handle_enemy_turns()
-    
+                self.engine.handle_weather()
+            
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None

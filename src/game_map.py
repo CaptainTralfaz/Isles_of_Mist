@@ -147,7 +147,7 @@ class GameMap:
         right = left + 2 * view_port + 1
         
         top = self.engine.player.y - view_port - 1
-        bottom = top + 2 * view_port + 2
+        bottom = top + 2 * view_port + 3
         
         map_surf = Surface(((2 * view_port + 1) * tile_size, (2 * view_port + 1) * tile_size + 2 * margin))
         offset = self.engine.player.x % 2 * half_tile
@@ -155,25 +155,7 @@ class GameMap:
         for x in range(left, right):
             for y in range(top, bottom):
                 if self.in_bounds(x, y) and self.terrain[x][y].explored:
-                    
-                    if self.terrain[x][y].elevation == Elevation.OCEAN:
-                        tile = 'ocean'
-                    elif self.terrain[x][y].elevation == Elevation.WATER:
-                        tile = 'water'
-                    elif self.terrain[x][y].elevation == Elevation.SHALLOWS:
-                        tile = 'shallows'
-                    elif self.terrain[x][y].elevation == Elevation.BEACH:
-                        tile = 'beach'
-                    elif self.terrain[x][y].elevation == Elevation.GRASS:
-                        tile = 'grass'
-                    elif self.terrain[x][y].elevation == Elevation.JUNGLE:
-                        tile = 'jungle'
-                    elif self.terrain[x][y].elevation == Elevation.MOUNTAIN:
-                        tile = 'mountain'
-                    else:
-                        tile = 'volcano'
-                    
-                    map_surf.blit(images[tile],
+                    map_surf.blit(images[self.terrain[x][y].elevation.name.lower()],
                                   ((x - left) * tile_size - margin,
                                    (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
                     # coord_text = game_font.render(f"{x}:{y}", False, (0, 0, 0))
@@ -203,6 +185,12 @@ class GameMap:
                 map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
                               ((entity.x - left) * tile_size,
                                (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+        
+        for x, y in self.engine.player.view.fov:
+            if self.in_bounds(x, y) and self.terrain[x][y].mist:
+                map_surf.blit(images["mist"],
+                              ((x - left) * tile_size - margin,
+                               (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
         
         render_border(map_surf, (255, 255, 255))
         main_display.blit(map_surf, (ui_layout.mini_width, 0))
