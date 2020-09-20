@@ -21,6 +21,7 @@ flicker_timer = 0.0
 sprite_image = 0
 
 icon = image.load("assets/misc/compass.png")
+arrow_key = image.load("assets/misc/arrow_key.png")
 
 player_image = image.load("assets/entities/ship_icon.png")
 turtle_image = image.load("assets/entities/turtle.png")
@@ -86,6 +87,7 @@ images = {
     'seaweed': seaweed,
     'highlight': highlight,
     'mines': mines,
+    'arrow_key': arrow_key,
 }
 
 colors = {

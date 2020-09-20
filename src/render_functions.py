@@ -4,8 +4,8 @@ from math import floor
 import pygame.transform as transform
 from pygame import Surface, draw
 
-from constants import colors
-from constants import view_port, margin, game_font
+from constants import colors, view_port, margin, game_font, images
+from ui import DisplayInfo
 from utilities import direction_angle
 
 
@@ -113,7 +113,7 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     for entity in entities:
         if (entity.x, entity.y) in player.view.fov:
             visible_entities.append(entity)
-        
+    
     entities_sorted_for_rendering = sorted(
         visible_entities, key=lambda i: i.render_order.value, reverse=True
     )
@@ -141,7 +141,7 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
                                 True, colors["white"])
         entity_list.append((name, None, None))
         widths.append(name.get_width())
-
+    
     # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y} ({entity.x}:{entity.y})")
     if len(entity_list) > 0:
         info_surf = Surface((max(widths) + margin * 2,
@@ -165,29 +165,139 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
         console.blit(info_surf, (blit_x, blit_y))
 
 
-def status_panel_render(console: Surface, entity, ui_layout):
+def status_panel_render(console: Surface, entity, ui_layout: DisplayInfo):
     status_panel = Surface((ui_layout.status_width, ui_layout.status_height))
     render_border(status_panel, colors["white"])
-    health_bar = render_hp_bar(f"{entity.fighter.name.capitalize()}",
-                               entity.fighter.hp,
-                               entity.fighter.max_hp,
-                               status_panel.get_width() - margin * 2)
+    health_bar = render_hp_bar(text=f"{entity.fighter.name.capitalize()}",
+                               current=entity.fighter.hp,
+                               maximum=entity.fighter.max_hp,
+                               bar_width=status_panel.get_width() - margin * 2)
     status_panel.blit(health_bar, (margin, margin))
     if entity.sails:
-        sail_bar = render_hp_bar(f"{entity.sails.name.capitalize()}",
-                                 entity.sails.hp,
-                                 entity.sails.max_hp,
-                                 status_panel.get_width() - margin * 2)
+        sail_bar = render_hp_bar(text=f"{entity.sails.name.capitalize()}",
+                                 current=entity.sails.hp,
+                                 maximum=entity.sails.max_hp,
+                                 bar_width=status_panel.get_width() - margin * 2,
+                                 font_color="bar_text" if entity.sails.raised else "black",
+                                 top_color="bar_filled" if entity.sails.raised else "impossible")
         status_panel.blit(sail_bar, (margin, margin + margin // 2 + game_font.get_height()))
     console.blit(status_panel, (0, ui_layout.mini_height))
     if entity.crew:
-        crew_bar = render_hp_bar(f"{entity.crew.name.capitalize()}",
-                                 entity.crew.count,
-                                 entity.crew.max_count,
-                                 status_panel.get_width() - margin * 2)
+        crew_bar = render_hp_bar(text=f"{entity.crew.name.capitalize()}",
+                                 current=entity.crew.count,
+                                 maximum=entity.crew.max_count,
+                                 bar_width=status_panel.get_width() - margin * 2)
         status_panel.blit(crew_bar, (margin, margin + 2 * (margin // 2 + game_font.get_height())))
     console.blit(status_panel, (0, ui_layout.mini_height))
     # TODO render weapons damage/cool-downs, and cargo
+
+
+def control_panel_render(console: Surface, status, player, ui_layout: DisplayInfo):
+    control_panel = Surface((ui_layout.control_width, ui_layout.control_height))
+    arrow_keys = []
+    text_keys = []
+    
+    if status == "shift":  # targeting
+        arrow_keys = [{'rotation': 0, 'text': 'Shoot Arrows'},
+                      {'rotation': 180, 'text': 'Shoot Arrows'}]
+        space_keys = {'name': 'Space', 'text': 'Drop Mines'}
+        # modify space_keys['text'] for other options (get items, visit port, etc.)
+        text_keys.append(space_keys)
+    elif status == "control_command":  # sails, etc.
+        arrow_keys = [{'rotation': 0, 'text': 'Raise Sails'},
+                      {'rotation': 180, 'text': 'Lower Sails'}]
+    elif status == "alt_option":  # inventory / other?
+        pass
+    elif player.is_alive:  # standard actions
+        arrow_keys = [{'rotation': 0, 'text': 'Row'},
+                      {'rotation': 90, 'text': 'Turn Port'},
+                      {'rotation': 270, 'text': 'Turn Starboard'}]
+        text_keys = [{'name': 'Shift', 'text': 'Targeting'}]
+        if player.sails:
+            text_keys.append({'name': 'Cmd', 'text': 'Sails'})
+        # text_keys.append({'name': 'Opt', 'text': 'Special'})
+        space_keys = {'name': 'Space', 'text': 'Wait'}
+        # modify space_keys['text'] for other options (get items, visit port, etc.)
+        text_keys.append(space_keys)
+        text_keys.append({'name': 'Esc', 'text': 'Exit'})
+    else:
+        text_keys.append({'name': 'Esc', 'text': 'Exit'})
+    
+    split = ui_layout.control_width // 4 + margin * 4
+    vertical = margin * 2
+    spacer = 3
+    if arrow_keys:
+        for key in arrow_keys:
+            vertical = make_arrow_button(panel=control_panel,
+                                         split=split,
+                                         spacer=spacer,
+                                         rotation=key['rotation'],
+                                         text=key['text'],
+                                         icon=images['arrow_key'],
+                                         font=game_font,
+                                         color=colors['mountain'],
+                                         vertical=vertical)
+    if text_keys:
+        for key in text_keys:
+            vertical = make_text_button(panel=control_panel,
+                                        split=split,
+                                        spacer=spacer,
+                                        name=key['name'],
+                                        text=key['text'],
+                                        font=game_font,
+                                        color=colors['mountain'],
+                                        bkg_color=colors['black'],
+                                        vertical=vertical)
+    render_border(control_panel, colors["white"])
+    console.blit(control_panel, (0, ui_layout.mini_height + ui_layout.status_height))
+
+
+def make_arrow_button(panel, split, spacer, rotation, text, icon, font, color, vertical):
+    """
+    Creates and renders an arrow button and description in control panel
+    :param panel: Surface to render on
+    :param split: vertical line - render button on one side, text on the other
+    :param spacer: spacing between font heights
+    :param rotation: degrees to rotate icon
+    :param text: str action corresponding to the arrow button
+    :param icon: arrow icon
+    :param font: Font for rendering name
+    :param color: color of the text to render
+    :param vertical: int y value to render at
+    :return: current vertical value
+    """
+    panel.blit(rot_center(image=icon, angle=rotation),
+               (split - spacer - icon.get_width(), vertical))
+    panel.blit(font.render(text, True, color),
+               (split + spacer, vertical + 1))
+    vertical += font.get_height() + spacer
+    return vertical
+
+
+def make_text_button(panel, split, spacer, name, text, font, color, bkg_color, vertical):
+    """
+    Creates and renders the key button and description in control panel
+    :param panel: Surface to render on
+    :param split: vertical line - render button on one side, text on the other
+    :param spacer: spacing between font heights
+    :param name: str name of the key
+    :param text: str action corresponding to the text button
+    :param font: Font for rendering name and key
+    :param color: color of the text to render
+    :param bkg_color: background color (for reversing the colors of the key name)
+    :param vertical: int y value to render at
+    :return: current vertical value
+    """
+    key_text = font.render(name, True, bkg_color)
+    w, h = font.size(name)
+    key_surf = Surface((w + 3, h))
+    key_surf.fill(color)
+    key_surf.blit(key_text, (1, 1))
+    panel.blit(key_surf, (split - spacer - key_surf.get_width(), vertical))
+    panel.blit(font.render(text, True, color),
+               (split + spacer, vertical + 1))
+    vertical += font.get_height() + spacer
+    return vertical
 
 
 def render_border(panel, color):
