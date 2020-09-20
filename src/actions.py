@@ -67,26 +67,28 @@ class MovementAction(Action):
                 can_move = self.entity.parent.game_map.can_sail_to(x, y)
             if can_move:
                 self.entity.move()
+                color = colors["enemy_atk"] if self.entity == self.engine.player else colors["player_atk"]
                 if self.entity.fighter.name == "hull":
                     if self.entity.parent.game_map.terrain[x][y].decoration:
                         decoration = self.entity.parent.game_map.terrain[x][y].decoration
                         if decoration in ["rocks"]:
                             self.entity.parent.engine.message_log.add_message(
-                                f"{self.entity.name} takes 2 hull damage while dodging rocks")
+                                f"{self.entity.name} takes 2 hull damage while trying to dodge rocks", color)
                             self.entity.fighter.take_damage(2)
                         elif decoration in ["coral"]:
                             self.entity.parent.engine.message_log.add_message(
-                                f"{self.entity.name} takes 1 hull damage from scraping coral")
+                                f"{self.entity.name} takes 1 hull damage from scraping coral", color)
                             self.entity.fighter.take_damage(1)
                 if not self.entity.flying and self.entity.parent.game_map.terrain[x][y].decoration:
                     if self.entity.parent.game_map.terrain[x][y].decoration in ["mines"]:
+                        damage = randint(2, 5)
                         if (self.entity.x, self.entity.y) in self.engine.player.view.fov:
                             self.entity.parent.engine.message_log.add_message(
-                                f"Mines explode!", colors['volcano'])
+                                f"Mines explode!", colors['player_die'])
                             self.entity.parent.engine.message_log.add_message(
-                                f"{self.entity.name} takes 5 {self.entity.fighter.name} damage!")
-                        self.entity.fighter.take_damage(5)
-                        if not randint(0, 2):
+                                f"{self.entity.name} takes {damage} {self.entity.fighter.name} damage!", color)
+                        self.entity.fighter.take_damage(damage)
+                        if damage > 3:
                             if (self.entity.x, self.entity.y) in self.engine.player.view.fov:
                                 self.entity.parent.engine.message_log.add_message(
                                     f"Minefield has been cleared")
@@ -136,14 +138,14 @@ class AttackAction(Action):
         self.direction = direction
     
     def perform(self) -> bool:
-        if self.direction in ["arrow"]:
-            return ArrowAction(self.entity).perform()
+        if self.direction in ["self"]:
+            return MineAction(self.entity).perform()
         if self.direction in ["port", "starboard"]:
             return False
         if self.direction in ["fore"]:
             return ArrowAction(self.entity).perform()
         if self.direction in ["aft"]:
-            return MineAction(self.entity).perform()
+            return ArrowAction(self.entity).perform()
         return False
 
 
@@ -182,36 +184,27 @@ class MeleeAction(Action):
         if gets_hit == "hull":
             damage = self.entity.fighter.power - self.target.fighter.defense
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.fighter.name}"
-            
             if damage > 0:
-                self.target.fighter.hp -= damage
-                
                 self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", colors["enemy_atk"])
+                self.target.fighter.hp -= damage
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors["enemy_atk"])
-        
         elif gets_hit == "sail":
             damage = self.entity.fighter.power - self.target.sails.defense
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.sails.name}"
-            
             if damage > 0:
-                self.target.sails.hp -= damage
-                
                 self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", colors["enemy_atk"])
+                self.target.sails.hp -= damage
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors["enemy_atk"])
-        
         elif gets_hit == "crew":
             damage = self.entity.fighter.power - self.target.crew.defense
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.crew.name}"
-            
             if damage > 0:
-                self.target.crew.count -= damage
-                
                 self.engine.message_log.add_message(f"{attack_desc} and kills {damage} members", colors["enemy_atk"])
+                self.target.crew.count -= damage
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors["enemy_atk"])
-        
         return True
 
 
@@ -228,10 +221,10 @@ class SplitDamageAction(Action):
                 
                 attack_desc = f"{self.entity.name.capitalize()} shoots {target.name}"
                 if damage > 0:
-                    target.fighter.hp -= damage
                     self.engine.message_log.add_message(f"{attack_desc} for {damage} " +
                                                         f"{target.fighter.name} damage",
                                                         colors["player_atk"])
+                    target.fighter.hp -= damage
                 else:
                     self.engine.message_log.add_message(f"{attack_desc} but does no damage",
                                                         colors["player_atk"])

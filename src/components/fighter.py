@@ -43,8 +43,8 @@ class Fighter(BaseComponent):
             else:
                 self.parent.icon = None
             death_message_color = colors["enemy_die"]
-            self.parent.view.distance = 0
-
+            self.parent.view = None
+        
         if self.parent.sprite:
             self.parent.sprite = None
         self.parent.facing = 0
