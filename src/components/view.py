@@ -1,5 +1,6 @@
 from components.base import BaseComponent
 from entity import Actor
+from tile import Elevation
 
 
 class View(BaseComponent):
@@ -18,10 +19,13 @@ class View(BaseComponent):
         :return: Nothing - modify current map
         """
         if self.parent.flying:
-            visible_tiles = self.parent.game_map.get_flying_fov(self.distance, self.parent.x, self.parent.y)
+            elevation = Elevation.JUNGLE
         else:
-            visible_tiles = self.parent.game_map.get_ocean_fov(self.distance, self.parent.x, self.parent.y)
-        
+            elevation = Elevation.SHALLOWS
+        visible_tiles = self.parent.game_map.get_fov(self.distance,
+                                                     self.parent.x,
+                                                     self.parent.y,
+                                                     elevation=elevation)
         for (x, y) in visible_tiles:
             if self.parent.name == "Player" \
                     and self.parent.game_map.in_bounds(x, y) \

@@ -63,12 +63,15 @@ class MainEventHandler(EventHandler):
                     self.engine.message_log.add_message(e.args[0], colors["impossible"])
                     return False
             
-            # TODO add bonus movement
             if something_happened:
+                self.engine.player.view.set_fov()
                 self.engine.handle_bonus_movement()
                 self.engine.handle_enemy_turns()
                 self.engine.handle_weather()
-            
+                for entity in self.engine.game_map.entities:
+                    if entity.is_alive:
+                        entity.view.set_fov()
+    
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None

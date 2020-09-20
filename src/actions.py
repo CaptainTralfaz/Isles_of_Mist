@@ -67,7 +67,6 @@ class MovementAction(Action):
                 can_move = self.entity.parent.game_map.can_sail_to(x, y)
             if can_move:
                 self.entity.move()
-                self.entity.view.set_fov()
                 return True
             elif self.entity == self.engine.player:
                 if self.entity.sails.raised:

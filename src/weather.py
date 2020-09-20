@@ -10,6 +10,7 @@ class Weather:
             self.wind_direction = wind_direction
         else:
             self.wind_direction = randint(0, 5)
+        self.wind_blowing = False
         print(f"wind direction: {self.wind_direction}")
         
     def change_wind(self, rotate: int):
