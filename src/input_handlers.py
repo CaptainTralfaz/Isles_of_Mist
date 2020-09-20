@@ -35,8 +35,8 @@ ATTACK_KEYS = {
 }
 
 SAIL_KEYS = {
-    pygame.K_u: True,
-    pygame.K_i: False
+    pygame.K_UP: True,
+    pygame.K_DOWN: False
 }
 
 MODIFIERS = {
@@ -92,19 +92,23 @@ class MainEventHandler(EventHandler):
         if event.type == pygame.QUIT:
             response = ActionQuit(player)
         if event.type == pygame.KEYUP:
+            # print(self.engine.key_mod, pygame.key.get_mods())
             self.engine.key_mod = None
         if event.type == pygame.KEYDOWN:
             if pygame.key.get_mods() in MODIFIERS:
                 self.engine.key_mod = pygame.key.get_mods()
             if self.engine.key_mod in [1, 2] and event.key in ATTACK_KEYS:
                 response = AttackAction(player, ATTACK_KEYS[event.key])
-            if not self.engine.key_mod:
+            elif self.engine.key_mod in [1024, 2048] and event.key in SAIL_KEYS:
+                response = SailAction(player, SAIL_KEYS[event.key])
+
+            if self.engine.key_mod is None:
                 if event.key in ROTATE_KEYS:
                     response = RotateAction(player, ROTATE_KEYS[event.key])
                 elif event.key in MOVEMENT_KEYS:
                     response = MovementAction(player)
-                elif event.key in SAIL_KEYS:
-                    response = SailAction(player, SAIL_KEYS[event.key])
+                # elif event.key in SAIL_KEYS:
+                #     response = SailAction(player, SAIL_KEYS[event.key])
                 elif event.key in WAIT_KEYS:
                     response = WaitAction(player)
                 elif event.key == pygame.K_ESCAPE:
@@ -119,8 +123,10 @@ class MainEventHandler(EventHandler):
 
 class GameOverEventHandler(EventHandler):
     def handle_events(self):
+        self.engine.key_mod = None
         something_happened = False
         events = pygame.event.get(pump=True)
+        
         if len(events) > 0:
             for event in events:
                 action = self.process_event(event)

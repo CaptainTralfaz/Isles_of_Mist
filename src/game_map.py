@@ -160,7 +160,18 @@ class GameMap:
                     map_surf.blit(images["fog_of_war"],
                                   ((x - left) * tile_size - margin,
                                    (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
-        
+
+        if self.engine.key_mod:
+            if self.engine.key_mod in [1, 2]:
+                target_tiles = self.engine.game_map.get_neighbors(self.engine.player.x,
+                                                                  self.engine.player.y,
+                                                                  Elevation.VOLCANO)
+                target_tiles.append((self.engine.player.x, self.engine.player.y))
+                for (x, y) in target_tiles:
+                    map_surf.blit(images["highlight"],
+                                  ((x - left) * tile_size - margin,
+                                   (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda i: i.render_order.value
         )
@@ -182,11 +193,7 @@ class GameMap:
                 map_surf.blit(images["mist"],
                               ((x - left) * tile_size - margin,
                                (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
-        
-        if self.engine.key_mod:
-            if self.engine.key_mod in [1, 2]:
-                self.engine.message_log.add_message("Targeting...")
-        
+                
         render_border(map_surf, (255, 255, 255))
         main_display.blit(map_surf, (ui_layout.mini_width, 0))
     
