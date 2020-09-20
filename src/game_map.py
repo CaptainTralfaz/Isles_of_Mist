@@ -160,9 +160,9 @@ class GameMap:
                     map_surf.blit(images["fog_of_war"],
                                   ((x - left) * tile_size - margin,
                                    (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
-
+        
         if self.engine.key_mod:
-            if self.engine.key_mod in [1, 2]:
+            if self.engine.key_mod == "shift":
                 target_tiles = self.engine.game_map.get_neighbors(self.engine.player.x,
                                                                   self.engine.player.y,
                                                                   Elevation.VOLCANO)
@@ -171,7 +171,7 @@ class GameMap:
                     map_surf.blit(images["highlight"],
                                   ((x - left) * tile_size - margin,
                                    (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
-                
+        
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda i: i.render_order.value
         )
@@ -193,7 +193,7 @@ class GameMap:
                 map_surf.blit(images["mist"],
                               ((x - left) * tile_size - margin,
                                (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
-                
+        
         render_border(map_surf, (255, 255, 255))
         main_display.blit(map_surf, (ui_layout.mini_width, 0))
     
@@ -203,7 +203,7 @@ class GameMap:
                          # entity_x: int,
                          # entity_y: int,
                          flying: bool = False) -> dict:
-        # TODO cut short when path is found
+        # TODO cut short when path is found?
         path_map = self.gen_path_map(target_x, target_y, flying)
         distance_map = dict()
         

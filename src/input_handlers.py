@@ -27,7 +27,7 @@ WAIT_KEYS = {
 }
 
 ATTACK_KEYS = {
-    pygame.K_SPACE: "arrow",
+    pygame.K_SPACE: "self",
     pygame.K_LEFT: "port",
     pygame.K_RIGHT: "starboard",
     pygame.K_UP: "fore",
@@ -40,13 +40,12 @@ SAIL_KEYS = {
 }
 
 MODIFIERS = {
-    1,  # shift (left)
-    2,  # shift (right)
-    64,  # control
-    256,  # opt / alt (left)
-    512,  # opt / alt (right)
-    1024,  # command (left)
-    2048  # command (right)
+    1: "shift",
+    2: "shift",
+    256: "alt_option",
+    512: "alt_option",
+    1024: "control_command",
+    2048: "control_command",
 }
 
 
@@ -64,6 +63,7 @@ class MainEventHandler(EventHandler):
     
     def handle_events(self):
         something_happened = False
+        # noinspection PyArgumentList
         events = pygame.event.get(pump=True)
         if len(events) > 0:
             for event in events:
@@ -92,23 +92,22 @@ class MainEventHandler(EventHandler):
         if event.type == pygame.QUIT:
             response = ActionQuit(player)
         if event.type == pygame.KEYUP:
-            # print(self.engine.key_mod, pygame.key.get_mods())
-            self.engine.key_mod = None
+            if event.mod == pygame.KMOD_NONE:
+                self.engine.key_mod = None
         if event.type == pygame.KEYDOWN:
-            if pygame.key.get_mods() in MODIFIERS:
-                self.engine.key_mod = pygame.key.get_mods()
-            if self.engine.key_mod in [1, 2] and event.key in ATTACK_KEYS:
+            if event.mod in MODIFIERS:
+                self.engine.key_mod = MODIFIERS[event.mod]
+            if self.engine.key_mod == "shift" and event.key in ATTACK_KEYS:
                 response = AttackAction(player, ATTACK_KEYS[event.key])
-            elif self.engine.key_mod in [1024, 2048] and event.key in SAIL_KEYS:
+            elif self.engine.key_mod == "control_command" and event.key in SAIL_KEYS:
                 response = SailAction(player, SAIL_KEYS[event.key])
-
+            elif self.engine.key_mod == "alt_option":
+                pass
             if self.engine.key_mod is None:
                 if event.key in ROTATE_KEYS:
                     response = RotateAction(player, ROTATE_KEYS[event.key])
                 elif event.key in MOVEMENT_KEYS:
                     response = MovementAction(player)
-                # elif event.key in SAIL_KEYS:
-                #     response = SailAction(player, SAIL_KEYS[event.key])
                 elif event.key in WAIT_KEYS:
                     response = WaitAction(player)
                 elif event.key == pygame.K_ESCAPE:
@@ -124,7 +123,7 @@ class MainEventHandler(EventHandler):
 class GameOverEventHandler(EventHandler):
     def handle_events(self):
         self.engine.key_mod = None
-        something_happened = False
+        # noinspection PyArgumentList
         events = pygame.event.get(pump=True)
         
         if len(events) > 0:
@@ -133,8 +132,7 @@ class GameOverEventHandler(EventHandler):
                 if action is None:
                     continue
                 try:
-                    something_happened = action.perform()
-                
+                    action.perform()
                 except Exception:
                     return False
     
