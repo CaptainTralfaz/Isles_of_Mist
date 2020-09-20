@@ -78,14 +78,26 @@ class MovementAction(Action):
                             self.entity.parent.engine.message_log.add_message(
                                 f"{self.entity.name} takes 1 hull damage from scraping coral")
                             self.entity.fighter.take_damage(1)
-                    
+                if not self.entity.flying and self.entity.parent.game_map.terrain[x][y].decoration:
+                    if self.entity.parent.game_map.terrain[x][y].decoration in ["mines"]:
+                        if (self.entity.x, self.entity.y) in self.engine.player.view.fov:
+                            self.entity.parent.engine.message_log.add_message(
+                                f"Mines explode!", colors['volcano'])
+                            self.entity.parent.engine.message_log.add_message(
+                                f"{self.entity.name} takes 5 {self.entity.fighter.name} damage!")
+                        self.entity.fighter.take_damage(5)
+                        if not randint(0, 2):
+                            if (self.entity.x, self.entity.y) in self.engine.player.view.fov:
+                                self.entity.parent.engine.message_log.add_message(
+                                    f"Minefield has been cleared")
+                            self.entity.parent.game_map.terrain[x][y].decoration = None
                 return True
             elif self.entity == self.engine.player:
                 if self.entity.sails.raised:
                     self.entity.sails.adjust(False)
                 raise Impossible("Blocked")
             else:
-                print(f"{self.entity.name} is blocked")
+                # print(f"{self.entity.name} is blocked")
                 return False
 
 
@@ -109,6 +121,15 @@ class SailAction(Action):
         return True
 
 
+class MineAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        self.engine.game_map.terrain[self.entity.x][self.entity.y].decoration = "mines"
+        return True
+
+
 class AttackAction(Action):
     def __init__(self, entity, direction):
         super().__init__(entity)
@@ -122,7 +143,7 @@ class AttackAction(Action):
         if self.direction in ["fore"]:
             return ArrowAction(self.entity).perform()
         if self.direction in ["aft"]:
-            return False
+            return MineAction(self.entity).perform()
         return False
 
 

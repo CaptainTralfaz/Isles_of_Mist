@@ -41,6 +41,8 @@ mountain = image.load("assets/terrain/mountain.png")
 volcano = image.load("assets/terrain/volcano.png")
 fog_of_war = image.load("assets/terrain/fog_of_war.png")
 mist = image.load("assets/terrain/mist.png")
+highlight = image.load("assets/terrain/highlight.png")
+mines = image.load("assets/terrain/mines.png")
 
 port = image.load("assets/terrain/port.png")
 coral = image.load("assets/terrain/coral.png")
@@ -82,6 +84,8 @@ images = {
     'rocks': rocks,
     'sandbar': sandbar,
     'seaweed': seaweed,
+    'highlight': highlight,
+    'mines': mines,
 }
 
 colors = {
@@ -111,4 +115,5 @@ colors = {
     'rocks': (225, 225, 225),
     'seaweed': (50, 175, 50),
     'sandbar': (225, 200, 125),
+    'mines': (200, 0, 0),
 }
