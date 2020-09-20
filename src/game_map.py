@@ -32,15 +32,14 @@ class GameMap:
         if terrain:
             self.terrain = terrain
         else:
-            self.terrain = [[Terrain(elevation=Elevation.OCEAN, explored=False) for y in range(height)] for x in
-                            range(width)]
+            self.terrain = [[Terrain(elevation=Elevation.OCEAN, explored=False) for y in range(height)]
+                            for x in range(width)]
     
     @property
     def game_map(self) -> GameMap:
         return self
     
-    # TODO add fog LOS Blocking
-    def get_ocean_fov(self, distance, x, y):
+    def get_fov(self, distance, x, y, elevation, mist_view=1):
         viewed_hexes = []
         center_coords = hex_to_cube(hexagon=Hex(column=x, row=y))
         viewed_hexes.append(Hex(column=x, row=y))
@@ -53,47 +52,29 @@ class GameMap:
         for i in range(0, 6):
             for j in range(0, distance):
                 cube_line = cube_line_draw(cube1=center_coords, cube2=current)
+                mist_count = 0
                 
-                previous_elevation = Elevation.OCEAN
+                previous_elevation = elevation
                 for cube in cube_line:
                     hx = cube_to_hex(cube)
-                    if self.in_bounds(hx.col, hx.row) \
-                            and self.terrain[hx.col][hx.row].elevation < previous_elevation:
+                    if not self.in_bounds(hx.col, hx.row):
                         break
-                    if self.in_bounds(hx.col, hx.row):
-                        previous_elevation = self.terrain[hx.col][hx.row].elevation
-                    if self.in_bounds(hx.col, hx.row) \
-                            and self.terrain[hx.col][hx.row].elevation <= Elevation.SHALLOWS:
-                        previous_elevation = Elevation.OCEAN
+                    else:
+                        current_elevation = self.terrain[hx.col][hx.row].elevation
                     
-                    if hx not in viewed_hexes[1:]:
-                        viewed_hexes.append(hx)
-                
-                current = cube_neighbor(current, i)
-        
-        viewed = []
-        for tile in viewed_hexes:
-            if (0 <= tile.col < self.width) and (0 <= tile.row < self.height):
-                viewed.append((tile.col, tile.row))
-        return set(viewed)
-    
-    # TODO add FOG LOS BLOCKING
-    def get_flying_fov(self, distance, x, y):
-        viewed_hexes = []
-        center_coords = hex_to_cube(hexagon=Hex(column=x, row=y))
-        viewed_hexes.append(Hex(column=x, row=y))
-        current = center_coords
-        
-        # set up starting cube
-        for k in range(0, distance):
-            current = cube_neighbor(cube=current, direction=4)
-        
-        for i in range(0, 6):
-            for j in range(0, distance):
-                cube_line = cube_line_draw(cube1=center_coords, cube2=current)
-                
-                for cube in cube_line:
-                    hx = cube_to_hex(cube)
+                    if self.in_bounds(hx.col, hx.row) \
+                            and current_elevation <= elevation:
+                        current_elevation = elevation
+                    if self.in_bounds(hx.col, hx.row) \
+                            and (current_elevation < previous_elevation
+                                 or mist_count >= mist_view):
+                        break
+                    
+                    if self.in_bounds(hx.col, hx.row) \
+                            and self.terrain[hx.col][hx.row].mist:
+                        mist_count += 1
+                    previous_elevation = current_elevation
+                    
                     if hx not in viewed_hexes[1:]:
                         viewed_hexes.append(hx)
                 

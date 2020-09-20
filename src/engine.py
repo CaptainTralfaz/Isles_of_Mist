@@ -45,7 +45,8 @@ class Engine:
                 pass
     
     def handle_weather(self):
-        self.weather.roll_mist(self.game_map)
+        if self.weather.wind_blowing:
+            self.weather.roll_mist(self.game_map)
     
     def render(self, main_surface: Surface) -> None:
         self.game_map.render(main_display=main_surface, ui_layout=self.ui_layout)
