@@ -3,10 +3,10 @@ from typing import Iterable, List, Reversible, Tuple
 
 from pygame import Surface
 
-from constants import colors
-from render_functions import game_font, render_border
-from ui import DisplayInfo
+from constants import colors, game_font
 from constants import message_count, margin
+from render_functions import render_border
+from ui import DisplayInfo
 
 
 class Message:

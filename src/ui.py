@@ -1,5 +1,5 @@
-from render_functions import game_font, margin
 from constants import message_count, block_size, view_port, tile_size
+from render_functions import game_font, margin
 
 
 class DisplayInfo:
@@ -12,5 +12,7 @@ class DisplayInfo:
         self.messages_height = 2 * margin + message_count * game_font.get_height()
         self.display_width = self.mini_width + self.viewport_width
         self.display_height = self.viewport_height + self.messages_height
-        self.status_height = self.display_height - self.mini_height
         self.messages_width = self.display_width - self.status_width
+        self.control_height = self.messages_height
+        self.control_width = self.mini_width
+        self.status_height = self.display_height - self.mini_height - self.control_height

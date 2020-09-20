@@ -8,7 +8,7 @@ from actions import MovementAction
 from custom_exceptions import Impossible
 from input_handlers import MainEventHandler
 from message_log import MessageLog
-from render_functions import render_entity_info, status_panel_render
+from render_functions import render_entity_info, status_panel_render, control_panel_render
 from ui import DisplayInfo
 from weather import Weather
 
@@ -57,6 +57,8 @@ class Engine:
         self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
         
         status_panel_render(console=main_surface, entity=self.player, ui_layout=self.ui_layout)
+        
+        control_panel_render(console=main_surface, status=self.key_mod, player=self.player, ui_layout=self.ui_layout)
         
         # stuff under mouse
         if self.ui_layout.mini_width <= self.mouse_location[0] < self.ui_layout.display_width - 1 \
