@@ -24,7 +24,8 @@ def main() -> None:
         "Hello and welcome, adventurer, to the Isles of Mist", colors["welcome_text"]
     )
     
-    game_display = pygame.display.set_mode((ui_layout.display_width, ui_layout.display_height))
+    game_display = pygame.display.set_mode((ui_layout.display_width, ui_layout.display_height),
+                                           flags=pygame.SCALED | pygame.RESIZABLE)
     game_display.fill(colors["black"])
     pygame.display.set_caption(caption)
     pygame.display.set_icon(icon)

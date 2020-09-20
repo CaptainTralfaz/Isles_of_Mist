@@ -11,7 +11,7 @@ caption = "Isles of Mist"
 
 # TODO Variable later ??
 game_font = font.Font('freesansbold.ttf', 16)
-view_port = 6
+view_port = 7
 message_count = 10
 
 FPS = 20
