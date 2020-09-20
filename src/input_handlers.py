@@ -5,8 +5,8 @@ from typing import Optional, TYPE_CHECKING
 import pygame.event
 import pygame.mouse as mouse
 
-from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, ArrowAction, MouseMoveAction, \
-    SailAction
+from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
+    SailAction, AttackAction
 from constants import colors
 from custom_exceptions import Impossible
 
@@ -27,12 +27,26 @@ WAIT_KEYS = {
 }
 
 ATTACK_KEYS = {
-    pygame.K_1
+    pygame.K_SPACE: "arrow",
+    pygame.K_LEFT: "port",
+    pygame.K_RIGHT: "starboard",
+    pygame.K_UP: "fore",
+    pygame.K_DOWN: "aft"
 }
 
 SAIL_KEYS = {
     pygame.K_u: True,
     pygame.K_i: False
+}
+
+MODIFIERS = {
+    1,  # shift (left)
+    2,  # shift (right)
+    64,  # control
+    256,  # opt / alt (left)
+    512,  # opt / alt (right)
+    1024,  # command (left)
+    2048  # command (right)
 }
 
 
@@ -77,19 +91,24 @@ class MainEventHandler(EventHandler):
         response = None
         if event.type == pygame.QUIT:
             response = ActionQuit(player)
+        if event.type == pygame.KEYUP:
+            self.engine.key_mod = None
         if event.type == pygame.KEYDOWN:
-            if event.key in ROTATE_KEYS:
-                response = RotateAction(player, ROTATE_KEYS[event.key])
-            elif event.key in MOVEMENT_KEYS:
-                response = MovementAction(player)
-            elif event.key in ATTACK_KEYS:
-                response = ArrowAction(player)
-            elif event.key in SAIL_KEYS:
-                response = SailAction(player, SAIL_KEYS[event.key])
-            elif event.key in WAIT_KEYS:
-                response = WaitAction(player)
-            elif event.key == pygame.K_ESCAPE:
-                response = ActionQuit(player)
+            if pygame.key.get_mods() in MODIFIERS:
+                self.engine.key_mod = pygame.key.get_mods()
+            if self.engine.key_mod in [1, 2] and event.key in ATTACK_KEYS:
+                response = AttackAction(player, ATTACK_KEYS[event.key])
+            if not self.engine.key_mod:
+                if event.key in ROTATE_KEYS:
+                    response = RotateAction(player, ROTATE_KEYS[event.key])
+                elif event.key in MOVEMENT_KEYS:
+                    response = MovementAction(player)
+                elif event.key in SAIL_KEYS:
+                    response = SailAction(player, SAIL_KEYS[event.key])
+                elif event.key in WAIT_KEYS:
+                    response = WaitAction(player)
+                elif event.key == pygame.K_ESCAPE:
+                    response = ActionQuit(player)
         
         if event.type == pygame.MOUSEMOTION:
             response = MouseMoveAction(player, mouse.get_pos())

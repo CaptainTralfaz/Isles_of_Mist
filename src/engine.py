@@ -28,6 +28,7 @@ class Engine:
         self.ui_layout = ui_layout
         self.clock = time.Clock()
         self.weather = Weather()
+        self.key_mod = None
     
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:

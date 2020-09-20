@@ -111,7 +111,7 @@ class GameMap:
                         mini_surf.blit(mini_block,
                                        (margin + 1 + x * block_size,
                                         margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
-
+        
         for entity in self.entities:
             if (entity.x, entity.y) in self.engine.player.view.fov \
                     and entity.icon is not None:
@@ -182,6 +182,10 @@ class GameMap:
                 map_surf.blit(images["mist"],
                               ((x - left) * tile_size - margin,
                                (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+        
+        if self.engine.key_mod:
+            if self.engine.key_mod in [1, 2]:
+                self.engine.message_log.add_message("Targeting...")
         
         render_border(map_surf, (255, 255, 255))
         main_display.blit(map_surf, (ui_layout.mini_width, 0))

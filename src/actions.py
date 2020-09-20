@@ -109,6 +109,23 @@ class SailAction(Action):
         return True
 
 
+class AttackAction(Action):
+    def __init__(self, entity, direction):
+        super().__init__(entity)
+        self.direction = direction
+    
+    def perform(self) -> bool:
+        if self.direction in ["arrow"]:
+            return ArrowAction(self.entity).perform()
+        if self.direction in ["port", "starboard"]:
+            return False
+        if self.direction in ["fore"]:
+            return ArrowAction(self.entity).perform()
+        if self.direction in ["aft"]:
+            return False
+        return False
+
+
 class WanderAction(Action):
     def __init__(self, entity):
         super().__init__(entity)
@@ -135,7 +152,8 @@ class MeleeAction(Action):
     
     def perform(self) -> bool:
         
-        if "sail" in self.entity.fighter.can_hit.keys() and self.target.sails.hp == 0:
+        if "sail" in self.entity.fighter.can_hit.keys() and (self.target.sails.hp == 0
+                                                             or not self.target.sails.raised):
             self.entity.fighter.can_hit["sail"] = 0
         
         gets_hit = choice_from_dict(self.entity.fighter.can_hit)
