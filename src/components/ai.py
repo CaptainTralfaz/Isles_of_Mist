@@ -43,6 +43,11 @@ class HostileEnemy(BaseAI):
         :return: action -> bool
         """
         # in view, set new target location
+        if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.port:
+            self.current_target_x = None
+            self.current_target_y = None
+            return WanderAction(self.entity).perform()
+        
         if (self.engine.player.x, self.engine.player.y) in self.entity.view.fov:
             self.current_target_x = self.engine.player.x
             self.current_target_y = self.engine.player.y
@@ -57,8 +62,6 @@ class HostileEnemy(BaseAI):
             
             distance_map = self.engine.game_map.gen_distance_map(self.current_target_x,
                                                                  self.current_target_y,
-                                                                 # self.entity.x,
-                                                                 # self.entity.y,
                                                                  self.entity.flying)
             
             neighbors = self.engine.game_map.get_neighbors(self.entity.x, self.entity.y, Elevation.VOLCANO)

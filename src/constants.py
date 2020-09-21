@@ -85,6 +85,7 @@ images = {
     'rocks': rocks,
     'sandbar': sandbar,
     'seaweed': seaweed,
+    'port': port,
     'highlight': highlight,
     'mines': mines,
     'arrow_key': arrow_key,
@@ -118,4 +119,5 @@ colors = {
     'seaweed': (50, 175, 50),
     'sandbar': (225, 200, 125),
     'mines': (200, 0, 0),
+    'port': (255, 255, 255),
 }
