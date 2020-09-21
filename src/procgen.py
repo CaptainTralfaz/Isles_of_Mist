@@ -15,88 +15,87 @@ from tile import Elevation, Terrain
 if TYPE_CHECKING:
     from engine import Engine
 
+ISLAND_GEN = {
+    'frequency': 3,
+    'rand_pow_x_low': 5,
+    'rand_pow_x_high': 10,
+    'rand_pow_y_low': 5,
+    'rand_pow_y_high': 10,
+}
 
-def generate_map(map_width: int, map_height: int, engine: Engine) -> GameMap:
+DECORATION_GEN = {
+    'frequency': 20,
+    'rand_pow_x': 20,
+    'rand_pow_y': 20,
+    'cutoff': 185,
+}
+
+
+def generate_map(map_width: int, map_height: int, engine: Engine, seed: int) -> GameMap:
     player = engine.player
     
     island_map = GameMap(engine, map_width, map_height, entities=[player])
-    # noise_map = [[0.0 for y in range(map_height)] for x in range(map_width)]
     
-    center_x = (map_width - 1) / 2.0
-    center_y = (map_height - 1) / 2.0
+    ev = OpenSimplex(seed=seed)
+    island_noise = make_noise_island_map(map_width, map_height, ev, ISLAND_GEN)
     
-    sd = randint(0, 10000)
-    gen = OpenSimplex(seed=sd)
-    frequency = 3  # randint(2, 4)
-    rand_pow_x = randint(5, 10)
-    rand_pow_y = randint(5, 10)
-    print(sd, frequency, rand_pow_x, rand_pow_y)
+    ev = OpenSimplex(seed=seed + 1)
+    coral_noise = make_noise_list(map_width, map_height, ev, DECORATION_GEN)
+    
+    ev = OpenSimplex(seed=seed + 2)
+    rock_noise = make_noise_list(map_width, map_height, ev, DECORATION_GEN)
+    
+    ev = OpenSimplex(seed=seed + 3)
+    sandbar_noise = make_noise_list(map_width, map_height, ev, DECORATION_GEN)
+    
+    ev = OpenSimplex(seed=seed + 4)
+    seaweed_noise = make_noise_list(map_width, map_height, ev, DECORATION_GEN)
     
     for x in range(map_width):
         for y in range(map_height):
-            nx = x / map_width - 0.5
-            ny = y / map_height - 0.5
-            elevation_sum = 0
-            i_sum = 0
-            for i in range(1, 6):
-                p = pow(2, i)
-                elevation_sum += noise(gen, p * frequency * nx, p * frequency * ny) / p
-                i_sum += 1 / p
-            elevation = elevation_sum / i_sum
-            x_dist = abs(center_x - x)
-            y_dist = abs(center_y - y)
-            x_ratio = 1 - pow(x_dist / center_x, rand_pow_x)
-            y_ratio = 1 - pow(y_dist / center_y, rand_pow_y)
-            ratio = min(x_ratio, y_ratio)
-            
-            # noise_map[x][y] = ratio
             
             # add mist  TODO: add depending on weather
             mist = True if randint(0, 99) < 10 else False
-
-            height = round(256 * elevation * ratio)
-
-            # decoration  TODO: use noise?
+            
+            # decoration
             decoration = None
-            if height < 150:
-                rnd = randint(0, 250)
-                if rnd in [0]:
-                    decoration = "coral"
-                elif rnd in [1]:
-                    decoration = "rocks"
-                elif rnd in [2]:
-                    decoration = "sandbar"
-                elif rnd in [3, 4]:
-                    decoration = "seaweed"
-                    
-            if height < 100:
+            if (x, y) in rock_noise:
+                decoration = "rocks"
+            elif (x, y) in coral_noise:
+                decoration = "coral"
+            elif (x, y) in sandbar_noise:
+                decoration = "sandbar"
+            elif (x, y) in seaweed_noise:
+                decoration = "seaweed"
+            
+            if island_noise[x][y] < 100:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN,
                                                    explored=False,
                                                    decoration=decoration,
                                                    mist=mist)
-            elif height < 125:
+            elif island_noise[x][y] < 125:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER,
                                                    explored=False,
                                                    decoration=decoration,
                                                    mist=mist)
-            elif height < 150:
+            elif island_noise[x][y] < 150:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS,
                                                    explored=False,
                                                    decoration=decoration,
                                                    mist=mist)
-            elif height < 160:
+            elif island_noise[x][y] < 160:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH,
                                                    explored=False,
                                                    mist=mist)
-            elif height < 170:
+            elif island_noise[x][y] < 170:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS,
                                                    explored=False,
                                                    mist=mist)
-            elif height < 200:
+            elif island_noise[x][y] < 200:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE,
                                                    explored=False,
                                                    mist=mist)
-            elif height < 210:
+            elif island_noise[x][y] < 210:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN,
                                                    explored=False,
                                                    mist=mist)
@@ -190,7 +189,67 @@ def place_port(island_map: GameMap, island, ocean):
     island_map.terrain[x][y].decoration = "port"
     island_map.port = (x, y)
     print((x, y))
+
+
+def make_noise_island_map(map_width, map_height, ev, params):
+    frequency = params['frequency']
+    rand_pow_x = randint(params['rand_pow_x_low'], params['rand_pow_x_high'])
+    rand_pow_y = randint(params['rand_pow_y_low'], params['rand_pow_y_high'])
     
+    center_x = (map_width - 1) / 2.0
+    center_y = (map_height - 1) / 2.0
+    noise_map = []
+    for x in range(map_width):
+        for y in range(map_height):
+            nx = x / map_width - 0.5
+            ny = y / map_height - 0.5
+            elevation_sum = 0
+            i_sum = 0
+            for i in range(1, 6):
+                p = pow(2, i)
+                elevation_sum += noise(ev, p * frequency * nx, p * frequency * ny) / p
+                i_sum += 1 / p
+            elevation = elevation_sum / i_sum
+            x_dist = abs(center_x - x)
+            y_dist = abs(center_y - y)
+            x_ratio = 1 - pow(x_dist / center_x, rand_pow_x)
+            y_ratio = 1 - pow(y_dist / center_y, rand_pow_y)
+            ratio = min(x_ratio, y_ratio)
+            
+            noise_map[x][y] = round(256 * elevation * ratio)
+    return noise_map
+
+
+def make_noise_list(map_width, map_height, ev, params):
+    frequency = params['frequency']
+    rand_pow_x = params['rand_pow_x']
+    rand_pow_y = params['rand_pow_y']
+    
+    center_x = (map_width - 1) / 2.0
+    center_y = (map_height - 1) / 2.0
+    noise_list = []
+    for x in range(map_width):
+        for y in range(map_height):
+            nx = x / map_width - 0.5
+            ny = y / map_height - 0.5
+            elevation_sum = 0
+            i_sum = 0
+            for i in range(1, 6):
+                p = pow(2, i)
+                elevation_sum += noise(ev, p * frequency * nx, p * frequency * ny) / p
+                i_sum += 1 / p
+            elevation = elevation_sum / i_sum
+            x_dist = abs(center_x - x)
+            y_dist = abs(center_y - y)
+            x_ratio = 1 - pow(x_dist / center_x, rand_pow_x)
+            y_ratio = 1 - pow(y_dist / center_y, rand_pow_y)
+            ratio = min(x_ratio, y_ratio)
+            
+            if round(256 * elevation * ratio) >= params['cutoff']:
+                noise_list.append((x, y))
+    
+    return noise_list
+
 
 def noise(gen, nx, ny):
     # Rescale from -1.0:+1.0 to 0.0:1.0
@@ -218,8 +277,6 @@ def explore_water_iterative(game_map: GameMap) -> List[Tuple[int, int]]:
     """
     Finds all connected water from 0, 0
     :param game_map: GameMap
-    :param x: int x coordinate
-    :param y: int y coordinate
     :return: list of tile coordinates
     """
     x = 0

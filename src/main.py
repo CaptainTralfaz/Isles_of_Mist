@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import copy
+import random
 
 import pygame
 
@@ -11,6 +12,10 @@ from ui import DisplayInfo
 
 
 def main() -> None:
+    seed = 8617  # random.randint(0, 10000)  # 8617
+    print(seed)
+    
+    random.seed(seed)
     pygame.init()
     fps_clock = pygame.time.Clock()
     
@@ -18,7 +23,7 @@ def main() -> None:
     ui_layout = DisplayInfo(map_width, map_height)
     
     engine = Engine(player=player, ui_layout=ui_layout)
-    engine.game_map = generate_map(map_width, map_height, engine=engine)
+    engine.game_map = generate_map(map_width, map_height, engine=engine, seed=seed)
     
     engine.message_log.add_message(
         "Hello and welcome, adventurer, to the Isles of Mist", colors["welcome_text"]
