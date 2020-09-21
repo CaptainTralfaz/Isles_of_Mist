@@ -26,6 +26,8 @@ class View(BaseComponent):
                                                      self.parent.x,
                                                      self.parent.y,
                                                      elevation=elevation)
+        if self.parent.name != "Player" and self.parent.game_map.port in visible_tiles:
+            visible_tiles.remove(self.parent.game_map.port)
         for (x, y) in visible_tiles:
             if self.parent.name == "Player" \
                     and self.parent.game_map.in_bounds(x, y) \

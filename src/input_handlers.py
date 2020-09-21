@@ -5,7 +5,7 @@ from typing import Optional, TYPE_CHECKING
 import pygame.event
 import pygame.mouse as mouse
 
-from actions import Action, WaitAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
+from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
     SailAction, AttackAction
 from constants import colors
 from custom_exceptions import Impossible
@@ -109,7 +109,7 @@ class MainEventHandler(EventHandler):
                 elif event.key in MOVEMENT_KEYS:
                     response = MovementAction(player)
                 elif event.key in WAIT_KEYS:
-                    response = WaitAction(player)
+                    response = AutoAction(player)
                 elif event.key == pygame.K_ESCAPE:
                     response = ActionQuit(player)
         

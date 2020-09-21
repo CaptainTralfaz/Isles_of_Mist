@@ -62,11 +62,16 @@ class MovementAction(Action):
         x, y = self.entity.get_next_hex()
         if self.entity.parent.in_bounds(x, y):
             if self.entity.flying:
-                can_move = self.entity.parent.game_map.can_fly_to(x, y)
+                can_move = self.entity.parent.game_map.can_fly_to(x, y) and (x, y) is not self.engine.game_map.port
             else:
-                can_move = self.entity.parent.game_map.can_sail_to(x, y)
+                can_move = self.entity.parent.game_map.can_sail_to(x, y) \
+                           or ((x, y) == self.engine.game_map.port and self.entity.name == "Player")
             if can_move:
                 self.entity.move()
+                if (x, y) == self.engine.game_map.port and self.entity.name == "Player":
+                    if self.entity.sails.raised:
+                        self.entity.sails.adjust(False)
+                        return True
                 color = colors["enemy_atk"] if self.entity == self.engine.player else colors["player_atk"]
                 if self.entity.fighter.name == "hull":
                     if self.entity.parent.game_map.terrain[x][y].decoration:
@@ -141,12 +146,21 @@ class AttackAction(Action):
         if self.direction in ["self"]:
             return MineAction(self.entity).perform()
         if self.direction in ["port", "starboard"]:
-            return False
+            raise Impossible("Not yet Implemented")
         if self.direction in ["fore"]:
             return ArrowAction(self.entity).perform()
         if self.direction in ["aft"]:
             return ArrowAction(self.entity).perform()
         return False
+
+
+class AutoAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        # make a decision on automatic action
+        return WaitAction(self.entity).perform()
 
 
 class WanderAction(Action):

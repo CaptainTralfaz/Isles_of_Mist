@@ -34,7 +34,8 @@ class GameMap:
         else:
             self.terrain = [[Terrain(elevation=Elevation.OCEAN, explored=False) for y in range(height)]
                             for x in range(width)]
-    
+        self.port = None
+        
     @property
     def game_map(self) -> GameMap:
         return self
@@ -237,14 +238,18 @@ class GameMap:
                     came_from[(neighbor[0], neighbor[1])] = current
         return came_from
     
-    def get_neighbors(self, x, y, elevation: Elevation = Elevation.BEACH) -> List[Tuple[int, int]]:
+    def get_neighbors(self, x, y, elevation: Elevation = Elevation.BEACH, below: bool = True) -> List[Tuple[int, int]]:
         neighbors = []
         for direction in cube_directions:
             start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
             neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
-            if self.in_bounds(neighbor_hex.col, neighbor_hex.row) \
-                    and self.terrain[neighbor_hex.col][neighbor_hex.row].elevation < elevation:
-                neighbors.append((neighbor_hex.col, neighbor_hex.row))
+            if self.in_bounds(neighbor_hex.col, neighbor_hex.row):
+                if below:
+                    if self.terrain[neighbor_hex.col][neighbor_hex.row].elevation < elevation:
+                        neighbors.append((neighbor_hex.col, neighbor_hex.row))
+                else:  # above
+                    if self.terrain[neighbor_hex.col][neighbor_hex.row].elevation >= elevation:
+                        neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
     
     def get_targets_at_location(self, grid_x: int, grid_y: int, living_targets: bool = True) -> List[Actor]:

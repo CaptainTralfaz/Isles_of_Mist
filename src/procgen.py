@@ -104,26 +104,104 @@ def generate_map(map_width: int, map_height: int, engine: Engine) -> GameMap:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO,
                                                    explored=False,
                                                    mist=mist)
-                
-    player_x, player_y = place_entities(island_map)
-    player.place(player_x, player_y, island_map)
-    player.view.set_fov()
-    
+    ocean = explore_water_iterative(island_map)
+    islands = explore_islands(island_map, ocean)
+    island = big_island(islands)
+    place_port(island_map, island, ocean)
+    place_player(island_map, player)
+    available_ocean = set(ocean) - player.view.fov
+    place_entities(island_map, list(available_ocean))
     return island_map
 
+
+def place_player(island_map, player):
+    player_x = 0
+    player_y = 0
+    direction = 0
+    edge = randint(0, 3)
+    if edge == 0:
+        player_x = randint(0, island_map.width - 1)
+        player_y = 1
+        if player_x < island_map.width // 4:
+            direction = 2
+        elif player_x > 3 * island_map.width // 4:
+            direction = 4
+        else:
+            direction = 3
+    elif edge == 1:
+        player_x = island_map.width - 2
+        player_y = randint(0, island_map.height - 1)
+        if player_y < island_map.width // 2:
+            direction = 4
+        else:
+            direction = 5
+    elif edge == 2:
+        player_x = randint(0, island_map.width - 1)
+        player_y = island_map.height - 2
+        if player_x < island_map.width // 4:
+            direction = 1
+        elif player_x > 3 * island_map.width // 4:
+            direction = 5
+        else:
+            direction = 0
+    elif edge == 3:
+        player_x = 1
+        player_y = randint(0, island_map.height - 1)
+        if player_y < island_map.width // 2:
+            direction = 3
+        else:
+            direction = 2
+    player.place(player_x, player_y, island_map)
+    player.facing = direction
+    player.view.set_fov()
+
+
+def explore_islands(island_map, ocean) -> List[List[Tuple[int, int]]]:
+    island_list = []
+    land_list = []
+    for x in range(island_map.width):
+        for y in range(island_map.height):
+            if (x, y) not in ocean and (x, y) not in land_list:
+                island = explore_land_iterative(island_map, x=x, y=y)
+                island_list.append(island)
+                land_list.extend(island)
+    return island_list
+
+
+def big_island(island_list: List[List[Tuple[int, int]]]) -> List[Tuple[int, int]]:
+    big_size = 0
+    biggest = []
+    for island in island_list:
+        if len(island) > big_size:
+            big_size = len(island)
+            biggest = island
+    return biggest
+
+
+def place_port(island_map: GameMap, island, ocean):
+    coastline = []
+    for (x, y) in island:
+        neighbors = island_map.get_neighbors(x, y)
+        for neighbor in neighbors:
+            if neighbor in ocean:
+                coastline.append((x, y))
+                break
+    (x, y) = choice(coastline)
+    island_map.terrain[x][y].decoration = "port"
+    island_map.port = (x, y)
+    print((x, y))
+    
 
 def noise(gen, nx, ny):
     # Rescale from -1.0:+1.0 to 0.0:1.0
     return gen.noise2d(nx, ny) / 2.0 + 0.5
 
 
-def place_entities(island_map: GameMap) -> Tuple[int, int]:
-    water = explore_water_iterative(island_map, 0, 0)
-    
+def place_entities(island_map: GameMap, available):
     for entity in range((island_map.width * island_map.height) // 50):
-        (x, y) = choice(water)
-        water.remove((x, y))
         # generate monsters here, add to entities list
+        (x, y) = choice(available)
+        available.remove((x, y))
         rnd = random()
         if rnd < .4:
             turtle = entity_factory.turtle.spawn(island_map, x, y, randint(0, 5))
@@ -134,10 +212,33 @@ def place_entities(island_map: GameMap) -> Tuple[int, int]:
         else:
             serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
             serpent.view.set_fov()
-    return choice(water)
 
 
-def explore_water_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int, int]]:
+def explore_water_iterative(game_map: GameMap) -> List[Tuple[int, int]]:
+    """
+    Finds all connected water from 0, 0
+    :param game_map: GameMap
+    :param x: int x coordinate
+    :param y: int y coordinate
+    :return: list of tile coordinates
+    """
+    x = 0
+    y = 0
+    frontier = Queue()
+    frontier.put((x, y))
+    visited = [(x, y)]
+    
+    while not frontier.empty():
+        current = frontier.get()
+        x, y = current
+        for neighbor in game_map.get_neighbors(x=x, y=y, elevation=Elevation.BEACH):
+            if neighbor not in visited:
+                frontier.put(neighbor)
+                visited.append(neighbor)
+    return visited
+
+
+def explore_land_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int, int]]:
     """
     Finds all "islands" on the game map. "islands" are sets of adjacent land tiles. "land tiles" have elevation > 2
     :param game_map: GameMap
@@ -152,7 +253,7 @@ def explore_water_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int
     while not frontier.empty():
         current = frontier.get()
         x, y = current
-        for neighbor in game_map.get_neighbors(x=x, y=y, elevation=Elevation.BEACH):
+        for neighbor in game_map.get_neighbors(x=x, y=y, elevation=Elevation.BEACH, below=False):
             if neighbor not in visited:
                 frontier.put(neighbor)
                 visited.append(neighbor)
