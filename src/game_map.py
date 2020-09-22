@@ -125,7 +125,7 @@ class GameMap:
                 mini_surf.blit(block, (margin + entity.x * block_size,
                                        margin + entity.y * block_size + (entity.x % 2) * block_size // 2 - 2))
         
-        render_border(mini_surf, color=colors['white'])
+        render_border(mini_surf, self.engine.time.get_sky_color)
         main_display.blit(mini_surf, (0, 0))
     
     def render(self, main_display: display, ui_layout: DisplayInfo) -> None:
@@ -195,14 +195,19 @@ class GameMap:
                               ((x - left) * tile_size - margin,
                                (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
         
-        render_border(map_surf, (255, 255, 255))
+        render_border(map_surf, self.engine.time.get_sky_color)
+
+        tint_surf = Surface(((2 * view_port + 1) * tile_size, (2 * view_port + 1) * tile_size + 2 * margin))
+        tint_surf.set_alpha(abs(self.engine.time.hrs * 60 + self.engine.time.mins - 720) // 8)
+        tint = self.engine.time.get_sky_color
+        tint_surf.fill(tint)
+        
+        map_surf.blit(tint_surf, (0, 0))
         main_display.blit(map_surf, (ui_layout.mini_width, 0))
-    
+        
     def gen_distance_map(self,
                          target_x: int,
                          target_y: int,
-                         # entity_x: int,
-                         # entity_y: int,
                          flying: bool = False) -> dict:
         # TODO cut short when path is found?
         path_map = self.gen_path_map(target_x, target_y, flying)

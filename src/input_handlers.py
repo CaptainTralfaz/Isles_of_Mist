@@ -23,11 +23,11 @@ MOVEMENT_KEYS = {
 }
 
 WAIT_KEYS = {
-    pygame.K_SPACE
+    pygame.K_DOWN
 }
 
 ATTACK_KEYS = {
-    pygame.K_SPACE: "self",
+    # pygame.K_SPACE: "self",
     pygame.K_LEFT: "port",
     pygame.K_RIGHT: "starboard",
     pygame.K_UP: "fore",

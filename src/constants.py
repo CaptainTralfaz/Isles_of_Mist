@@ -11,17 +11,27 @@ caption = "Isles of Mist"
 
 # TODO Variable later ??
 game_font = font.Font('freesansbold.ttf', 16)
-view_port = 7
+view_port = 9
 message_count = 10
 
+time_tick = 5
 FPS = 20
 sprite_count = 4
 animation_speed = 2.0
 flicker_timer = 0.0
 sprite_image = 0
 
-icon = image.load("assets/misc/compass.png")
+compass = image.load("assets/misc/compass.png")
+pointer = image.load("assets/misc/pointer.png")
 arrow_key = image.load("assets/misc/arrow_key.png")
+cloud = image.load("assets/misc/cloud.png")
+haze = image.load("assets/misc/haze.png")
+moon = image.load("assets/misc/moon.png")
+moon_shadow = image.load("assets/misc/moon_shadow.png")
+rain = image.load("assets/misc/rain.png")
+sky = image.load("assets/misc/sky.png")
+storm = image.load("assets/misc/storm.png")
+sun = image.load("assets/misc/sun.png")
 
 player_image = image.load("assets/entities/ship_icon.png")
 turtle_image = image.load("assets/entities/turtle.png")
@@ -89,10 +99,21 @@ images = {
     'highlight': highlight,
     'mines': mines,
     'arrow_key': arrow_key,
+    'compass': compass,
+    'pointer': pointer,
+    'cloudy': cloud,
+    'hazy': haze,
+    'sun': sun,
+    'moon': moon,
+    'moon_shadow': moon_shadow,
+    'rainy': rain,
+    'calm': sky,
+    'stormy': storm,
 }
 
 colors = {
     "white": (255, 255, 255),
+    "dark": (25, 25, 25),
     "black": (0, 0, 0),
     "player_atk": (225, 225, 225),
     "enemy_atk": (255, 200, 200),
@@ -114,6 +135,10 @@ colors = {
     'jungle': (0, 125, 0),
     'mountain': (225, 225, 225),
     'volcano': (200, 0, 0),
+    'aqua': (0, 125, 255),
+    'cyan': (0, 255, 255),
+    'violet': (125, 0, 255),
+    'purple': (255, 0, 255),
     'coral': (255, 115, 200),
     'rocks': (225, 225, 225),
     'seaweed': (50, 175, 50),

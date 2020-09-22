@@ -24,9 +24,10 @@ class Message:
 
 
 class MessageLog:
-    def __init__(self) -> None:
+    def __init__(self, parent) -> None:
         self.messages: List[Message] = []
-    
+        self.parent = parent
+        
     def add_message(
             self, text: str, text_color: Tuple[int, int, int] = colors["white"], *, stack: bool = True,
     ) -> None:
@@ -45,18 +46,11 @@ class MessageLog:
         `x`, `y`, `width`, `height` is the rectangular region to render onto
         the `console`.
         """
-        # TODO magic numbers
         message_surf = Surface((ui_layout.messages_width, ui_layout.messages_height))
-        render_border(message_surf, colors['white'])
+        render_border(message_surf, self.parent.time.get_sky_color)
         self.render_messages(message_surf, 0, ui_layout.messages_height - 2 * margin,
                              ui_layout.messages_width - 2 * margin, message_count, self.messages)
         console.blit(message_surf, (ui_layout.status_width, ui_layout.viewport_height))
-    
-    @staticmethod
-    def wrap(string: str, width: int) -> Iterable[str]:
-        """Return a wrapped text message."""
-        for line in string.splitlines():  # Handle newlines in messages.
-            yield from textwrap.wrap(line, width, expand_tabs=True)
     
     @classmethod
     def render_messages(
@@ -75,9 +69,8 @@ class MessageLog:
         y_offset = 1
         
         for message in reversed(messages):
-            for line in reversed(list(cls.wrap(message.full_text, width))):
-                message_surf.blit(game_font.render(f"{line}", True, message.color),
-                                  (x + margin, y + margin - y_offset * game_font.get_height()))
-                y_offset += 1
-                if y_offset > height:
-                    return message_surf
+            message_surf.blit(game_font.render(f"{message.plain_text}", True, message.color),
+                              (x + margin, y + margin - y_offset * game_font.get_height()))
+            y_offset += 1
+            if y_offset > height:
+                return message_surf
