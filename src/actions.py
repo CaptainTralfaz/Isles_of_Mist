@@ -143,14 +143,14 @@ class AttackAction(Action):
         self.direction = direction
     
     def perform(self) -> bool:
-        if self.direction in ["self"]:
-            return MineAction(self.entity).perform()
+        if self.entity == self.engine.player and (self.entity.x, self.entity.y) == self.engine.game_map.port:
+            raise Impossible("Can't attack while in town")
         if self.direction in ["port", "starboard"]:
             raise Impossible("Not yet Implemented")
         if self.direction in ["fore"]:
             return ArrowAction(self.entity).perform()
         if self.direction in ["aft"]:
-            return ArrowAction(self.entity).perform()
+            return MineAction(self.entity).perform()
         return False
 
 

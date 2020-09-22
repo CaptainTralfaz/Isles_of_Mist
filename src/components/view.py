@@ -15,14 +15,14 @@ class View(BaseComponent):
         self.fov = {}
     
     def set_fov(self) -> None:
-        """
-        :return: Nothing - modify current map
-        """
-        if self.parent.flying:
+        distance = self.distance + self.engine.time.get_time_of_day_info['view'] + \
+                   self.engine.weather.get_weather_info['view']
+        
+        if self.parent.flying or (self.parent.x, self.parent.y) == self.parent.game_map.port:
             elevation = Elevation.JUNGLE
         else:
             elevation = Elevation.SHALLOWS
-        visible_tiles = self.parent.game_map.get_fov(self.distance,
+        visible_tiles = self.parent.game_map.get_fov(distance,
                                                      self.parent.x,
                                                      self.parent.y,
                                                      elevation=elevation)

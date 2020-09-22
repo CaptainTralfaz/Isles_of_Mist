@@ -2,9 +2,9 @@ from enum import auto, Enum
 from math import floor
 
 import pygame.transform as transform
-from pygame import Surface, draw
+from pygame import Surface, draw, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
-from constants import colors, view_port, margin, game_font, images
+from constants import colors, view_port, margin, game_font, images, tile_size
 from ui import DisplayInfo
 from utilities import direction_angle
 
@@ -146,7 +146,7 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     if len(entity_list) > 0:
         info_surf = Surface((max(widths) + margin * 2,
                              (len(entities) - 1) * 2 + len(entity_list) * game_font.get_height() + margin * 2))
-        render_border(info_surf, colors["white"])
+        render_border(info_surf, game_map.engine.time.get_sky_color)
         height = 0
         for name, hp, max_hp in entity_list:
             if hp is not None and hp > 0:
@@ -165,14 +165,26 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
         console.blit(info_surf, (blit_x, blit_y))
 
 
-def status_panel_render(console: Surface, entity, ui_layout: DisplayInfo):
+def status_panel_render(console: Surface, entity, weather, time, ui_layout: DisplayInfo):
     status_panel = Surface((ui_layout.status_width, ui_layout.status_height))
-    render_border(status_panel, colors["white"])
+    render_border(status_panel, time.get_sky_color)
+    
+    render_weather(time, weather, status_panel, ui_layout)
+    vertical = render_wind(weather.wind_direction, status_panel, ui_layout) + 2 * margin
+
+    w_text = game_font.render(f"{weather.conditions.name.lower().capitalize()}", True, colors['mountain'])
+    t_text = game_font.render(f"{time.year}.{time.month}.{time.day} {time.hrs}:{time.mins}:00",
+                              True, colors['mountain'])
+    status_panel.blit(w_text, (margin, vertical))
+    status_panel.blit(t_text, (status_panel.get_width() - t_text.get_width() - margin, vertical))
+    vertical += game_font.get_height() + margin
+    
     health_bar = render_hp_bar(text=f"{entity.fighter.name.capitalize()}",
                                current=entity.fighter.hp,
                                maximum=entity.fighter.max_hp,
                                bar_width=status_panel.get_width() - margin * 2)
-    status_panel.blit(health_bar, (margin, margin))
+    status_panel.blit(health_bar, (margin, vertical))
+    vertical += health_bar.get_height() + margin // 2
     if entity.sails:
         sail_bar = render_hp_bar(text=f"{entity.sails.name.capitalize()}",
                                  current=entity.sails.hp,
@@ -180,29 +192,31 @@ def status_panel_render(console: Surface, entity, ui_layout: DisplayInfo):
                                  bar_width=status_panel.get_width() - margin * 2,
                                  font_color="bar_text" if entity.sails.raised else "black",
                                  top_color="bar_filled" if entity.sails.raised else "impossible")
-        status_panel.blit(sail_bar, (margin, margin + margin // 2 + game_font.get_height()))
-    console.blit(status_panel, (0, ui_layout.mini_height))
+        status_panel.blit(sail_bar, (margin, vertical))
+        vertical += sail_bar.get_height() + margin // 2
     if entity.crew:
         crew_bar = render_hp_bar(text=f"{entity.crew.name.capitalize()}",
                                  current=entity.crew.count,
                                  maximum=entity.crew.max_count,
                                  bar_width=status_panel.get_width() - margin * 2)
-        status_panel.blit(crew_bar, (margin, margin + 2 * (margin // 2 + game_font.get_height())))
+        status_panel.blit(crew_bar, (margin, vertical))
+        vertical += crew_bar.get_height() + margin // 2
+
     console.blit(status_panel, (0, ui_layout.mini_height))
     # TODO render weapons damage/cool-downs, and cargo
 
 
-def control_panel_render(console: Surface, status, player, ui_layout: DisplayInfo):
+def control_panel_render(console: Surface, status, player, ui_layout: DisplayInfo, sky):
     control_panel = Surface((ui_layout.control_width, ui_layout.control_height))
     arrow_keys = []
     text_keys = []
     
     if status == "shift":  # targeting
         arrow_keys = [{'rotation': 0, 'text': 'Shoot Arrows'},
-                      {'rotation': 180, 'text': 'Shoot Arrows'}]
-        space_keys = {'name': 'Space', 'text': 'Drop Mines'}
+                      {'rotation': 90, 'text': 'Port Guns'},
+                      {'rotation': 270, 'text': 'Starboard Guns'},
+                      {'rotation': 180, 'text': 'Drop Mines'}]
         # modify space_keys['text'] for other options (get items, visit port, etc.)
-        text_keys.append(space_keys)
     elif status == "control_command":  # sails, etc.
         arrow_keys = [{'rotation': 0, 'text': 'Raise Sails'},
                       {'rotation': 180, 'text': 'Lower Sails'}]
@@ -212,11 +226,14 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
         arrow_keys = [{'rotation': 0, 'text': 'Row'},
                       {'rotation': 90, 'text': 'Turn Port'},
                       {'rotation': 270, 'text': 'Turn Starboard'}]
-        text_keys = [{'name': 'Shift', 'text': 'Targeting'}]
         if player.sails:
             text_keys.append({'name': 'Cmd', 'text': 'Sails'})
+            if player.sails.raised:
+                arrow_keys.append({'rotation': 180, 'text': 'Coast'})
+            else:
+                arrow_keys.append({'rotation': 180, 'text': 'Wait'})
         # text_keys.append({'name': 'Opt', 'text': 'Special'})
-        space_keys = {'name': 'Space', 'text': 'Wait'}
+        space_keys = {'name': 'Space', 'text': 'Auto Action'}
         # modify space_keys['text'] for other options (get items, visit port, etc.)
         text_keys.append(space_keys)
         text_keys.append({'name': 'Esc', 'text': 'Exit'})
@@ -248,7 +265,7 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
                                         color=colors['mountain'],
                                         bkg_color=colors['black'],
                                         vertical=vertical)
-    render_border(control_panel, colors["white"])
+    render_border(control_panel, sky)
     console.blit(control_panel, (0, ui_layout.mini_height + ui_layout.status_height))
 
 
@@ -307,7 +324,7 @@ def render_border(panel, color):
     :param color: color of the border
     :return: None
     """
-    draw.lines(panel, (0, 0, 0), True,
+    draw.lines(panel, colors['black'], True,
                ((2, 2),
                 (panel.get_width() - 3, 2),
                 (panel.get_width() - 3, panel.get_height() - 3),
@@ -317,3 +334,95 @@ def render_border(panel, color):
                 (panel.get_width() - 3, 2),
                 (panel.get_width() - 3, panel.get_height() - 3),
                 (2, panel.get_height() - 3)), 1)  # White line 1 wide
+
+
+def render_wind(direction: int, display_surf: Surface, ui: DisplayInfo) -> int:
+    """
+    Render the wind information
+    :param direction: direction the wind is blowing
+    :param display_surf: Surface to render on
+    :param ui: display info
+    :return: None
+    """
+    compass = images['compass']
+    display_surf.blit(compass, (ui.status_width - compass.get_width() - 3 * margin, margin * 2))
+    if direction is not None:
+        display_surf.blit(rot_center(image=images['pointer'], angle=direction_angle[direction]),
+                                    (ui.status_width - compass.get_width() - 3 * margin, margin * 2))
+    return compass.get_height() + margin
+
+
+def render_weather(time, weather, display_surf: Surface, ui: DisplayInfo):
+    """
+    Render the weather information
+    :param time: current game Time
+    :param weather: current map Weather
+    :param display_surf: Surface to render on
+    :param ui: display information
+    :return: None
+    """
+    weather_dict = weather.get_weather_info
+    time_dict = time.get_time_of_day_info
+    
+    if 6 <= time.hrs < 18:
+        icon = images['sun']
+    else:
+        icon = images['moon']
+    
+    numeric_time = 100 * time.hrs + 100 * time.mins // 60  # Example: 6:45 = 675, 21:30 = 2150
+    if numeric_time < 600:
+        relative_time = 600 + numeric_time
+    elif 600 <= numeric_time < 1800:
+        relative_time = numeric_time - 600
+    else:  # numeric_time >= 1800:
+        relative_time = numeric_time - 1800
+    
+    icon_x = relative_time * (tile_size * 4) // 1200
+    
+    if relative_time <= 300:
+        icon_y = tile_size - icon_x
+    elif relative_time >= 900:
+        icon_y = icon_x - (tile_size * 3)
+    else:
+        icon_y = 0
+    
+    # print(numeric_time, relative_time, icon_x, icon_y)
+    sky_surf = Surface((4 * tile_size, tile_size))
+    sky_surf.fill(time.get_sky_color)
+    sky_surf.blit(icon, (icon_x - 8, icon_y))
+    
+    if not (600 <= numeric_time < 1800):
+        moon_shadow_icon = images['moon_shadow']
+        moon_shadow_icon = colorize(image=moon_shadow_icon, new_color=time.get_sky_color)
+        
+        if numeric_time >= 1800:  # account for day change in middle of night
+            offset = 0
+        else:
+            offset = 1
+        sky_surf.blit(moon_shadow_icon, (icon_x - abs(time.day - 15 - offset) - 8, icon_y))
+    
+    icon = images[weather_dict['name'].lower()]
+    for x in range(sky_surf.get_width() // icon.get_width()):
+        sky_surf.blit(icon, (x * icon.get_width(), (x + 1) % 2))
+
+    display_surf.blit(sky_surf, (margin * 3, 2 * margin))
+
+
+def colorize(image, new_color):
+    """
+    Create a "colorized" copy of a surface (replaces RGB values with the given color, preserving the per-pixel alphas of
+    original).
+    :param image: Surface to create a colorized copy of
+    :param new_color: RGB color to use (original alpha values are preserved)
+    :return: New colorized Surface instance
+    """
+    image = image.copy()
+    
+    # zero out RGB values
+    image.fill((0, 0, 0, 255), None, BLEND_RGBA_MULT)
+    # add in new RGB values
+    image.fill(new_color[0:3] + (0,), None, BLEND_RGBA_ADD)
+    
+    return image
+
+

@@ -54,8 +54,10 @@ def generate_map(map_width: int, map_height: int, engine: Engine, seed: int) -> 
     for x in range(map_width):
         for y in range(map_height):
             
-            # add mist  TODO: add depending on weather
-            mist = True if randint(0, 99) < 10 else False
+            # add mist
+            mist_chance = engine.weather.get_weather_info['mist'] \
+                + engine.time.get_time_of_day_info['mist']
+            mist = True if randint(0, 99) < mist_chance else False
             
             # decoration
             decoration = None
@@ -198,7 +200,7 @@ def make_noise_island_map(map_width, map_height, ev, params):
     
     center_x = (map_width - 1) / 2.0
     center_y = (map_height - 1) / 2.0
-    noise_map = []
+    noise_map = [[0 for y in range(map_height)] for x in range(map_width)]
     for x in range(map_width):
         for y in range(map_height):
             nx = x / map_width - 0.5
@@ -215,7 +217,6 @@ def make_noise_island_map(map_width, map_height, ev, params):
             x_ratio = 1 - pow(x_dist / center_x, rand_pow_x)
             y_ratio = 1 - pow(y_dist / center_y, rand_pow_y)
             ratio = min(x_ratio, y_ratio)
-            
             noise_map[x][y] = round(256 * elevation * ratio)
     return noise_map
 

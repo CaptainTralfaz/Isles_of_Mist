@@ -5,12 +5,13 @@ from typing import TYPE_CHECKING
 from pygame import Surface, time
 
 from actions import MovementAction
+from constants import time_tick
 from custom_exceptions import Impossible
 from input_handlers import MainEventHandler
 from message_log import MessageLog
 from render_functions import render_entity_info, status_panel_render, control_panel_render
 from ui import DisplayInfo
-from weather import Weather
+from weather import Weather, Time
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -24,10 +25,11 @@ class Engine:
         self.event_handler: MainEventHandler = MainEventHandler(self)
         self.player = player
         self.mouse_location = (0, 0)
-        self.message_log = MessageLog()
+        self.message_log = MessageLog(parent=self)
         self.ui_layout = ui_layout
         self.clock = time.Clock()
-        self.weather = Weather()
+        self.weather = Weather(parent=self)
+        self.time = Time(time_tick)
         self.key_mod = None
     
     def handle_enemy_turns(self) -> None:
@@ -46,7 +48,10 @@ class Engine:
                 pass
     
     def handle_weather(self):
-        if self.weather.wind_blowing:
+        self.time.roll_min()
+        self.weather.roll_weather()
+        self.weather.roll_wind()
+        if self.weather.wind_direction is not None:
             self.weather.roll_mist(self.game_map)
     
     def render(self, main_surface: Surface) -> None:
@@ -56,9 +61,11 @@ class Engine:
         
         self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
         
-        status_panel_render(console=main_surface, entity=self.player, ui_layout=self.ui_layout)
+        status_panel_render(console=main_surface, entity=self.player, weather=self.weather, time=self.time,
+                            ui_layout=self.ui_layout)
         
-        control_panel_render(console=main_surface, status=self.key_mod, player=self.player, ui_layout=self.ui_layout)
+        control_panel_render(console=main_surface, status=self.key_mod, player=self.player,
+                             ui_layout=self.ui_layout, sky=self.time.get_sky_color)
         
         # stuff under mouse
         if self.ui_layout.mini_width <= self.mouse_location[0] < self.ui_layout.display_width - 1 \
