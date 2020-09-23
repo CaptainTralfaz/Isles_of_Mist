@@ -6,10 +6,19 @@ from components.view import View
 from constants import animation_speed, flicker_timer, sprite_count
 from entity import Actor
 from sprite import Sprite
+from tile import Elevation
+
+
+move_elevations = {
+    'water': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS],
+    'fly': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE],
+    'shore': [Elevation.SHALLOWS, Elevation.BEACH],
+}
 
 player = Actor(x=0,
                y=0,
                facing=0,
+               elevations=move_elevations['water'],
                icon='player_image',
                name='Player',
                ai_cls=NeutralEnemy,
@@ -31,6 +40,7 @@ player = Actor(x=0,
 turtle = Actor(x=0,
                y=0,
                facing=0,
+               elevations=move_elevations['water'],
                icon='turtle_image',
                sprite=Sprite(sprite_name="turtle_sprite",
                              sprite_count=sprite_count,
@@ -47,6 +57,7 @@ turtle = Actor(x=0,
 serpent = Actor(x=0,
                 y=0,
                 facing=0,
+                elevations=move_elevations['water'],
                 icon='serpent_image',
                 name='Serpent',
                 sprite=Sprite(sprite_name="serpent_sprite",
@@ -63,6 +74,7 @@ serpent = Actor(x=0,
 bat = Actor(x=0,
             y=0,
             facing=0,
+            elevations=move_elevations['fly'],
             icon='bat_image',
             name='Bat',
             sprite=Sprite(sprite_name="bat_sprite",

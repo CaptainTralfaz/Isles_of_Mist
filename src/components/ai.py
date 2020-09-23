@@ -82,10 +82,7 @@ class HostileEnemy(BaseAI):
             facing_x, facing_y = get_neighbor(self.entity.x, self.entity.y, self.entity.facing)
             can_move_to = False
             if self.entity.game_map.in_bounds(facing_x, facing_y):
-                if self.entity.flying:
-                    can_move_to = self.entity.game_map.can_fly_to(facing_x, facing_y)
-                else:
-                    can_move_to = self.entity.game_map.can_sail_to(facing_x, facing_y)
+                can_move_to = self.entity.game_map.can_move_to(facing_x, facing_y, self.entity.elevations)
             if distance_map.get((facing_x, facing_y)) == shortest_dist \
                     and can_move_to:
                 return MovementAction(self.entity).perform()

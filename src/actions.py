@@ -61,14 +61,12 @@ class MovementAction(Action):
     def perform(self) -> bool:
         x, y = self.entity.get_next_hex()
         if self.entity.parent.in_bounds(x, y):
-            if self.entity.flying:
-                can_move = self.entity.parent.game_map.can_fly_to(x, y) and (x, y) is not self.engine.game_map.port
-            else:
-                can_move = self.entity.parent.game_map.can_sail_to(x, y) \
-                           or ((x, y) == self.engine.game_map.port and self.entity.name == "Player")
+            can_move = (self.entity.parent.game_map.can_move_to(x, y, self.entity.elevations)
+                        and (x, y) is not self.engine.game_map.port) \
+                       or ((x, y) == self.engine.game_map.port and self.entity == self.engine.player)
             if can_move:
                 self.entity.move()
-                if (x, y) == self.engine.game_map.port and self.entity.name == "Player":
+                if (x, y) == self.engine.game_map.port and self.entity is self.engine.player:
                     if self.entity.sails.raised:
                         self.entity.sails.adjust(False)
                         return True
@@ -172,7 +170,7 @@ class WanderAction(Action):
         x, y = self.entity.get_next_hex()
         if decision == 0 \
                 and self.engine.game_map.in_bounds(x, y) \
-                and self.engine.game_map.can_sail_to(x, y):
+                and self.engine.game_map.can_move_to(x, y, self.entity.elevations):
             return MovementAction(self.entity).perform()
         else:
             decision = choice([-1, 1])
