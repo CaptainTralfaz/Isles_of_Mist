@@ -122,9 +122,12 @@ class SailAction(Action):
         self.sail = sail
     
     def perform(self) -> bool:
-        self.entity.sails.adjust(self.sail)
-        return True
-
+        if self.entity.sails.hp > 0:
+            self.entity.sails.adjust(self.sail)
+            return True
+        else:
+            raise Impossible("No Sails")
+        
 
 class MineAction(Action):
     def __init__(self, entity):

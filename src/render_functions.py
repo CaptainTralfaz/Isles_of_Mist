@@ -426,3 +426,35 @@ def colorize(image, new_color):
     return image
 
 
+def create_ship_icon(entity):
+    """
+    Create ship icon from a sprite sheet
+    TODO: actually use the ship entity's icon, rather than just counting the size/masts
+    :param entity: Entity's icon to be generated
+    :return: created ship icon
+    """
+    wake = (0, 0, tile_size, tile_size)
+    hull = (0, tile_size, tile_size, tile_size)
+    sail = (tile_size, tile_size, tile_size, tile_size)
+    emblem = (tile_size, 0, tile_size, tile_size)
+    icon = Surface((tile_size, tile_size))
+    icon.set_colorkey(colors['black'])
+    
+    sheet = images[entity.icon]
+    # if moving blit wake, but for now, if sail raised
+    if entity.sails.raised:
+        icon.blit(sheet.subsurface(wake), (0, 0))  # wake
+    icon.blit(sheet.subsurface(hull), (0, 0))  # hull
+    if entity.sails.raised:
+        icon.blit(sheet.subsurface(sail), (0, 0))  # wake
+        icon.blit(sheet.subsurface(emblem), (0, 0))  # wake
+
+    # add
+    # if entity.affiliation:
+    #     emblem_sheet = sheet.subsurface(emblem)
+    #     # colorize it somehow ?
+    #     icon.blit(emblem_sheet, (0, 0))  # wake
+
+    return icon
+
+

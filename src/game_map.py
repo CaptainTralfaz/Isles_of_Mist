@@ -6,7 +6,7 @@ from typing import Iterable, List, Tuple, TYPE_CHECKING
 from pygame import display, Surface
 
 from constants import block_size, colors, images, margin, sprites, tile_size, view_port
-from render_functions import get_rotated_image, render_border
+from render_functions import get_rotated_image, render_border, create_ship_icon
 from tile import Elevation, Terrain
 from ui import DisplayInfo
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
@@ -181,11 +181,19 @@ class GameMap:
                                                 entity.facing),
                               ((entity.x - left) * tile_size,
                                (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
-            elif (entity.x, entity.y) in self.engine.player.view.fov and entity.icon is not None:
-                map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
+            elif (entity.x, entity.y) in self.engine.player.view.fov \
+                    and entity.icon is not None \
+                    and entity.fighter and entity.fighter.name == 'hull' \
+                    and entity.is_alive:
+                ship_icon = create_ship_icon(entity)
+                map_surf.blit(get_rotated_image(ship_icon, entity.facing),
                               ((entity.x - left) * tile_size,
                                (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
-        
+            elif (entity.x, entity.y) in self.engine.player.view.fov and entity.icon is not None:
+                map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
+                      ((entity.x - left) * tile_size,
+                       (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+
         for x, y in self.engine.player.view.fov:
             if self.in_bounds(x, y) and self.terrain[x][y].mist:
                 map_surf.blit(images["mist"],
