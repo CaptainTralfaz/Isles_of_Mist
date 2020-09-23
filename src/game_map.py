@@ -91,12 +91,9 @@ class GameMap:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
     
-    def can_sail_to(self, x: int, y: int) -> bool:
-        return self.terrain[x][y].elevation <= Elevation.SHALLOWS
-    
-    def can_fly_to(self, x: int, y: int) -> bool:
-        return self.terrain[x][y].elevation <= Elevation.JUNGLE
-    
+    def can_move_to(self, x: int, y: int, elevations) -> bool:
+        return self.terrain[x][y].elevation in elevations
+        
     def render_mini(self, main_display: display, ui_layout: DisplayInfo) -> None:
         mini_surf = Surface((ui_layout.mini_width, ui_layout.mini_height))
         block = Surface((block_size, block_size))

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Optional, Type, TypeVar, TYPE_CHECKING
+from typing import List, Optional, Type, TypeVar, TYPE_CHECKING
 
 from render_functions import RenderOrder
 from utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from components.sails import Sails
     from components.view import View
     from sprite import Sprite
+    from tile import Elevation
 
 T = TypeVar("T", bound="Entity")
 
@@ -74,6 +75,7 @@ class Actor(Entity):
                  sails: Sails = None,
                  crew: Crew = None,
                  view: View,
+                 elevations: List[Elevation],
                  x: int = 0,
                  y: int = 0,
                  facing: int = 0,
@@ -94,6 +96,7 @@ class Actor(Entity):
         self.ai: Optional[BaseAI] = ai_cls(self)
         self.fighter = fighter
         self.fighter.parent = self
+        self.elevations = elevations
         if sails:
             self.sails = sails
             self.sails.parent = self
