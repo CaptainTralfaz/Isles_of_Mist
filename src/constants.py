@@ -61,6 +61,13 @@ rocks = image.load("assets/terrain/rocks.png")
 sandbar = image.load("assets/terrain/sandbar.png")
 seaweed = image.load("assets/terrain/seaweed.png")
 
+mast_0 = image.load("assets/entities/mast_0.png")
+mast_1 = image.load("assets/entities/mast_1.png")
+mast_2 = image.load("assets/entities/mast_2.png")
+mast_3 = image.load("assets/entities/mast_3.png")
+mast_4 = image.load("assets/entities/mast_4.png")
+
+
 bat_sprite = []
 serpent_sprite = []
 turtle_sprite = []
@@ -75,7 +82,11 @@ sprites = {
 }
 
 images = {
-    'player_image': player_image,
+    'mast_0': mast_0,
+    'mast_1': mast_1,
+    'mast_2': mast_2,
+    'mast_3': mast_3,
+    'mast_4': mast_4,
     'turtle_image': turtle_image,
     'serpent_image': serpent_image,
     'bat_image': bat_image,
