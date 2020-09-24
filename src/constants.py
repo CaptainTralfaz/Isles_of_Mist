@@ -39,6 +39,8 @@ serpent_image = image.load("assets/entities/serpent.png")
 bat_image = image.load("assets/entities/bat.png")
 carcass = image.load("assets/entities/carcass.png")
 sunken_ship = image.load("assets/entities/sunken_ship.png")
+chest = image.load("assets/entities/salvage.png")
+bottle = image.load("assets/entities/bottle.png")
 mermaid_image = image.load("assets/entities/mermaid.png")
 
 sprite_sheet = image.load("assets/entities/sprite_sheet.png")
@@ -68,7 +70,6 @@ mast_2 = image.load("assets/entities/mast_2.png")
 mast_3 = image.load("assets/entities/mast_3.png")
 mast_4 = image.load("assets/entities/mast_4.png")
 
-
 bat_sprite = []
 serpent_sprite = []
 turtle_sprite = []
@@ -94,6 +95,8 @@ images = {
     'mermaid_image': mermaid_image,
     'carcass': carcass,
     'sunken_ship': sunken_ship,
+    'chest': chest,
+    'bottle': bottle,
     'ocean': ocean,
     'water': water,
     'shallows': shallows,

@@ -34,7 +34,7 @@ class Engine:
     
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
-            if entity.ai:
+            if entity.is_alive and entity.ai:
                 try:
                     entity.ai.perform()
                 except Impossible:

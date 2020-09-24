@@ -35,7 +35,7 @@ class GameMap:
             self.terrain = [[Terrain(elevation=Elevation.OCEAN, explored=False) for y in range(height)]
                             for x in range(width)]
         self.port = None
-        
+    
     @property
     def game_map(self) -> GameMap:
         return self
@@ -93,7 +93,7 @@ class GameMap:
     
     def can_move_to(self, x: int, y: int, elevations) -> bool:
         return self.terrain[x][y].elevation in elevations
-        
+    
     def render_mini(self, main_display: display, ui_layout: DisplayInfo) -> None:
         mini_surf = Surface((ui_layout.mini_width, ui_layout.mini_height))
         block = Surface((block_size, block_size))
@@ -183,17 +183,24 @@ class GameMap:
                                (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
             elif (entity.x, entity.y) in self.engine.player.view.fov \
                     and entity.icon is not None \
-                    and entity.fighter and entity.fighter.name == 'hull' \
-                    and entity.is_alive:
+                    and entity.is_alive \
+                    and entity.fighter and entity.fighter.name == 'hull':
                 ship_icon = create_ship_icon(entity)
                 map_surf.blit(get_rotated_image(ship_icon, entity.facing),
                               ((entity.x - left) * tile_size,
                                (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
-            elif (entity.x, entity.y) in self.engine.player.view.fov and entity.icon is not None:
+            elif (entity.x, entity.y) in self.engine.player.view.fov \
+                    and entity.icon is not None \
+                    and entity.is_alive:
                 map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
-                      ((entity.x - left) * tile_size,
-                       (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
-
+                              ((entity.x - left) * tile_size,
+                               (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+            elif (entity.x, entity.y) in self.engine.player.view.fov \
+                    and entity.icon is not None:
+                map_surf.blit(images[entity.icon],
+                              ((entity.x - left) * tile_size,
+                               (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+        
         for x, y in self.engine.player.view.fov:
             if self.in_bounds(x, y) and self.terrain[x][y].mist:
                 map_surf.blit(images["mist"],
@@ -201,7 +208,7 @@ class GameMap:
                                (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
         
         render_border(map_surf, self.engine.time.get_sky_color)
-
+        
         tint_surf = Surface(((2 * view_port + 1) * tile_size, (2 * view_port + 1) * tile_size + 2 * margin))
         tint_surf.set_alpha(abs(self.engine.time.hrs * 60 + self.engine.time.mins - 720) // 8)
         tint = self.engine.time.get_sky_color
@@ -209,7 +216,7 @@ class GameMap:
         
         map_surf.blit(tint_surf, (0, 0))
         main_display.blit(map_surf, (ui_layout.mini_width, 0))
-        
+    
     def gen_distance_map(self,
                          target_x: int,
                          target_y: int,

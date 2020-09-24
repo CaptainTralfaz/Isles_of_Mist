@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import List, Optional, Type, TypeVar, TYPE_CHECKING
+from typing import Optional, Type, TypeVar, TYPE_CHECKING
 
 from render_functions import RenderOrder
 from utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from components.sails import Sails
     from components.view import View
     from sprite import Sprite
-    from tile import Elevation
 
 T = TypeVar("T", bound="Entity")
 
@@ -28,6 +27,7 @@ class Entity:
     def __init__(self, x: int,
                  y: int,
                  icon: str,
+                 elevations: list,
                  sprite: Optional[Sprite] = None,
                  parent: Optional[GameMap] = None,
                  name: str = "<Unnamed>",
@@ -38,9 +38,16 @@ class Entity:
         self.sprite = sprite
         self.name = name
         self.render_order = render_order
+        self.elevations = elevations
         if parent:
             self.parent = parent
             parent.entities.add(self)
+        self.fighter = None
+    
+    @property
+    def is_alive(self) -> bool:
+        """Returns True as long as this entity can perform actions."""
+        return False
     
     @property
     def game_map(self) -> GameMap:
@@ -70,14 +77,14 @@ class Entity:
 class Actor(Entity):
     def __init__(self,
                  *,
-                 ai_cls: Type[BaseAI],
+                 ai_cls: Type[BaseAI] = None,
                  fighter: Fighter,
                  sails: Sails = None,
                  crew: Crew = None,
                  view: View,
-                 elevations: List[Elevation],
                  x: int = 0,
                  y: int = 0,
+                 elevations: list,
                  facing: int = 0,
                  icon: str = "",
                  sprite: Optional[Sprite] = None,
@@ -87,16 +94,15 @@ class Actor(Entity):
         super().__init__(
             x=x,
             y=y,
+            elevations=elevations,
             icon=icon,
             sprite=sprite,
             name=name,
-            render_order=render_order
-        )
+            render_order=render_order)
         
         self.ai: Optional[BaseAI] = ai_cls(self)
         self.fighter = fighter
         self.fighter.parent = self
-        self.elevations = elevations
         if sails:
             self.sails = sails
             self.sails.parent = self
