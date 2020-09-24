@@ -14,7 +14,7 @@ game_font = font.Font('freesansbold.ttf', 16)
 view_port = 9
 message_count = 10
 
-time_tick = 5
+time_tick = 2
 FPS = 20
 sprite_count = 4
 animation_speed = 2.0
@@ -39,6 +39,7 @@ serpent_image = image.load("assets/entities/serpent.png")
 bat_image = image.load("assets/entities/bat.png")
 carcass = image.load("assets/entities/carcass.png")
 sunken_ship = image.load("assets/entities/sunken_ship.png")
+mermaid_image = image.load("assets/entities/mermaid.png")
 
 sprite_sheet = image.load("assets/entities/sprite_sheet.png")
 
@@ -90,6 +91,7 @@ images = {
     'turtle_image': turtle_image,
     'serpent_image': serpent_image,
     'bat_image': bat_image,
+    'mermaid_image': mermaid_image,
     'carcass': carcass,
     'sunken_ship': sunken_ship,
     'ocean': ocean,
@@ -118,7 +120,7 @@ images = {
     'moon': moon,
     'moon_shadow': moon_shadow,
     'rainy': rain,
-    'calm': sky,
+    'clear': sky,
     'stormy': storm,
 }
 

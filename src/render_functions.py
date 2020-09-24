@@ -171,12 +171,17 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
     
     render_weather(time, weather, status_panel, ui_layout)
     vertical = render_wind(weather.wind_direction, status_panel, ui_layout) + 2 * margin
-
+    
     w_text = game_font.render(f"{weather.conditions.name.lower().capitalize()}", True, colors['mountain'])
-    t_text = game_font.render(f"{time.year}.{time.month}.{time.day} {time.hrs}:{time.mins}:00",
-                              True, colors['mountain'])
-    status_panel.blit(w_text, (margin, vertical))
-    status_panel.blit(t_text, (status_panel.get_width() - t_text.get_width() - margin, vertical))
+    status_panel.blit(w_text, (status_panel.get_width() // 2 - w_text.get_width() // 2, vertical))
+    vertical += game_font.get_height() + margin
+
+    months = str(time.month) if len(str(time.month)) == 2 else "0" + str(time.month)
+    days = str(time.day) if len(str(time.day)) == 2 else "0" + str(time.day)
+    hrs = str(time.hrs) if len(str(time.hrs)) == 2 else "0" + str(time.hrs)
+    mins = str(time.mins) if len(str(time.mins)) == 2 else "0" + str(time.mins)
+    t_text = game_font.render(f"{time.year}.{months}.{days} {hrs}:{mins}:00", True, colors['mountain'])
+    status_panel.blit(t_text, (status_panel.get_width() // 2 - t_text.get_width() // 2, vertical))
     vertical += game_font.get_height() + margin
     
     health_bar = render_hp_bar(text=f"{entity.fighter.name.capitalize()}",
