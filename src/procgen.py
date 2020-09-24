@@ -56,7 +56,7 @@ def generate_map(map_width: int, map_height: int, engine: Engine, seed: int) -> 
             
             # add mist
             mist_chance = engine.weather.get_weather_info['mist'] \
-                + engine.time.get_time_of_day_info['mist']
+                          + engine.time.get_time_of_day_info['mist']
             mist = True if randint(0, 99) < mist_chance else False
             
             # decoration
@@ -283,13 +283,31 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             mermaid = entity_factory.mermaid.spawn(island_map, x, y, randint(0, 5))
             mermaid.view.set_fov()
-        else:
+        elif rnd < .9:
             available = []
             for elevation in entity_factory.move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
             serpent.view.set_fov()
+        elif rnd < .94:
+            available = []
+            for elevation in entity_factory.move_elevations['shallows']:
+                available.extend(elevations[elevation.name])
+            (x, y) = choice(available)
+            entity_factory.shipwreck.spawn(island_map, x, y)
+        elif rnd < .97:
+            available = []
+            for elevation in entity_factory.move_elevations['water']:
+                available.extend(elevations[elevation.name])
+            (x, y) = choice(available)
+            entity_factory.chest.spawn(island_map, x, y)
+        else:
+            available = []
+            for elevation in entity_factory.move_elevations['water']:
+                available.extend(elevations[elevation.name])
+            (x, y) = choice(available)
+            entity_factory.bottle.spawn(island_map, x, y)
 
 
 def elevation_choices(game_map: GameMap, player_fov) -> dict:

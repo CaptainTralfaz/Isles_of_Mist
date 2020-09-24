@@ -4,15 +4,15 @@ from components.fighter import Fighter
 from components.sails import Sails
 from components.view import View
 from constants import animation_speed, flicker_timer, sprite_count
-from entity import Actor
+from entity import Actor, Entity
 from sprite import Sprite
 from tile import Elevation
-
 
 move_elevations = {
     'water': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS],
     'fly': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE],
     'shore': [Elevation.SHALLOWS, Elevation.BEACH],
+    'shallows': [Elevation.SHALLOWS],
 }
 
 player = Actor(x=0,
@@ -90,14 +90,32 @@ bat = Actor(x=0,
             flying=True)
 
 mermaid = Actor(x=0,
-            y=0,
-            facing=0,
-            elevations=move_elevations['shore'],
-            icon='mermaid_image',
-            name='Mermaid',
-            ai_cls=HostileEnemy,
-            fighter=Fighter(hp=4,
-                            defense=1,
-                            power=3,
-                            can_hit={"crew": 10}),
-            view=View(4))
+                y=0,
+                facing=0,
+                elevations=move_elevations['shore'],
+                icon='mermaid_image',
+                name='Mermaid',
+                ai_cls=HostileEnemy,
+                fighter=Fighter(hp=4,
+                                defense=1,
+                                power=2,
+                                can_hit={"crew": 10}),
+                view=View(4))
+
+shipwreck = Entity(x=0,
+                   y=0,
+                   elevations=move_elevations['shallows'],
+                   icon='sunken_ship',
+                   name='Shipwreck')
+
+bottle = Entity(x=0,
+                y=0,
+                elevations=move_elevations['water'],
+                icon='bottle',
+                name='Bottle')
+
+chest = Entity(x=0,
+               y=0,
+               elevations=move_elevations['water'],
+               icon='chest',
+               name='Chest')
