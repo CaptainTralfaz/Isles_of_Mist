@@ -110,8 +110,9 @@ def generate_map(map_width: int, map_height: int, engine: Engine, seed: int) -> 
     island = big_island(islands)
     place_port(island_map, island, ocean)
     place_player(island_map, player)
-    available_ocean = set(ocean) - player.view.fov
-    place_entities(island_map, list(available_ocean))
+    
+    elevations = elevation_choices(island_map, player.view.fov)
+    place_entities(island_map, elevations)
     return island_map
 
 
@@ -257,21 +258,50 @@ def noise(gen, nx, ny):
     return gen.noise2d(nx, ny) / 2.0 + 0.5
 
 
-def place_entities(island_map: GameMap, available):
+def place_entities(island_map: GameMap, elevations):
     for entity in range((island_map.width * island_map.height) // 50):
         # generate monsters here, add to entities list
-        (x, y) = choice(available)
-        available.remove((x, y))
         rnd = random()
-        if rnd < .4:
+        if rnd < .3:
+            available = []
+            for elevation in entity_factory.move_elevations['water']:
+                available.extend(elevations[elevation.name])
+            (x, y) = choice(available)
             turtle = entity_factory.turtle.spawn(island_map, x, y, randint(0, 5))
             turtle.view.set_fov()
-        elif rnd < .7:
+        elif rnd < .5:
+            available = []
+            for elevation in entity_factory.move_elevations['fly']:
+                available.extend(elevations[elevation.name])
+            (x, y) = choice(available)
             bat = entity_factory.bat.spawn(island_map, x, y, randint(0, 5))
             bat.view.set_fov()
+        elif rnd < .7:
+            available = []
+            for elevation in entity_factory.move_elevations['shore']:
+                available.extend(elevations[elevation.name])
+            (x, y) = choice(available)
+            mermaid = entity_factory.mermaid.spawn(island_map, x, y, randint(0, 5))
+            mermaid.view.set_fov()
         else:
+            available = []
+            for elevation in entity_factory.move_elevations['water']:
+                available.extend(elevations[elevation.name])
+            (x, y) = choice(available)
             serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
             serpent.view.set_fov()
+
+
+def elevation_choices(game_map: GameMap, player_fov) -> dict:
+    elevations = {}
+    for key in Elevation:
+        elevations[key.name] = []
+    for x in range(game_map.width):
+        for y in range(game_map.height):
+            elevations[game_map.terrain[x][y].elevation.name].append((x, y))
+    for key in Elevation:
+        set(elevations[key.name]).discard(player_fov)
+    return elevations
 
 
 def explore_water_iterative(game_map: GameMap) -> List[Tuple[int, int]]:

@@ -50,7 +50,10 @@ class WaitAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        self.engine.message_log.add_message(f"{self.entity.name} waits...")
+        if self.entity.sails and self.entity.sails.raised:
+            self.engine.message_log.add_message(f"{self.entity.name} coasts...")
+        else:
+            self.engine.message_log.add_message(f"{self.entity.name} waits...")
         return True
 
 
@@ -60,14 +63,15 @@ class MovementAction(Action):
     
     def perform(self) -> bool:
         x, y = self.entity.get_next_hex()
-        if self.entity.parent.in_bounds(x, y):
-            can_move = (self.entity.parent.game_map.can_move_to(x, y, self.entity.elevations)
+        if self.entity.game_map.in_bounds(x, y):
+            can_move = (self.entity.game_map.game_map.can_move_to(x, y, self.entity.elevations)
                         and (x, y) is not self.engine.game_map.port) \
                        or ((x, y) == self.engine.game_map.port and self.entity == self.engine.player)
             if can_move:
                 self.entity.move()
                 if (x, y) == self.engine.game_map.port and self.entity is self.engine.player:
                     if self.entity.sails.raised:
+                        self.engine.message_log.add_message("You sail into Port")
                         self.entity.sails.adjust(False)
                         return True
                 color = colors["enemy_atk"] if self.entity == self.engine.player else colors["player_atk"]
@@ -97,14 +101,22 @@ class MovementAction(Action):
                                     f"Minefield has been cleared")
                             self.entity.parent.game_map.terrain[x][y].decoration = None
                 return True
+            # player can't move here
             elif self.entity == self.engine.player:
-                if self.entity.sails.raised:
+                if self.entity.sails and self.entity.sails.hp > 0 and self.entity.sails.raised:
+                    self.engine.message_log.add_message("Blocked", colors['impossible'])
                     self.entity.sails.adjust(False)
-                raise Impossible("Blocked")
+                else:
+                    raise Impossible("Blocked")
+            return False
+        # player out of bounds
+        elif self.entity == self.engine.player:
+            if self.entity.sails and self.entity.sails.hp > 0 and self.entity.sails.raised:
+                self.engine.message_log.add_message("No Navigational Charts to leave area", colors['impossible'])
+                self.entity.sails.adjust(False)
             else:
-                # print(f"{self.entity.name} is blocked")
-                return False
-
+                raise Impossible("No Navigational Charts to leave area")
+    
 
 class RotateAction(Action):
     def __init__(self, entity, direction):
@@ -135,6 +147,7 @@ class MineAction(Action):
     
     def perform(self) -> bool:
         self.engine.game_map.terrain[self.entity.x][self.entity.y].decoration = "mines"
+        self.engine.message_log.add_message(f"Mines placed")
         return True
 
 

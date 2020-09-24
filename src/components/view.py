@@ -17,7 +17,8 @@ class View(BaseComponent):
     def set_fov(self) -> None:
         distance = self.distance + self.engine.time.get_time_of_day_info['view'] + \
                    self.engine.weather.get_weather_info['view']
-        
+        if distance < 1:
+            distance = 1
         if self.parent.flying or (self.parent.x, self.parent.y) == self.parent.game_map.port:
             elevation = Elevation.JUNGLE
         else:

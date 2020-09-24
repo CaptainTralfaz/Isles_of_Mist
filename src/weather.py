@@ -10,7 +10,7 @@ class Conditions(Enum):
     """
     Enum of possible weather values
     """
-    CALM = auto()
+    CLEAR = auto()
     HAZY = auto()
     CLOUDY = auto()
     RAINY = auto()
@@ -18,7 +18,7 @@ class Conditions(Enum):
 
 
 weather_effects = {
-    Conditions.CALM: {'name': 'calm', 'view': 1, 'mist': 0},
+    Conditions.CLEAR: {'name': 'clear', 'view': 1, 'mist': 0},
     Conditions.HAZY: {'name': 'hazy', 'view': 0, 'mist': 5},
     Conditions.CLOUDY: {'name': 'cloudy', 'view': 0, 'mist': 10},
     Conditions.RAINY: {'name': 'rainy', 'view': -1, 'mist': 15},
@@ -50,8 +50,8 @@ class Weather:
         Returns weather effects dictionary depending on the conditions
         :return: dict of weather effects
         """
-        if self.conditions == Conditions.CALM:
-            return weather_effects[Conditions.CALM]
+        if self.conditions == Conditions.CLEAR:
+            return weather_effects[Conditions.CLEAR]
         elif self.conditions == Conditions.HAZY:
             return weather_effects[Conditions.HAZY]
         elif self.conditions == Conditions.CLOUDY:
@@ -157,7 +157,7 @@ class Weather:
 
 
 class Time:
-    def __init__(self, tick, hrs=12, mins=00, day=1, month=1, year=1111):
+    def __init__(self, tick, hrs=9, mins=00, day=1, month=1, year=1111):
         """
         Object holding game time information
         12 months per year, 30 days per month, 24 hrs per day, 60 minutes per hour

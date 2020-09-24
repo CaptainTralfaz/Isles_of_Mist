@@ -69,7 +69,11 @@ class MessageLog:
         y_offset = 1
         
         for message in reversed(messages):
-            message_surf.blit(game_font.render(f"{message.plain_text}", True, message.color),
+            count = ""
+            if message.count > 1:
+                count = f" (x {message.count})"
+            text = f"{message.plain_text}{count}"
+            message_surf.blit(game_font.render(text, True, message.color),
                               (x + margin, y + margin - y_offset * game_font.get_height()))
             y_offset += 1
             if y_offset > height:

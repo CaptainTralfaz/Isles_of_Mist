@@ -42,12 +42,12 @@ class HostileEnemy(BaseAI):
         if target location is empty, Hostile will patrol around the edge that location
         :return: action -> bool
         """
-        # in view, set new target location
         if (self.engine.player.x, self.engine.player.y) == self.engine.game_map.port:
             self.current_target_x = None
             self.current_target_y = None
             return WanderAction(self.entity).perform()
         
+        # in view, set new target location
         if (self.engine.player.x, self.engine.player.y) in self.entity.view.fov:
             self.current_target_x = self.engine.player.x
             self.current_target_y = self.engine.player.y
@@ -60,6 +60,7 @@ class HostileEnemy(BaseAI):
         # have a target location: find path, then move or rotate
         if self.current_target_x is not None and self.current_target_y is not None:
             
+            # TODO: do once per turn, attach to engine
             distance_map = self.engine.game_map.gen_distance_map(self.current_target_x,
                                                                  self.current_target_y,
                                                                  self.entity.flying)
@@ -68,7 +69,6 @@ class HostileEnemy(BaseAI):
             shortest_dist_coords = []
             shortest_dist = get_distance(self.entity.x, self.entity.y,
                                          self.current_target_x, self.current_target_y)
-            
             # print(neighbors)
             for neighbor in neighbors:
                 neighbor_dist = distance_map.get((neighbor[0], neighbor[1]))
@@ -83,8 +83,7 @@ class HostileEnemy(BaseAI):
             can_move_to = False
             if self.entity.game_map.in_bounds(facing_x, facing_y):
                 can_move_to = self.entity.game_map.can_move_to(facing_x, facing_y, self.entity.elevations)
-            if distance_map.get((facing_x, facing_y)) == shortest_dist \
-                    and can_move_to:
+            if distance_map.get((facing_x, facing_y)) == shortest_dist and can_move_to:
                 return MovementAction(self.entity).perform()
             
             left_shortest = 3
