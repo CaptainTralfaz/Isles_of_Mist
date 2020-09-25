@@ -9,7 +9,8 @@ from constants import time_tick
 from custom_exceptions import Impossible
 from input_handlers import MainEventHandler
 from message_log import MessageLog
-from render_functions import render_entity_info, status_panel_render, control_panel_render
+from render_functions import render_entity_info, status_panel_render, control_panel_render, viewport_render, \
+    mini_map_render
 from ui import DisplayInfo
 from weather import Weather, Time
 
@@ -54,10 +55,10 @@ class Engine:
         if self.weather.wind_direction is not None:
             self.weather.roll_mist(self.game_map)
     
-    def render(self, main_surface: Surface) -> None:
-        self.game_map.render(main_display=main_surface, ui_layout=self.ui_layout)
+    def render_all(self, main_surface: Surface) -> None:
+        viewport_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
         
-        self.game_map.render_mini(main_display=main_surface, ui_layout=self.ui_layout)
+        mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
         
         self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
         

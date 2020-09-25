@@ -1,10 +1,12 @@
 from enum import auto, Enum
 from math import floor
+from typing import Tuple
 
 import pygame.transform as transform
-from pygame import Surface, draw, BLEND_RGBA_MULT, BLEND_RGBA_ADD
+from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
-from constants import colors, view_port, margin, game_font, images, tile_size
+from constants import colors, view_port, margin, game_font, images, sprites, tile_size, block_size, move_elevations
+from game_map import GameMap
 from ui import DisplayInfo
 from utilities import direction_angle
 
@@ -36,11 +38,152 @@ def rot_center(image: Surface, angle: int) -> Surface:
     return rot_image
 
 
+def surface_to_map_coords(x: int, y: int, player_x: int) -> Tuple[int, int]:
+    half_tile_size = tile_size // 2
+    x_grid = x // tile_size
+    
+    y_grid = (y - margin - margin // 2
+              # even and odd
+              + half_tile_size * (player_x % 2)
+              # odd viewport
+              - (view_port % 2) * half_tile_size
+              + (view_port % 2) * half_tile_size * ((x_grid + player_x) % 2)
+              # even viewport
+              - ((view_port + 1) % 2) * half_tile_size * ((x_grid + player_x) % 2)
+              ) // tile_size
+    return x_grid, y_grid
+
+
+def mini_map_render(game_map: GameMap, main_display: display, ui_layout: DisplayInfo) -> None:
+    mini_surf = Surface((ui_layout.mini_width, ui_layout.mini_height))
+    block = Surface((block_size, block_size))
+    mini_block = Surface((block_size // 2, block_size // 2))
+    for x in range(game_map.width):
+        for y in range(game_map.height):
+            if game_map.terrain[x][y].explored:
+                block.fill(colors[game_map.terrain[x][y].elevation.name.lower()])
+                mini_surf.blit(block, (margin + x * block_size,
+                                       margin + y * block_size + (x % 2) * block_size // 2 - 2))
+                if game_map.terrain[x][y].decoration:
+                    mini_block.fill(colors[game_map.terrain[x][y].decoration])
+                    mini_surf.blit(mini_block,
+                                   (margin + 1 + x * block_size,
+                                    margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
+    
+    for entity in game_map.entities:
+        if (entity.x, entity.y) in game_map.engine.player.view.fov \
+                and entity.icon is not None:
+            if entity == game_map.engine.player:
+                block.fill(colors['white'])
+            elif entity.is_alive:
+                block.fill(colors['red'])
+            else:
+                block.fill(colors['orange'])
+            mini_surf.blit(block, (margin + entity.x * block_size,
+                                   margin + entity.y * block_size + (entity.x % 2) * block_size // 2 - 2))
+    
+    render_border(mini_surf, game_map.engine.time.get_sky_color)
+    main_display.blit(mini_surf, (0, 0))
+
+
+def viewport_render(game_map: GameMap, main_display: display, ui_layout: DisplayInfo) -> None:
+    half_tile = tile_size // 2
+    
+    left = game_map.engine.player.x - view_port
+    right = left + 2 * view_port + 1
+    
+    top = game_map.engine.player.y - view_port - 1
+    bottom = top + 2 * view_port + 3
+    
+    map_surf = Surface(((2 * view_port + 1) * tile_size, (2 * view_port + 1) * tile_size + 2 * margin))
+    offset = game_map.engine.player.x % 2 * half_tile
+    
+    for x in range(left, right):
+        for y in range(top, bottom):
+            if game_map.in_bounds(x, y) and game_map.terrain[x][y].explored:
+                map_surf.blit(images[game_map.terrain[x][y].elevation.name.lower()],
+                              ((x - left) * tile_size - margin,
+                               (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                if game_map.terrain[x][y].decoration:
+                    map_surf.blit(images[game_map.terrain[x][y].decoration],
+                                  ((x - left) * tile_size,
+                                   (y - top - 1) * tile_size + (x % 2) * half_tile + margin - offset))
+                # coord_text = game_font.render(f"{x}:{y}", False, (0, 0, 0))
+                # map_surf.blit(coord_text,
+                #               ((x - left) * tile_size,
+                #                (y - top - 1) * tile_size + (x % 2) * half_tile + half_tile - offset))
+    
+    for x in range(left, right):
+        for y in range(top, bottom):
+            if (x, y) not in game_map.engine.player.view.fov:
+                map_surf.blit(images["fog_of_war"],
+                              ((x - left) * tile_size - margin,
+                               (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+    
+    if game_map.engine.key_mod:
+        if game_map.engine.key_mod == "shift":
+            target_tiles = game_map.engine.game_map.get_neighbors_at_elevations(game_map.engine.player.x,
+                                                                                game_map.engine.player.y,
+                                                                                elevations=move_elevations['all'])
+            target_tiles.append((game_map.engine.player.x, game_map.engine.player.y))
+            for (x, y) in target_tiles:
+                map_surf.blit(images["highlight"],
+                              ((x - left) * tile_size - margin,
+                               (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+    
+    entities_sorted_for_rendering = sorted(
+        game_map.entities, key=lambda i: i.render_order.value
+    )
+    
+    for entity in entities_sorted_for_rendering:
+        if entity.sprite and (entity.x, entity.y) in game_map.engine.player.view.fov:
+            entity.sprite.update(game_map.engine.clock.get_fps())
+            map_surf.blit(get_rotated_image(sprites[entity.sprite.sprite_name][entity.sprite.pointer],
+                                            entity.facing),
+                          ((entity.x - left) * tile_size,
+                           (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+        elif (entity.x, entity.y) in game_map.engine.player.view.fov \
+                and entity.icon is not None \
+                and entity.is_alive \
+                and entity.fighter and entity.fighter.name == 'hull':
+            ship_icon = create_ship_icon(entity)
+            map_surf.blit(get_rotated_image(ship_icon, entity.facing),
+                          ((entity.x - left) * tile_size,
+                           (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+        elif (entity.x, entity.y) in game_map.engine.player.view.fov \
+                and entity.icon is not None \
+                and entity.is_alive:
+            map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
+                          ((entity.x - left) * tile_size,
+                           (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+        elif (entity.x, entity.y) in game_map.engine.player.view.fov \
+                and entity.icon is not None:
+            map_surf.blit(images[entity.icon],
+                          ((entity.x - left) * tile_size,
+                           (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+    
+    for x, y in game_map.engine.player.view.fov:
+        if game_map.in_bounds(x, y) and game_map.terrain[x][y].mist:
+            map_surf.blit(images["mist"],
+                          ((x - left) * tile_size - margin,
+                           (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+    
+    render_border(map_surf, game_map.engine.time.get_sky_color)
+    
+    tint_surf = Surface(((2 * view_port + 1) * tile_size, (2 * view_port + 1) * tile_size + 2 * margin))
+    tint_surf.set_alpha(abs(game_map.engine.time.hrs * 60 + game_map.engine.time.mins - 720) // 8)
+    tint = game_map.engine.time.get_sky_color
+    tint_surf.fill(tint)
+    
+    map_surf.blit(tint_surf, (0, 0))
+    main_display.blit(map_surf, (ui_layout.mini_width, 0))
+
+
 def render_hp_bar(text: str,
                   current: int,
                   maximum: int,
                   bar_width: int,
-                  font_color: str = "bar_text",
+                  font_color: str = "mountain",
                   top_color: str = "bar_filled",
                   bottom_color: str = "bar_empty") -> Surface:
     """
@@ -99,16 +242,13 @@ def render_simple_bar(current: int,
 
 
 def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
-    coord_x, coord_y = game_map.surface_to_map_coords(mouse_x, mouse_y, player.x)
+    coord_x, coord_y = surface_to_map_coords(mouse_x, mouse_y, player.x)
     trans_x = coord_x + player.x - view_port
     trans_y = coord_y + player.y - view_port
     # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y}")
     entities = game_map.get_targets_at_location(trans_x,
                                                 trans_y,
                                                 living_targets=False)
-    if player in entities:
-        entities.remove(player)
-    
     visible_entities = []
     for entity in entities:
         if (entity.x, entity.y) in player.view.fov:
@@ -121,7 +261,7 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     widths = []
     entity_list = []
     for entity in entities_sorted_for_rendering:
-        name = game_font.render(f"{entity.name}", True, colors["white"])
+        name = game_font.render(f"{entity.name}", True, colors['mountain'])
         widths.append(name.get_width())
         if entity.fighter:
             entity_list.append((name, entity.fighter.hp, entity.fighter.max_hp))
@@ -129,16 +269,16 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
             entity_list.append((name, None, None))
     if game_map.in_bounds(trans_x, trans_y) and game_map.terrain[trans_x][trans_y].explored:
         if game_map.terrain[trans_x][trans_y].mist and (trans_x, trans_y) in player.view.fov:
-            name = game_font.render(f"Mist", True, colors["white"])
+            name = game_font.render(f"Mist", True, colors['mountain'])
             widths.append(name.get_width())
             entity_list.append((name, None, None))
         if game_map.terrain[trans_x][trans_y].decoration:
             name = game_font.render(f"{game_map.terrain[trans_x][trans_y].decoration.capitalize()}",
-                                    True, colors["white"])
+                                    True, colors['mountain'])
             widths.append(name.get_width())
             entity_list.append((name, None, None))
         name = game_font.render(f"{game_map.terrain[trans_x][trans_y].elevation.name.lower().capitalize()}",
-                                True, colors["white"])
+                                True, colors['mountain'])
         entity_list.append((name, None, None))
         widths.append(name.get_width())
     
@@ -169,13 +309,13 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
     status_panel = Surface((ui_layout.status_width, ui_layout.status_height))
     render_border(status_panel, time.get_sky_color)
     
-    render_weather(time, weather, status_panel, ui_layout)
+    render_weather(time, weather, status_panel)
     vertical = render_wind(weather.wind_direction, status_panel, ui_layout) + 2 * margin
     
     w_text = game_font.render(f"{weather.conditions.name.lower().capitalize()}", True, colors['mountain'])
     status_panel.blit(w_text, (status_panel.get_width() // 2 - w_text.get_width() // 2, vertical))
     vertical += game_font.get_height() + margin
-
+    
     months = str(time.month) if len(str(time.month)) == 2 else "0" + str(time.month)
     days = str(time.day) if len(str(time.day)) == 2 else "0" + str(time.day)
     hrs = str(time.hrs) if len(str(time.hrs)) == 2 else "0" + str(time.hrs)
@@ -195,8 +335,9 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
                                  current=entity.sails.hp,
                                  maximum=entity.sails.max_hp,
                                  bar_width=status_panel.get_width() - margin * 2,
-                                 font_color="bar_text" if entity.sails.raised else "black",
-                                 top_color="bar_filled" if entity.sails.raised else "impossible")
+                                 font_color="mountain" if entity.sails.raised else "gray",
+                                 top_color="bar_filled" if entity.sails.raised else "dark_green",
+                                 bottom_color="bar_empty" if entity.sails.raised else "dark")
         status_panel.blit(sail_bar, (margin, vertical))
         vertical += sail_bar.get_height() + margin // 2
     if entity.crew:
@@ -206,7 +347,7 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
                                  bar_width=status_panel.get_width() - margin * 2)
         status_panel.blit(crew_bar, (margin, vertical))
         vertical += crew_bar.get_height() + margin // 2
-
+    
     console.blit(status_panel, (0, ui_layout.mini_height))
     # TODO render weapons damage/cool-downs, and cargo
 
@@ -215,6 +356,7 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
     control_panel = Surface((ui_layout.control_width, ui_layout.control_height))
     arrow_keys = []
     text_keys = []
+    items = player.game_map.get_targets_at_location(player.x, player.y, living_targets=False)
     
     if status == "shift":  # targeting
         arrow_keys = [{'rotation': 0, 'text': 'Shoot Arrows'},
@@ -231,16 +373,18 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
         arrow_keys = [{'rotation': 0, 'text': 'Row'},
                       {'rotation': 90, 'text': 'Turn Port'},
                       {'rotation': 270, 'text': 'Turn Starboard'}]
+        down_text = 'Wait'
         if player.sails:
             text_keys.append({'name': 'Cmd', 'text': 'Sails'})
             if player.sails.raised:
-                arrow_keys.append({'rotation': 180, 'text': 'Coast'})
-            else:
-                arrow_keys.append({'rotation': 180, 'text': 'Wait'})
+                down_text = 'Coast'
+        if len(items) > 0:
+            down_text = 'Salvage'
+        arrow_keys.append({'rotation': 180, 'text': down_text})
         # text_keys.append({'name': 'Opt', 'text': 'Special'})
-        space_keys = {'name': 'Space', 'text': 'Auto Action'}
+        # space_keys = {'name': 'Space', 'text': 'Auto Action'}
         # modify space_keys['text'] for other options (get items, visit port, etc.)
-        text_keys.append(space_keys)
+        # text_keys.append(space_keys)
         text_keys.append({'name': 'Esc', 'text': 'Exit'})
     else:
         text_keys.append({'name': 'Esc', 'text': 'Exit'})
@@ -353,21 +497,19 @@ def render_wind(direction: int, display_surf: Surface, ui: DisplayInfo) -> int:
     display_surf.blit(compass, (ui.status_width - compass.get_width() - 3 * margin, margin * 2))
     if direction is not None:
         display_surf.blit(rot_center(image=images['pointer'], angle=direction_angle[direction]),
-                                    (ui.status_width - compass.get_width() - 3 * margin, margin * 2))
+                          (ui.status_width - compass.get_width() - 3 * margin, margin * 2))
     return compass.get_height() + margin
 
 
-def render_weather(time, weather, display_surf: Surface, ui: DisplayInfo):
+def render_weather(time, weather, display_surf: Surface):
     """
     Render the weather information
     :param time: current game Time
     :param weather: current map Weather
     :param display_surf: Surface to render on
-    :param ui: display information
     :return: None
     """
     weather_dict = weather.get_weather_info
-    time_dict = time.get_time_of_day_info
     
     if 6 <= time.hrs < 18:
         icon = images['sun']
@@ -409,7 +551,7 @@ def render_weather(time, weather, display_surf: Surface, ui: DisplayInfo):
     icon = images[weather_dict['name'].lower()]
     for x in range(sky_surf.get_width() // icon.get_width()):
         sky_surf.blit(icon, (x * icon.get_width(), (x + 1) % 2))
-
+    
     display_surf.blit(sky_surf, (margin * 3, 2 * margin))
 
 
@@ -434,7 +576,6 @@ def colorize(image, new_color):
 def create_ship_icon(entity):
     """
     Create ship icon from a sprite sheet
-    TODO: actually use the ship entity's icon, rather than just counting the size/masts
     :param entity: Entity's icon to be generated
     :return: created ship icon
     """
@@ -453,13 +594,11 @@ def create_ship_icon(entity):
     if entity.sails.raised:
         icon.blit(sheet.subsurface(sail), (0, 0))  # wake
         icon.blit(sheet.subsurface(emblem), (0, 0))  # wake
-
+    
     # add
     # if entity.affiliation:
     #     emblem_sheet = sheet.subsurface(emblem)
     #     # colorize it somehow ?
     #     icon.blit(emblem_sheet, (0, 0))  # wake
-
+    
     return icon
-
-

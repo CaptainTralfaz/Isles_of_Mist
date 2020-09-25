@@ -26,12 +26,12 @@ def main() -> None:
     engine.game_map = generate_map(map_width, map_height, engine=engine, seed=seed)
     
     engine.message_log.add_message(
-        "Hello and welcome, adventurer, to the Isles of Mist", colors["welcome_text"]
+        "Hello and welcome, adventurer, to the Isles of Mist", colors['aqua']
     )
     
     game_display = pygame.display.set_mode((ui_layout.display_width, ui_layout.display_height),
                                            flags=pygame.SCALED | pygame.RESIZABLE)
-    game_display.fill(colors["black"])
+    game_display.fill(colors['black'])
     pygame.display.set_caption(caption)
     pygame.display.set_icon(compass)
     pygame.display.flip()
@@ -45,7 +45,7 @@ def main() -> None:
         except SystemExit:
             should_quit = True
         
-        engine.render(main_surface=game_display)
+        engine.render_all(main_surface=game_display)
         pygame.display.flip()
         engine.clock.tick(FPS)
     

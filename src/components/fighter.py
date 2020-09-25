@@ -33,16 +33,16 @@ class Fighter(BaseComponent):
     def die(self) -> None:
         if self.engine.player is self.parent:
             death_message = "You died!"
-            self.parent.icon = "sunken_ship"
+            self.parent.icon = 'shipwreck'
             self.engine.event_handler = GameOverEventHandler(self.engine)
-            death_message_color = colors["player_die"]
+            death_message_color = colors['red']
         else:
             death_message = f"{self.parent.name} is dead!"
             if self.game_map.terrain[self.parent.x][self.parent.y].elevation < Elevation.BEACH:
                 self.parent.icon = "carcass"
             else:
                 self.parent.icon = None
-            death_message_color = colors["enemy_die"]
+            death_message_color = colors['orange']
             self.parent.view = None
         
         if self.parent.sprite:

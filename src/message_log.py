@@ -1,5 +1,4 @@
-import textwrap
-from typing import Iterable, List, Reversible, Tuple
+from typing import List, Reversible, Tuple
 
 from pygame import Surface
 
@@ -27,9 +26,9 @@ class MessageLog:
     def __init__(self, parent) -> None:
         self.messages: List[Message] = []
         self.parent = parent
-        
+    
     def add_message(
-            self, text: str, text_color: Tuple[int, int, int] = colors["white"], *, stack: bool = True,
+            self, text: str, text_color: Tuple[int, int, int] = colors['mountain'], *, stack: bool = True,
     ) -> None:
         """Add a message to this log.
         `text` is the message text, `fg` is the text color.
