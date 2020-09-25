@@ -1,5 +1,7 @@
 from pygame import image, font
 
+from tile import Elevation
+
 font.init()
 
 margin = 5
@@ -73,14 +75,17 @@ mast_4 = image.load("assets/entities/mast_4.png")
 bat_sprite = []
 serpent_sprite = []
 turtle_sprite = []
+mermaid_sprite = []
 for i in range(sprite_count):
     bat_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 0, tile_size, tile_size))
     serpent_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 1, tile_size, tile_size))
     turtle_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 2, tile_size, tile_size))
+    mermaid_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 3, tile_size, tile_size))
 sprites = {
     'turtle_sprite': turtle_sprite,
     'serpent_sprite': serpent_sprite,
     'bat_sprite': bat_sprite,
+    'mermaid_sprite': mermaid_sprite,
 }
 
 images = {
@@ -161,4 +166,14 @@ colors = {
     'sandbar': (225, 200, 125),
     'mines': (200, 0, 0),
     'port': (255, 255, 255),
+}
+
+move_elevations = {
+    'water': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS],
+    'land': [Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO],
+    'fly': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE],
+    'shore': [Elevation.SHALLOWS, Elevation.BEACH],
+    'shallows': [Elevation.SHALLOWS],
+    'all': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS,
+            Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO]
 }

@@ -3,17 +3,9 @@ from components.crew import Crew
 from components.fighter import Fighter
 from components.sails import Sails
 from components.view import View
-from constants import animation_speed, flicker_timer, sprite_count
+from constants import animation_speed, flicker_timer, sprite_count, move_elevations
 from entity import Actor, Entity
 from sprite import Sprite
-from tile import Elevation
-
-move_elevations = {
-    'water': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS],
-    'fly': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE],
-    'shore': [Elevation.SHALLOWS, Elevation.BEACH],
-    'shallows': [Elevation.SHALLOWS],
-}
 
 player = Actor(x=0,
                y=0,
@@ -95,9 +87,13 @@ mermaid = Actor(x=0,
                 elevations=move_elevations['shore'],
                 icon='mermaid_image',
                 name='Mermaid',
+                sprite=Sprite(sprite_name="mermaid_sprite",
+                              sprite_count=sprite_count,
+                              flicker_timer=flicker_timer,
+                              animation_speed=animation_speed / 1),
                 ai_cls=HostileEnemy,
-                fighter=Fighter(hp=4,
-                                defense=1,
+                fighter=Fighter(hp=3,
+                                defense=0,
                                 power=2,
                                 can_hit={"crew": 10}),
                 view=View(4))

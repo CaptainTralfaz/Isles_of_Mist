@@ -5,7 +5,7 @@ from typing import Iterable, List, Tuple, TYPE_CHECKING
 
 from pygame import display, Surface
 
-from constants import block_size, colors, images, margin, sprites, tile_size, view_port
+from constants import block_size, colors, images, margin, sprites, tile_size, view_port, move_elevations
 from render_functions import get_rotated_image, render_border, create_ship_icon
 from tile import Elevation, Terrain
 from ui import DisplayInfo
@@ -161,9 +161,9 @@ class GameMap:
         
         if self.engine.key_mod:
             if self.engine.key_mod == "shift":
-                target_tiles = self.engine.game_map.get_neighbors(self.engine.player.x,
-                                                                  self.engine.player.y,
-                                                                  Elevation.VOLCANO)
+                target_tiles = self.engine.game_map.get_neighbors_at_elevations(self.engine.player.x,
+                                                                                self.engine.player.y,
+                                                                                elevations=move_elevations['all'])
                 target_tiles.append((self.engine.player.x, self.engine.player.y))
                 for (x, y) in target_tiles:
                     map_surf.blit(images["highlight"],
@@ -220,9 +220,9 @@ class GameMap:
     def gen_distance_map(self,
                          target_x: int,
                          target_y: int,
-                         flying: bool = False) -> dict:
+                         elevations: list) -> dict:
         # TODO cut short when path is found?
-        path_map = self.gen_path_map(target_x, target_y, flying)
+        path_map = self.gen_path_map(target_x, target_y, elevations)
         distance_map = dict()
         
         for w in range(max(0, target_x - view_port), min(self.width, (target_x + view_port))):
@@ -239,35 +239,45 @@ class GameMap:
                     distance_map[(w, h)] = len(path)
         return distance_map
     
-    def gen_path_map(self, target_x: int, target_y: int, flying: bool) -> dict:
+    def gen_path_map(self, target_x: int, target_y: int, elevations: list) -> dict:
         frontier = Queue()
         frontier.put((target_x, target_y))
         came_from = dict()
-        came_from[(target_x, target_y)] = None
+        came_from[(target_x, target_y)] = (target_x, target_y)
         
         while not frontier.empty():
             current = frontier.get()
             x, y = current
-            elevation = Elevation.MOUNTAIN if flying else Elevation.BEACH
-            for neighbor in self.get_neighbors(x=x, y=y, elevation=elevation):
+            for neighbor in self.get_neighbors_at_elevations(x=x, y=y, elevations=elevations):
                 if neighbor not in came_from:
                     frontier.put(neighbor)
                     came_from[(neighbor[0], neighbor[1])] = current
         return came_from
     
-    def get_neighbors(self, x, y, elevation: Elevation = Elevation.BEACH, below: bool = True) -> List[Tuple[int, int]]:
+    def get_neighbors_at_elevations(self, x, y, elevations):
         neighbors = []
         for direction in cube_directions:
             start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
             neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
-            if self.in_bounds(neighbor_hex.col, neighbor_hex.row):
-                if below:
-                    if self.terrain[neighbor_hex.col][neighbor_hex.row].elevation < elevation:
-                        neighbors.append((neighbor_hex.col, neighbor_hex.row))
-                else:  # above
-                    if self.terrain[neighbor_hex.col][neighbor_hex.row].elevation >= elevation:
-                        neighbors.append((neighbor_hex.col, neighbor_hex.row))
+            if self.in_bounds(neighbor_hex.col, neighbor_hex.row) \
+                    and self.terrain[neighbor_hex.col][neighbor_hex.row].elevation in elevations:
+                neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
+    
+    # def get_neighbors(self, x, y, elevation: Elevation = Elevation.BEACH, below: bool = True
+    # ) -> List[Tuple[int, int]]:
+    #     neighbors = []
+    #     for direction in cube_directions:
+    #         start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
+    #         neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
+    #         if self.in_bounds(neighbor_hex.col, neighbor_hex.row):
+    #             if below:
+    #                 if self.terrain[neighbor_hex.col][neighbor_hex.row].elevation < elevation:
+    #                     neighbors.append((neighbor_hex.col, neighbor_hex.row))
+    #             else:  # above
+    #                 if self.terrain[neighbor_hex.col][neighbor_hex.row].elevation >= elevation:
+    #                     neighbors.append((neighbor_hex.col, neighbor_hex.row))
+    #     return neighbors
     
     def get_targets_at_location(self, grid_x: int, grid_y: int, living_targets: bool = True) -> List[Actor]:
         targets = []
