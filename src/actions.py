@@ -3,9 +3,8 @@ from __future__ import annotations
 from random import randint, choice
 from typing import TYPE_CHECKING, Optional, List, Tuple
 
-from constants import colors
+from constants import colors, move_elevations
 from custom_exceptions import Impossible
-from tile import Elevation
 from utilities import choice_from_dict
 
 if TYPE_CHECKING:
@@ -116,7 +115,7 @@ class MovementAction(Action):
                 self.entity.sails.adjust(False)
             else:
                 raise Impossible("No Navigational Charts to leave area")
-    
+
 
 class RotateAction(Action):
     def __init__(self, entity, direction):
@@ -139,7 +138,7 @@ class SailAction(Action):
             return True
         else:
             raise Impossible("No Sails")
-        
+
 
 class MineAction(Action):
     def __init__(self, entity):
@@ -264,7 +263,9 @@ class ArrowAction(SplitDamageAction):
     def __init__(self, entity: Actor):
         self.entity = entity
         targets = []
-        neighbor_tiles = self.engine.game_map.get_neighbors(self.entity.x, self.entity.y, Elevation.VOLCANO)
+        neighbor_tiles = self.engine.game_map.get_neighbors_at_elevations(self.entity.x,
+                                                                          self.entity.y,
+                                                                          elevations=move_elevations['all'])
         neighbor_tiles.append((entity.x, entity.y))
         for tile_x, tile_y in neighbor_tiles:
             targets.extend(self.engine.game_map.get_targets_at_location(tile_x, tile_y))

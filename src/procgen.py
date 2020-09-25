@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from opensimplex import OpenSimplex
 
 import entity_factory
+from constants import move_elevations
 from game_map import GameMap
 from tile import Elevation, Terrain
 
@@ -108,7 +109,7 @@ def generate_map(map_width: int, map_height: int, engine: Engine, seed: int) -> 
     ocean = explore_water_iterative(island_map)
     islands = explore_islands(island_map, ocean)
     island = big_island(islands)
-    place_port(island_map, island, ocean)
+    place_port(island_map, island)
     place_player(island_map, player)
     
     elevations = elevation_choices(island_map, player.view.fov)
@@ -180,14 +181,12 @@ def big_island(island_list: List[List[Tuple[int, int]]]) -> List[Tuple[int, int]
     return biggest
 
 
-def place_port(island_map: GameMap, island, ocean):
+def place_port(island_map: GameMap, island):
     coastline = []
     for (x, y) in island:
-        neighbors = island_map.get_neighbors(x, y)
+        neighbors = island_map.get_neighbors_at_elevations(x, y, elevations=entity_factory.move_elevations['water'])
         for neighbor in neighbors:
-            if neighbor in ocean:
-                coastline.append((x, y))
-                break
+            coastline.append((x, y))
     (x, y) = choice(coastline)
     island_map.terrain[x][y].decoration = "port"
     island_map.port = (x, y)
@@ -264,47 +263,47 @@ def place_entities(island_map: GameMap, elevations):
         rnd = random()
         if rnd < .3:
             available = []
-            for elevation in entity_factory.move_elevations['water']:
+            for elevation in move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             turtle = entity_factory.turtle.spawn(island_map, x, y, randint(0, 5))
             turtle.view.set_fov()
         elif rnd < .5:
             available = []
-            for elevation in entity_factory.move_elevations['fly']:
+            for elevation in move_elevations['fly']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             bat = entity_factory.bat.spawn(island_map, x, y, randint(0, 5))
             bat.view.set_fov()
         elif rnd < .7:
             available = []
-            for elevation in entity_factory.move_elevations['shore']:
+            for elevation in move_elevations['shore']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             mermaid = entity_factory.mermaid.spawn(island_map, x, y, randint(0, 5))
             mermaid.view.set_fov()
         elif rnd < .9:
             available = []
-            for elevation in entity_factory.move_elevations['water']:
+            for elevation in move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
             serpent.view.set_fov()
-        elif rnd < .94:
+        elif rnd < .97:
             available = []
-            for elevation in entity_factory.move_elevations['shallows']:
+            for elevation in move_elevations['shallows']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             entity_factory.shipwreck.spawn(island_map, x, y)
-        elif rnd < .97:
+        elif rnd < .98:
             available = []
-            for elevation in entity_factory.move_elevations['water']:
+            for elevation in move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             entity_factory.chest.spawn(island_map, x, y)
         else:
             available = []
-            for elevation in entity_factory.move_elevations['water']:
+            for elevation in move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             entity_factory.bottle.spawn(island_map, x, y)
@@ -318,7 +317,9 @@ def elevation_choices(game_map: GameMap, player_fov) -> dict:
         for y in range(game_map.height):
             elevations[game_map.terrain[x][y].elevation.name].append((x, y))
     for key in Elevation:
-        set(elevations[key.name]).discard(player_fov)
+        for (x, y) in player_fov:
+            if (x, y) in elevations[key.name]:
+                elevations[key.name].remove((x, y))
     return elevations
 
 
@@ -337,7 +338,7 @@ def explore_water_iterative(game_map: GameMap) -> List[Tuple[int, int]]:
     while not frontier.empty():
         current = frontier.get()
         x, y = current
-        for neighbor in game_map.get_neighbors(x=x, y=y, elevation=Elevation.BEACH):
+        for neighbor in game_map.get_neighbors_at_elevations(x=x, y=y, elevations=move_elevations['water']):
             if neighbor not in visited:
                 frontier.put(neighbor)
                 visited.append(neighbor)
@@ -359,7 +360,7 @@ def explore_land_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int,
     while not frontier.empty():
         current = frontier.get()
         x, y = current
-        for neighbor in game_map.get_neighbors(x=x, y=y, elevation=Elevation.BEACH, below=False):
+        for neighbor in game_map.get_neighbors_at_elevations(x=x, y=y, elevations=move_elevations['land']):
             if neighbor not in visited:
                 frontier.put(neighbor)
                 visited.append(neighbor)
