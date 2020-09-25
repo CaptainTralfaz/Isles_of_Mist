@@ -101,7 +101,7 @@ mermaid = Actor(x=0,
 shipwreck = Entity(x=0,
                    y=0,
                    elevations=move_elevations['shallows'],
-                   icon='sunken_ship',
+                   icon='shipwreck',
                    name='Shipwreck')
 
 bottle = Entity(x=0,

@@ -40,8 +40,8 @@ turtle_image = image.load("assets/entities/turtle.png")
 serpent_image = image.load("assets/entities/serpent.png")
 bat_image = image.load("assets/entities/bat.png")
 carcass = image.load("assets/entities/carcass.png")
-sunken_ship = image.load("assets/entities/sunken_ship.png")
-chest = image.load("assets/entities/salvage.png")
+shipwreck = image.load("assets/entities/shipwreck.png")
+chest = image.load("assets/entities/chest.png")
 bottle = image.load("assets/entities/bottle.png")
 mermaid_image = image.load("assets/entities/mermaid.png")
 
@@ -99,7 +99,7 @@ images = {
     'bat_image': bat_image,
     'mermaid_image': mermaid_image,
     'carcass': carcass,
-    'sunken_ship': sunken_ship,
+    'shipwreck': shipwreck,
     'chest': chest,
     'bottle': bottle,
     'ocean': ocean,
@@ -133,21 +133,19 @@ images = {
 }
 
 colors = {
-    "white": (255, 255, 255),
-    "dark": (25, 25, 25),
-    "black": (0, 0, 0),
-    "player_atk": (225, 225, 225),
-    "enemy_atk": (255, 200, 200),
-    "player_die": (255, 50, 50),
-    "enemy_die": (255, 150, 50),
-    "welcome_text": (25, 150, 255),
-    "bar_text": (255, 255, 255),
-    "bar_filled": (0, 100, 0),
-    "bar_empty": (75, 25, 25),
-    "invalid": (255, 255, 0),
-    "impossible": (125, 125, 125),
-    "error": (255, 75, 75),
-    "health_recovered": (0, 255, 0),
+    'white': (255, 255, 255),
+    'dark': (25, 25, 25),
+    'dark_green': (25, 50, 25),
+    'black': (0, 0, 0),
+    'pink': (225, 175, 175),
+    'red': (250, 50, 50),
+    'orange': (225, 150, 100),
+    'bar_filled': (0, 100, 0),
+    'bar_empty': (75, 25, 25),
+    'invalid': (255, 255, 0),
+    'gray': (125, 125, 125),
+    'error': (255, 75, 75),
+    'green': (0, 255, 0),
     'ocean': (0, 0, 175),
     'water': (0, 50, 200),
     'shallows': (0, 75, 225),

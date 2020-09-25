@@ -22,7 +22,7 @@ MOVEMENT_KEYS = {
     pygame.K_UP: 1
 }
 
-WAIT_KEYS = {
+AUTO_KEYS = {
     pygame.K_DOWN
 }
 
@@ -74,7 +74,7 @@ class MainEventHandler(EventHandler):
                     something_happened = action.perform()
                 
                 except Impossible as e:
-                    self.engine.message_log.add_message(e.args[0], colors["impossible"])
+                    self.engine.message_log.add_message(e.args[0], colors['gray'])
                     return False
             
             if something_happened:
@@ -108,7 +108,7 @@ class MainEventHandler(EventHandler):
                     response = RotateAction(player, ROTATE_KEYS[event.key])
                 elif event.key in MOVEMENT_KEYS:
                     response = MovementAction(player)
-                elif event.key in WAIT_KEYS:
+                elif event.key in AUTO_KEYS:
                     response = AutoAction(player)
                 elif event.key == pygame.K_ESCAPE:
                     response = ActionQuit(player)

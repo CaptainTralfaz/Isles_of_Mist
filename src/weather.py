@@ -34,6 +34,7 @@ wind_dir = {
     5: "northwest",
 }
 
+
 class Weather:
     def __init__(self, parent, wind_direction: int = None, conditions: Conditions = None):
         self.wind_direction = randint(0, 5) if wind_direction is None else wind_direction
@@ -43,7 +44,7 @@ class Weather:
         self.conditions_count = 0
         self.conditions_min_count = 50
         self.engine = parent
-        
+    
     @property
     def get_weather_info(self):
         """
@@ -60,7 +61,7 @@ class Weather:
             return weather_effects[Conditions.RAINY]
         elif self.conditions == Conditions.STORMY:
             return weather_effects[Conditions.STORMY]
-
+    
     def roll_wind(self):
         self.wind_count += 1
         if self.wind_count > self.wind_min_count:
@@ -84,14 +85,14 @@ class Weather:
                         self.rotate_wind(change)
                         self.engine.message_log.add_message(f"Wind rotates to the {wind_dir[self.wind_direction]}",
                                                             text_color=colors['grass'])
-
+    
     def rotate_wind(self, rotate: int):
         self.wind_direction += rotate
         if self.wind_direction >= len(direction_angle):
             self.wind_direction = 0
         elif self.wind_direction < 0:
             self.wind_direction = len(direction_angle) - 1
-
+    
     def roll_weather(self):
         self.conditions_count += 1
         if self.conditions_count > self.conditions_min_count:
@@ -110,8 +111,8 @@ class Weather:
                         self.conditions_count = 0
                         self.conditions = Conditions(self.conditions.value + 1)
                 text = f"The weather becomes {self.conditions.name.lower().capitalize()}"
-                self.engine.message_log.add_message(text, text_color=colors['welcome_text'])
-
+                self.engine.message_log.add_message(text, text_color=colors['grass'])
+    
     def roll_mist(self, game_map: GameMap):
         new_mist = []
         for x in range(game_map.width):
