@@ -1,9 +1,11 @@
 from components.base import BaseComponent
+from components.cargo import Cargo
 from constants import colors
 from entity import Actor
 from game_map import Elevation
 from input_handlers import GameOverEventHandler
 from render_functions import RenderOrder
+from procgen import get_entity_manifest
 
 
 class Fighter(BaseComponent):
@@ -37,6 +39,7 @@ class Fighter(BaseComponent):
             self.engine.event_handler = GameOverEventHandler(self.engine)
             death_message_color = colors['red']
         else:
+            self.parent.cargo = Cargo(20, 20, get_entity_manifest(self.parent.name))
             death_message = f"{self.parent.name} is dead!"
             if self.game_map.terrain[self.parent.x][self.parent.y].elevation < Elevation.BEACH:
                 self.parent.icon = "carcass"

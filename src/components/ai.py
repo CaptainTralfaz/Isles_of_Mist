@@ -22,9 +22,6 @@ class NeutralEnemy(BaseAI):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        # target = self.engine.player
-        # if (target.x, target.y) in self.entity.view.fov:
-        #     print(f"{self.entity.name} says HI")
         return WanderAction(self.entity).perform()
 
 
@@ -58,7 +55,7 @@ class HostileEnemy(BaseAI):
                                                                       self.entity.elevations)
             
             distance = get_distance(self.entity.x, self.entity.y, self.target_x, self.target_y)
-            print(f"{self.entity.name} is {distance} hex(es) to player")
+            # print(f"{self.entity.name} is {distance} hex(es) to player")
             if distance <= 1:
                 return MeleeAction(self.entity).perform()
             # TODO: add ranged weapons
@@ -67,14 +64,14 @@ class HostileEnemy(BaseAI):
         
         if self.target_x is not None and self.target_y is not None:
             distance = get_distance(self.entity.x, self.entity.y, self.target_x, self.target_y)
-            print(f"{self.entity.name} is {distance} hex(es) to target")
+            # print(f"{self.entity.name} is {distance} hex(es) to target")
             if (self.engine.player.x, self.engine.player.y) not in self.entity.view.fov \
                     and (self.engine.game_map.terrain[self.target_x][self.target_y].elevation
                          not in self.entity.elevations or (distance <= 1)):
                 self.target_x = None
                 self.target_y = None
                 self.distance_map = None
-                print(f"{self.entity.name} calls off the pursuit")
+                # print(f"{self.entity.name} calls off the pursuit")
                 return WanderAction(self.entity).perform()
             
             else:

@@ -365,3 +365,55 @@ def explore_land_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int,
                 frontier.put(neighbor)
                 visited.append(neighbor)
     return visited
+
+
+def get_entity_manifest(entity):
+    if entity == "serpent":
+        meat = randint(1, 2)
+        scales = randint(0, 1)
+        manifest = {'meat': meat}
+        if scales:
+            manifest['scales'] = scales
+        return manifest
+    elif entity == "bat":
+        meat = 1
+        bat_wing = randint(0, 2)
+        manifest = {'meat': meat}
+        if bat_wing:
+            manifest['bat wing'] = bat_wing
+        return manifest
+    elif entity == "turtle":
+        meat = randint(4, 8)
+        shell = randint(0, 1)
+        manifest = {'meat': meat}
+        if shell:
+            manifest['shell'] = shell
+        return manifest
+    elif entity == "mermaid":
+        fish = randint(0, 2)
+        pearl = randint(5, 10)
+        manifest = {'pearl': pearl}
+        if fish:
+            manifest['fish'] = fish
+        return manifest
+    elif entity == 'chest':
+        pearl = randint(10, 30)
+        if randint(0, 1):
+            tar = randint(3, 5)
+            rope = randint(3, 5)
+            return {'pearl': pearl,
+                    'tar': tar,
+                    'rope': rope}
+        else:
+            fruit = randint(4, 9)
+            rum = randint(4, 7)
+            return {'pearl': pearl,
+                    'fruit': fruit,
+                    'rum': rum}
+    elif entity == 'bottle':
+        return {('message' if randint(0, 1) else 'map'): 1}
+    elif entity == 'shipwreck':
+        canvas = randint(3, 5)
+        wood = randint(4, 8)
+        return {'canvas': canvas,
+                'wood': wood}

@@ -435,7 +435,7 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
                     arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
                 elif player.sails.hp > 0:
                     arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
-        elif status == "alt_option":  # inventory / other?
+        elif status == "special":  # inventory / other?
             pass
         elif player.is_alive:  # standard actions
             arrow_keys = [{'rotation': 0, 'text': 'Row'},
@@ -466,15 +466,17 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
                 arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
             elif player.sails.hp > 0:
                 arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
+        elif status == "special":
+            pass
         else:
             arrow_keys = [{'rotation': 0, 'text': 'Row'},
                           {'rotation': 90, 'text': 'Turn Port'},
                           {'rotation': 270, 'text': 'Turn Starboard'},
                           {'rotation': 180, 'text': 'Wait'}]
-            text_keys.append({'name': 'Shift', 'text': 'Port Actions'})
+            text_keys.append({'name': 'Shift', 'text': 'Repair Actions'})
             if player.sails:
                 text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
-            # text_keys.append({'name': 'Opt', 'text': 'Special'})
+            text_keys.append({'name': 'Opt', 'text': 'Port Actions'})
             text_keys.append({'name': 'Esc', 'text': 'Exit'})
     
     split = ui_layout.control_width // 4 + margin * 4

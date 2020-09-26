@@ -1,3 +1,5 @@
+from random import randint
+
 from pygame import image, font
 
 from tile import Elevation
@@ -174,4 +176,121 @@ move_elevations = {
     'shallows': [Elevation.SHALLOWS],
     'all': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS,
             Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO]
+}
+
+# TODO add weight / volume of weapons
+weapons = {
+    'ballista': {'hp': 3,
+                 'defense': 2,
+                 'range': 3,
+                 'power': 3,
+                 'cooldown': 4},
+    'heavy ballista': {'hp': 4,
+                       'defense': 2,
+                       'range': 4,
+                       'power': 4,
+                       'cooldown': 4},
+    'repeating ballista': {'hp': 3,
+                           'defense': 2,
+                           'range': 3,
+                           'power': 3,
+                           'cooldown': 3},
+    'cannon': {'hp': 5,
+               'defense': 3,
+               'range': 4,
+               'power': 5,
+               'cooldown': 5},
+    'organ gun': {'hp': 5,
+                  'defense': 3,
+                  'range': 4,
+                  'power': 4,
+                  'cooldown': 4},
+    'heavy cannon': {'hp': 6,
+                     'defense': 4,
+                     'range': 5,
+                     'power': 6,
+                     'cooldown': 6},
+    'longguns': {'hp': 5,
+                 'defense': 4,
+                 'range': 6,
+                 'power': 5,
+                 'cooldown': 6},
+}
+
+items = {
+    'canvas': {
+        'weight': 2,
+        'volume': 4,
+        'category': 'goods',
+    },
+    'rope': {
+        'weight': 1,
+        'volume': 1,
+        'category': 'goods',
+    },
+    'tar': {
+        'weight': 3,
+        'volume': 3,
+        'category': 'goods',
+    },
+    'wood': {
+        'weight': 2,
+        'volume': 4,
+        'category': 'goods',
+    },
+    'meat': {
+        'weight': 1,
+        'volume': 1,
+        'category': 'supplies',
+    },
+    'rum': {
+        'weight': 1,
+        'volume': 1,
+        'category': 'supplies',
+    },
+    'fish': {
+        'weight': 1,
+        'volume': 1,
+        'category': 'supplies',
+    },
+    'fruit': {
+        'weight': 1,
+        'volume': 1,
+        'category': 'supplies',
+    },
+    'water': {
+        'weight': 2,
+        'volume': 3,
+        'category': 'supplies',
+    },
+    'pearl': {
+        'weight': 0,
+        'volume': 0,
+        'category': 'exotics',
+    },
+    'map': {
+        'weight': 1,
+        'volume': 1,
+        'category': 'exotics',
+    },
+    'message': {
+        'weight': 0,
+        'volume': 0,
+        'category': 'exotics',
+    },
+    'shell': {
+        'weight': 5,
+        'volume': 5,
+        'category': 'exotics',
+    },
+    'scale': {
+        'weight': 2,
+        'volume': 3,
+        'category': 'exotics',
+    },
+    'bat wing': {
+        'weight': 1,
+        'volume': 3,
+        'category': 'exotics',
+    },
 }

@@ -6,7 +6,7 @@ import pygame.event
 import pygame.mouse as mouse
 
 from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
-    ShipAction, AttackAction, PortAction
+    ShipAction, AttackAction, PortAction, RepairAction
 from constants import colors
 from custom_exceptions import Impossible
 
@@ -34,6 +34,13 @@ ATTACK_KEYS = {
 }
 
 PORT_KEYS = {
+    pygame.K_UP: "merchant",        # buy/sell cargo
+    pygame.K_RIGHT: "shipyard",     # ship upgrades
+    pygame.K_LEFT: "barracks",      # special crew
+    pygame.K_DOWN: "tavern",        # rumors
+}
+
+REPAIR_KEYS = {
     pygame.K_UP: "sails",
     pygame.K_RIGHT: "shipyard",
     pygame.K_LEFT: "crew",
@@ -41,14 +48,18 @@ PORT_KEYS = {
 }
 
 SHIP_KEYS = {
-    pygame.K_UP: "sail",
+    pygame.K_UP: "sails",
+    pygame.K_RIGHT: "cargo",
+    pygame.K_LEFT: "crew",
+    pygame.K_DOWN: "weapons",
+    
 }
 
 MODIFIERS = {
     1: "targeting",
     2: "targeting",
-    256: "alt_option",
-    512: "alt_option",
+    256: "special",
+    512: "special",
     1024: "ship",
     2048: "ship",
 }
@@ -105,15 +116,15 @@ class MainEventHandler(EventHandler):
         if event.type == pygame.KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == "targeting" and (event.key in ATTACK_KEYS or event.key in PORT_KEYS):
+            if self.engine.key_mod == "targeting" and (event.key in ATTACK_KEYS or event.key in REPAIR_KEYS):
                 if port:
-                    response = PortAction(player, PORT_KEYS[event.key])
+                    response = RepairAction(player, REPAIR_KEYS[event.key])
                 else:
                     response = AttackAction(player, ATTACK_KEYS[event.key])
             elif self.engine.key_mod == "ship" and event.key in SHIP_KEYS:
                 response = ShipAction(player, SHIP_KEYS[event.key])
-            elif self.engine.key_mod == "alt_option":
-                pass
+            elif port and self.engine.key_mod == "special" and event.key in PORT_KEYS:
+                response = PortAction(player, PORT_KEYS[event.key])
             if self.engine.key_mod is None:
                 if event.key in ROTATE_KEYS:
                     response = RotateAction(player, ROTATE_KEYS[event.key])

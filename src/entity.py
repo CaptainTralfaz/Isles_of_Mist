@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from game_map import GameMap
     from components.ai import BaseAI
     from components.broadsides import Broadsides
+    from components.cargo import Cargo
     from components.crew import Crew
     from components.fighter import Fighter
     from components.sails import Sails
@@ -31,6 +32,7 @@ class Entity:
                  elevations: list,
                  sprite: Optional[Sprite] = None,
                  parent: Optional[GameMap] = None,
+                 cargo: Optional[Cargo] = None,
                  name: str = "<Unnamed>",
                  render_order: RenderOrder = RenderOrder.FLOATER):
         self.x = x
@@ -40,6 +42,7 @@ class Entity:
         self.name = name
         self.render_order = render_order
         self.elevations = elevations
+        self.cargo = cargo
         if parent:
             self.parent = parent
             parent.entities.add(self)
@@ -82,6 +85,7 @@ class Actor(Entity):
                  fighter: Fighter,
                  sails: Sails = None,
                  crew: Crew = None,
+                 cargo: Cargo = None,
                  broadsides: Broadsides = None,
                  view: View,
                  x: int = 0,
@@ -98,6 +102,7 @@ class Actor(Entity):
             y=y,
             elevations=elevations,
             icon=icon,
+            cargo=cargo,
             sprite=sprite,
             name=name,
             render_order=render_order)
@@ -111,6 +116,9 @@ class Actor(Entity):
         if crew:
             self.crew = crew
             self.crew.parent = self
+        if cargo:
+            self.cargo = cargo
+            self.cargo.parent = self
         if broadsides:
             self.broadsides = broadsides
         self.view = view
