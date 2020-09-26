@@ -121,10 +121,11 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
                                (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
     
     if game_map.engine.key_mod:
-        if game_map.engine.key_mod == "shift":
-            target_tiles = game_map.engine.game_map.get_neighbors_at_elevations(game_map.engine.player.x,
-                                                                                game_map.engine.player.y,
-                                                                                elevations=move_elevations['all'])
+        if game_map.engine.key_mod == "targeting" \
+                and not (game_map.engine.player.x, game_map.engine.player.y) == game_map.port:
+            target_tiles = game_map.get_neighbors_at_elevations(game_map.engine.player.x,
+                                                                game_map.engine.player.y,
+                                                                elevations=move_elevations['all'])
             target_tiles.append((game_map.engine.player.x, game_map.engine.player.y))
             for (x, y) in target_tiles:
                 map_surf.blit(images["highlight"],
@@ -357,37 +358,62 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
     arrow_keys = []
     text_keys = []
     items = player.game_map.get_targets_at_location(player.x, player.y, living_targets=False)
+    port = (player.x, player.y) == player.parent.game_map.port
     
-    if status == "shift":  # targeting
-        arrow_keys = [{'rotation': 0, 'text': 'Shoot Arrows'},
-                      {'rotation': 90, 'text': 'Port Guns'},
-                      {'rotation': 270, 'text': 'Starboard Guns'},
-                      {'rotation': 180, 'text': 'Drop Mines'}]
-        # modify space_keys['text'] for other options (get items, visit port, etc.)
-    elif status == "control_command":  # sails, etc.
-        arrow_keys = [{'rotation': 0, 'text': 'Raise Sails'},
-                      {'rotation': 180, 'text': 'Lower Sails'}]
-    elif status == "alt_option":  # inventory / other?
-        pass
-    elif player.is_alive:  # standard actions
-        arrow_keys = [{'rotation': 0, 'text': 'Row'},
-                      {'rotation': 90, 'text': 'Turn Port'},
-                      {'rotation': 270, 'text': 'Turn Starboard'}]
-        down_text = 'Wait'
-        if player.sails:
-            text_keys.append({'name': 'Cmd', 'text': 'Sails'})
+    if not port:
+        if status == "targeting":
+            arrow_keys = [{'rotation': 0, 'text': 'Shoot Arrows'},
+                          {'rotation': 90, 'text': 'Port Guns'},
+                          {'rotation': 270, 'text': 'Starboard Guns'},
+                          {'rotation': 180, 'text': 'Drop Mines'}]
+        elif status == "ship":  # sails, etc.
+            if player.sails:
+                if player.sails.raised:
+                    arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
+                elif player.sails.hp > 0:
+                    arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
+        elif status == "alt_option":  # inventory / other?
+            pass
+        elif player.is_alive:  # standard actions
+            arrow_keys = [{'rotation': 0, 'text': 'Row'},
+                          {'rotation': 90, 'text': 'Turn Port'},
+                          {'rotation': 270, 'text': 'Turn Starboard'}]
+            text_keys.append({'name': 'Shift', 'text': 'Targeting'})
+            
+            down_text = 'Wait'
+            if player.sails:
+                text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
+                if player.sails.raised:
+                    down_text = 'Coast'
+            if len(items) > 0:
+                down_text = 'Salvage'
+            
+            arrow_keys.append({'rotation': 180, 'text': down_text})
+            # text_keys.append({'name': 'Opt', 'text': 'Special'})
+            text_keys.append({'name': 'Esc', 'text': 'Exit'})
+    
+    else:  # Player is in port
+        # TODO: add in key modifiers here
+        if status == "targeting":
+            arrow_keys = [{'rotation': 0, 'text': 'Repair Sails'},
+                          {'rotation': 90, 'text': 'Repair Hull'},
+                          {'rotation': 270, 'text': 'Hire Crew'},
+                          {'rotation': 180, 'text': 'Repair Weapons'}]
+        elif status == "ship":
             if player.sails.raised:
-                down_text = 'Coast'
-        if len(items) > 0:
-            down_text = 'Salvage'
-        arrow_keys.append({'rotation': 180, 'text': down_text})
-        # text_keys.append({'name': 'Opt', 'text': 'Special'})
-        # space_keys = {'name': 'Space', 'text': 'Auto Action'}
-        # modify space_keys['text'] for other options (get items, visit port, etc.)
-        # text_keys.append(space_keys)
-        text_keys.append({'name': 'Esc', 'text': 'Exit'})
-    else:
-        text_keys.append({'name': 'Esc', 'text': 'Exit'})
+                arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
+            elif player.sails.hp > 0:
+                arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
+        else:
+            arrow_keys = [{'rotation': 0, 'text': 'Row'},
+                          {'rotation': 90, 'text': 'Turn Port'},
+                          {'rotation': 270, 'text': 'Turn Starboard'},
+                          {'rotation': 180, 'text': 'Wait'}]
+            text_keys.append({'name': 'Shift', 'text': 'Port Actions'})
+            if player.sails:
+                text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
+            # text_keys.append({'name': 'Opt', 'text': 'Special'})
+            text_keys.append({'name': 'Esc', 'text': 'Exit'})
     
     split = ui_layout.control_width // 4 + margin * 4
     vertical = margin * 2
@@ -573,7 +599,7 @@ def colorize(image, new_color):
     return image
 
 
-def create_ship_icon(entity):
+def create_ship_icon(entity) -> Surface:
     """
     Create ship icon from a sprite sheet
     :param entity: Entity's icon to be generated

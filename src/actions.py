@@ -64,14 +64,14 @@ class MovementAction(Action):
         x, y = self.entity.get_next_hex()
         if self.entity.game_map.in_bounds(x, y):
             can_move = (self.entity.game_map.game_map.can_move_to(x, y, self.entity.elevations)
-                        and (x, y) is not self.engine.game_map.port) \
+                        and not (x, y) == self.engine.game_map.port) \
                        or ((x, y) == self.engine.game_map.port and self.entity == self.engine.player)
             if can_move:
                 self.entity.move()
                 if (x, y) == self.engine.game_map.port and self.entity is self.engine.player:
+                    self.engine.message_log.add_message(f"Welcome to Port!", colors['cyan'])
                     if self.entity.sails.raised:
-                        self.engine.message_log.add_message("You sail into Port")
-                        self.entity.sails.adjust(False)
+                        self.entity.sails.adjust()
                         return True
                 color = colors['pink'] if self.entity == self.engine.player else colors['mountain']
                 if self.entity.fighter.name == "hull":
@@ -104,7 +104,7 @@ class MovementAction(Action):
             elif self.entity == self.engine.player:
                 if self.entity.sails and self.entity.sails.hp > 0 and self.entity.sails.raised:
                     self.engine.message_log.add_message("Blocked", colors['gray'])
-                    self.entity.sails.adjust(False)
+                    self.entity.sails.adjust()
                 else:
                     raise Impossible("Blocked")
             return False
@@ -112,7 +112,7 @@ class MovementAction(Action):
         elif self.entity == self.engine.player:
             if self.entity.sails and self.entity.sails.hp > 0 and self.entity.sails.raised:
                 self.engine.message_log.add_message("No Navigational Charts to leave area", colors['gray'])
-                self.entity.sails.adjust(False)
+                self.entity.sails.adjust()
             else:
                 raise Impossible("No Navigational Charts to leave area")
 
@@ -127,17 +127,27 @@ class RotateAction(Action):
         return True
 
 
-class SailAction(Action):
-    def __init__(self, entity, sail):
+class ShipAction(Action):
+    def __init__(self, entity, action):
+        self.action = action
         super().__init__(entity)
-        self.sail = sail
+    
+    def perform(self) -> bool:
+        if self.action == "sail":
+            return SailAction(self.entity).perform()
+        raise Impossible("ACTION NOT IMPLEMENTED YET...")
+
+
+class SailAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
     
     def perform(self) -> bool:
         if self.entity.sails.hp > 0:
-            self.entity.sails.adjust(self.sail)
+            self.entity.sails.adjust()
             return True
         else:
-            raise Impossible("No Sails")
+            raise Impossible("Sails are too damaged to raise")
 
 
 class MineAction(Action):
@@ -156,8 +166,6 @@ class AttackAction(Action):
         self.direction = direction
     
     def perform(self) -> bool:
-        if self.entity == self.engine.player and (self.entity.x, self.entity.y) == self.engine.game_map.port:
-            raise Impossible("Can't attack while in town")
         if self.direction in ["port", "starboard"]:
             raise Impossible("Not yet Implemented")
         if self.direction in ["fore"]:
@@ -176,8 +184,8 @@ class AutoAction(Action):
         items = self.engine.game_map.get_targets_at_location(self.entity.x, self.entity.y, living_targets=False)
         if len(items) > 0:
             return SalvageAction(self.entity, items).perform()
-        if (self.entity.x, self.entity.y) == self.engine.game_map.port:
-            return PortAction(self.entity).perform()
+        # if (self.entity.x, self.entity.y) == self.engine.game_map.port:
+        #     return PortAction(self.entity).perform()
         return WaitAction(self.entity).perform()
 
 
@@ -196,12 +204,57 @@ class SalvageAction(Action):
 
 
 class PortAction(Action):
+    def __init__(self, entity, event):
+        self.event = event
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        if self.event == "crew":
+            return HireCrewAction(self.entity).perform()
+        if self.event == "sails":
+            return RepairSailsAction(self.entity).perform()
+        if self.event == "shipyard":
+            return RepairHullAction(self.entity).perform()
+        raise Impossible(f"{self.event} action not implemented yet", colors['gray'])
+
+
+class HireCrewAction(Action):
     def __init__(self, entity):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        self.engine.message_log.add_message(f"Welcome to Port!", colors['cyan'])
-        return True
+        if self.entity.crew.count < self.entity.crew.max_count:
+            self.entity.crew.hire(1)
+            self.engine.time.roll_hrs(1)
+            self.engine.message_log.add_message(f"Hired 1 Sailor (an hour passes)")
+            return True
+        raise Impossible(f"Crew is full!", colors['gray'])
+
+
+class RepairSailsAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        if self.entity.sails.hp < self.entity.sails.max_hp:
+            self.entity.sails.repair(1)
+            self.engine.time.roll_hrs(1)
+            self.engine.message_log.add_message(f"Repaired 1 Sail (an hour passes)")
+            return True
+        raise Impossible(f"Sails are already repaired", colors['gray'])
+
+
+class RepairHullAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        if self.entity.fighter.hp < self.entity.fighter.max_hp:
+            self.entity.fighter.repair(1)
+            self.engine.time.roll_hrs(2)
+            self.engine.message_log.add_message(f"Repaired 1 Hull Point (2 hours pass)")
+            return True
+        raise Impossible(f"Hull is already repaired", colors['gray'])
 
 
 class WanderAction(Action):

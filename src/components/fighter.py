@@ -55,15 +55,13 @@ class Fighter(BaseComponent):
         
         self.engine.message_log.add_message(death_message, death_message_color)
     
-    def heal(self, amount: int) -> int:
-        if self.hp == self.max_hp:
-            return 0
-        new_hp_value = self.hp + amount
-        if new_hp_value > self.max_hp:
-            new_hp_value = self.max_hp
-        amount_recovered = new_hp_value - self.hp
-        self.hp = new_hp_value
-        return amount_recovered
+    def repair(self, amount: int) -> int:
+        new_hull_value = self.hp + amount
+        if new_hull_value > self.max_hp:
+            new_hull_value = self.max_hp
+        amount_repaired = new_hull_value - self.hp
+        self.hp = new_hull_value
+        return amount_repaired
     
     def take_damage(self, amount: int) -> None:
         self.hp -= amount

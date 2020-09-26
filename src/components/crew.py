@@ -48,15 +48,13 @@ class Crew(BaseComponent):
         
         self.engine.message_log.add_message(death_message, death_message_color)
     
-    def heal(self, amount: int) -> int:
-        if self.count == self.max_count:
-            return 0
+    def hire(self, amount: int) -> int:
         new_crew_value = self.count + amount
         if new_crew_value > self.max_count:
             new_crew_value = self.max_count
-        amount_recovered = new_crew_value - self.count
+        amount_hired = new_crew_value - self.count
         self.count = new_crew_value
-        return amount_recovered
+        return amount_hired
     
     def take_damage(self, amount: int) -> None:
         self.count -= amount

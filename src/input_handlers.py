@@ -6,7 +6,7 @@ import pygame.event
 import pygame.mouse as mouse
 
 from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
-    SailAction, AttackAction
+    ShipAction, AttackAction, PortAction
 from constants import colors
 from custom_exceptions import Impossible
 
@@ -27,25 +27,30 @@ AUTO_KEYS = {
 }
 
 ATTACK_KEYS = {
-    # pygame.K_SPACE: "self",
     pygame.K_LEFT: "port",
     pygame.K_RIGHT: "starboard",
     pygame.K_UP: "fore",
-    pygame.K_DOWN: "aft"
+    pygame.K_DOWN: "aft",
 }
 
-SAIL_KEYS = {
-    pygame.K_UP: True,
-    pygame.K_DOWN: False
+PORT_KEYS = {
+    pygame.K_UP: "sails",
+    pygame.K_RIGHT: "shipyard",
+    pygame.K_LEFT: "crew",
+    pygame.K_DOWN: "weapons",
+}
+
+SHIP_KEYS = {
+    pygame.K_UP: "sail",
 }
 
 MODIFIERS = {
-    1: "shift",
-    2: "shift",
+    1: "targeting",
+    2: "targeting",
     256: "alt_option",
     512: "alt_option",
-    1024: "control_command",
-    2048: "control_command",
+    1024: "ship",
+    2048: "ship",
 }
 
 
@@ -88,6 +93,7 @@ class MainEventHandler(EventHandler):
     
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
+        port = (player.x, player.y) == self.engine.game_map.port
         response = None
         if event.type == pygame.QUIT:
             response = ActionQuit(player)
@@ -97,10 +103,13 @@ class MainEventHandler(EventHandler):
         if event.type == pygame.KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == "shift" and event.key in ATTACK_KEYS:
-                response = AttackAction(player, ATTACK_KEYS[event.key])
-            elif self.engine.key_mod == "control_command" and event.key in SAIL_KEYS:
-                response = SailAction(player, SAIL_KEYS[event.key])
+            if self.engine.key_mod == "targeting" and (event.key in ATTACK_KEYS or event.key in PORT_KEYS):
+                if port:
+                    response = PortAction(player, PORT_KEYS[event.key])
+                else:
+                    response = AttackAction(player, ATTACK_KEYS[event.key])
+            elif self.engine.key_mod == "ship" and event.key in SHIP_KEYS:
+                response = ShipAction(player, SHIP_KEYS[event.key])
             elif self.engine.key_mod == "alt_option":
                 pass
             if self.engine.key_mod is None:
