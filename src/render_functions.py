@@ -347,10 +347,62 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
                                  maximum=entity.crew.max_count,
                                  bar_width=status_panel.get_width() - margin * 2)
         status_panel.blit(crew_bar, (margin, vertical))
-        vertical += crew_bar.get_height() + margin // 2
+        vertical += crew_bar.get_height()
+    vertical += margin
+    if entity.broadsides:
+        text = game_font.render(f"Broadsides", True, colors['mountain'])
+        status_panel.blit(text, ((ui_layout.status_width - text.get_width()) // 2, vertical))
+        vertical += game_font.get_height() + margin // 2
+        if len(entity.broadsides.port) > 0:
+            status_panel.blit(game_font.render(f"Port", True, colors['mountain']), (margin, vertical))
+            cd = max([weapon.cooldown for weapon in entity.broadsides.port])
+            cd_color = colors['mountain'] if cd == 0 else colors['gray']
+            cd_text = game_font.render(f"[{cd}]", True, cd_color)
+            status_panel.blit(cd_text, (ui_layout.status_width - margin - cd_text.get_width(), vertical))
+            vertical += game_font.get_height() + margin // 2
+            for weapon in entity.broadsides.port:
+                if weapon.cooldown == 0:
+                    weapon_bar = render_hp_bar(text=f"{weapon.name.capitalize()}",
+                                               current=weapon.hp,
+                                               maximum=weapon.max_hp,
+                                               bar_width=status_panel.get_width() - margin * 2)
+                else:
+                    weapon_bar = render_hp_bar(text=f"{weapon.name.capitalize()}",
+                                               current=weapon.hp,
+                                               maximum=weapon.max_hp,
+                                               bar_width=status_panel.get_width() - margin * 2,
+                                               font_color="mountain" if entity.sails.raised else "gray",
+                                               top_color="bar_filled" if entity.sails.raised else "dark_green",
+                                               bottom_color="bar_empty" if entity.sails.raised else "dark")
+                status_panel.blit(weapon_bar, (margin, vertical))
+                vertical += weapon_bar.get_height() + margin // 2
+        vertical += margin
+        if len(entity.broadsides.starboard) > 0:
+            status_panel.blit(game_font.render(f"Starboard", True, colors['mountain']), (margin, vertical))
+            cd = max([weapon.cooldown for weapon in entity.broadsides.starboard])
+            cd_color = colors['mountain'] if cd == 0 else colors['gray']
+            cd_text = game_font.render(f"[{cd}]", True, cd_color)
+            status_panel.blit(cd_text, (ui_layout.status_width - margin - cd_text.get_width(), vertical))
+            vertical += game_font.get_height() + margin // 2
+            for weapon in entity.broadsides.starboard:
+                if weapon.cooldown == 0:
+                    weapon_bar = render_hp_bar(text=f"{weapon.name.capitalize()}",
+                                               current=weapon.hp,
+                                               maximum=weapon.max_hp,
+                                               bar_width=status_panel.get_width() - margin * 2)
+                else:
+                    weapon_bar = render_hp_bar(text=f"{weapon.name.capitalize()}",
+                                               current=weapon.hp,
+                                               maximum=weapon.max_hp,
+                                               bar_width=status_panel.get_width() - margin * 2,
+                                               font_color="mountain" if entity.sails.raised else "gray",
+                                               top_color="bar_filled" if entity.sails.raised else "dark_green",
+                                               bottom_color="bar_empty" if entity.sails.raised else "dark")
+                status_panel.blit(weapon_bar, (margin, vertical))
+                vertical += weapon_bar.get_height() + margin // 2
     
     console.blit(status_panel, (0, ui_layout.mini_height))
-    # TODO render weapons damage/cool-downs, and cargo
+    # TODO render and cargo
 
 
 def control_panel_render(console: Surface, status, player, ui_layout: DisplayInfo, sky):
@@ -393,7 +445,6 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
             text_keys.append({'name': 'Esc', 'text': 'Exit'})
     
     else:  # Player is in port
-        # TODO: add in key modifiers here
         if status == "targeting":
             arrow_keys = [{'rotation': 0, 'text': 'Repair Sails'},
                           {'rotation': 90, 'text': 'Repair Hull'},

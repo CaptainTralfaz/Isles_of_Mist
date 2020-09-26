@@ -283,9 +283,15 @@ class MeleeAction(Action):
     
     def perform(self) -> bool:
         
-        if "sail" in self.entity.fighter.can_hit.keys() and (self.target.sails.hp == 0
-                                                             or not self.target.sails.raised):
+        if "sail" in self.entity.fighter.can_hit.keys() and ((not self.target.sails)
+                                                             or self.target.sails.hp == 0
+                                                             or (not self.target.sails.raised)):
             self.entity.fighter.can_hit["sail"] = 0
+        
+        if "weapon" in self.entity.fighter.can_hit.keys() and ((not self.target.broadsides)
+                                                               or (len(self.target.broadsides.port)
+                                                                   + len(self.target.broadsides.starboard) < 1)):
+            self.entity.fighter.can_hit["weapon"] = 0
         
         gets_hit = choice_from_dict(self.entity.fighter.can_hit)
         
@@ -311,6 +317,19 @@ class MeleeAction(Action):
             if damage > 0:
                 self.engine.message_log.add_message(f"{attack_desc} and kills {damage} members", colors['pink'])
                 self.target.crew.count -= damage
+            else:
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])
+        elif gets_hit == "weapon":
+            weapon, location = self.target.broadsides.pick_weapon()
+            damage = self.entity.fighter.power - weapon.defense
+            attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {weapon.name}"
+            if damage > 0:
+                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", colors['pink'])
+                destroy = weapon.hp - damage
+                if destroy <= 0:
+                    self.engine.message_log.add_message(
+                        f"{location.capitalize()} {weapon.name.capitalize()} was destroyed!", colors['orange'])
+                weapon.hp -= damage
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])
         return True

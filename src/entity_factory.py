@@ -1,4 +1,5 @@
 from components.ai import NeutralEnemy, HostileEnemy
+from components.broadsides import Broadsides
 from components.crew import Crew
 from components.fighter import Fighter
 from components.sails import Sails
@@ -27,6 +28,7 @@ player = Actor(x=0,
                          max_count=15,
                          defense=1,
                          name="crew"),
+               broadsides=Broadsides(slot_count=1),
                view=View(5))
 
 turtle = Actor(x=0,
@@ -60,7 +62,7 @@ serpent = Actor(x=0,
                 fighter=Fighter(hp=8,
                                 defense=1,
                                 power=4,
-                                can_hit={"hull": 60, "crew": 10}),
+                                can_hit={"hull": 60, "crew": 10, "weapon": 10}),
                 view=View(3))
 
 bat = Actor(x=0,
