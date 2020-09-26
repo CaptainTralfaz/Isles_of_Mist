@@ -8,7 +8,7 @@ from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 from constants import colors, view_port, margin, game_font, images, sprites, tile_size, block_size, move_elevations
 from game_map import GameMap
 from ui import DisplayInfo
-from utilities import direction_angle
+from utilities import direction_angle, get_cone_target_hexes_at_location
 
 
 class RenderOrder(Enum):
@@ -127,10 +127,22 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
                                                                 game_map.engine.player.y,
                                                                 elevations=move_elevations['all'])
             target_tiles.append((game_map.engine.player.x, game_map.engine.player.y))
+            
+            distance = game_map.engine.player.broadsides.get_active_range("port")
+            if distance:
+                target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
+                                                                      "port", distance))
+
+            distance = game_map.engine.player.broadsides.get_active_range("starboard")
+            if distance:
+                target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
+                                                                      "starboard", distance))
+            
             for (x, y) in target_tiles:
-                map_surf.blit(images["highlight"],
-                              ((x - left) * tile_size - margin,
-                               (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                if game_map.in_bounds(x, y) and (x, y) in game_map.engine.player.view.fov:
+                    map_surf.blit(images["highlight"],
+                                  ((x - left) * tile_size - margin,
+                                   (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
     
     entities_sorted_for_rendering = sorted(
         game_map.entities, key=lambda i: i.render_order.value
@@ -248,8 +260,7 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     trans_y = coord_y + player.y - view_port
     # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y}")
     entities = game_map.get_targets_at_location(trans_x,
-                                                trans_y,
-                                                living_targets=False)
+                                                trans_y)
     visible_entities = []
     for entity in entities:
         if (entity.x, entity.y) in player.view.fov:
@@ -347,17 +358,69 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
                                  maximum=entity.crew.max_count,
                                  bar_width=status_panel.get_width() - margin * 2)
         status_panel.blit(crew_bar, (margin, vertical))
-        vertical += crew_bar.get_height() + margin // 2
+        vertical += crew_bar.get_height()
+    vertical += margin
+    if entity.broadsides:
+        text = game_font.render(f"Broadsides", True, colors['mountain'])
+        status_panel.blit(text, ((ui_layout.status_width - text.get_width()) // 2, vertical))
+        vertical += game_font.get_height() + margin // 2
+        if len(entity.broadsides.port) > 0:
+            status_panel.blit(game_font.render(f"Port", True, colors['mountain']), (margin, vertical))
+            cd = max([weapon.cooldown for weapon in entity.broadsides.port])
+            cd_color = colors['mountain'] if cd == 0 else colors['gray']
+            cd_text = game_font.render(f"[{cd}]", True, cd_color)
+            status_panel.blit(cd_text, (ui_layout.status_width - margin - cd_text.get_width(), vertical))
+            vertical += game_font.get_height() + margin // 2
+            for weapon in entity.broadsides.port:
+                if weapon.cooldown == 0:
+                    weapon_bar = render_hp_bar(text=f"{weapon.name.capitalize()}",
+                                               current=weapon.hp,
+                                               maximum=weapon.max_hp,
+                                               bar_width=status_panel.get_width() - margin * 2)
+                else:
+                    weapon_bar = render_hp_bar(text=f"{weapon.name.capitalize()}",
+                                               current=weapon.hp,
+                                               maximum=weapon.max_hp,
+                                               bar_width=status_panel.get_width() - margin * 2,
+                                               font_color="mountain" if entity.sails.raised else "gray",
+                                               top_color="bar_filled" if entity.sails.raised else "dark_green",
+                                               bottom_color="bar_empty" if entity.sails.raised else "dark")
+                status_panel.blit(weapon_bar, (margin, vertical))
+                vertical += weapon_bar.get_height() + margin // 2
+        vertical += margin
+        if len(entity.broadsides.starboard) > 0:
+            status_panel.blit(game_font.render(f"Starboard", True, colors['mountain']), (margin, vertical))
+            cd = max([weapon.cooldown for weapon in entity.broadsides.starboard])
+            cd_color = colors['mountain'] if cd == 0 else colors['gray']
+            cd_text = game_font.render(f"[{cd}]", True, cd_color)
+            status_panel.blit(cd_text, (ui_layout.status_width - margin - cd_text.get_width(), vertical))
+            vertical += game_font.get_height() + margin // 2
+            for weapon in entity.broadsides.starboard:
+                if weapon.cooldown == 0:
+                    weapon_bar = render_hp_bar(text=f"{weapon.name.capitalize()}",
+                                               current=weapon.hp,
+                                               maximum=weapon.max_hp,
+                                               bar_width=status_panel.get_width() - margin * 2)
+                else:
+                    weapon_bar = render_hp_bar(text=f"{weapon.name.capitalize()}",
+                                               current=weapon.hp,
+                                               maximum=weapon.max_hp,
+                                               bar_width=status_panel.get_width() - margin * 2,
+                                               font_color="mountain" if entity.sails.raised else "gray",
+                                               top_color="bar_filled" if entity.sails.raised else "dark_green",
+                                               bottom_color="bar_empty" if entity.sails.raised else "dark")
+                status_panel.blit(weapon_bar, (margin, vertical))
+                vertical += weapon_bar.get_height() + margin // 2
     
     console.blit(status_panel, (0, ui_layout.mini_height))
-    # TODO render weapons damage/cool-downs, and cargo
+    # TODO render and cargo
 
 
 def control_panel_render(console: Surface, status, player, ui_layout: DisplayInfo, sky):
     control_panel = Surface((ui_layout.control_width, ui_layout.control_height))
     arrow_keys = []
     text_keys = []
-    items = player.game_map.get_targets_at_location(player.x, player.y, living_targets=False)
+    items = player.game_map.get_items_at_location(player.x, player.y)
     port = (player.x, player.y) == player.parent.game_map.port
     
     if not port:
@@ -393,12 +456,11 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
             text_keys.append({'name': 'Esc', 'text': 'Exit'})
     
     else:  # Player is in port
-        # TODO: add in key modifiers here
         if status == "targeting":
             arrow_keys = [{'rotation': 0, 'text': 'Repair Sails'},
                           {'rotation': 90, 'text': 'Repair Hull'},
                           {'rotation': 270, 'text': 'Hire Crew'},
-                          {'rotation': 180, 'text': 'Repair Weapons'}]
+                          {'rotation': 180, 'text': 'Fix Weapons'}]
         elif status == "ship":
             if player.sails.raised:
                 arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})

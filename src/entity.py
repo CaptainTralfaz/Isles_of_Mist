@@ -9,6 +9,7 @@ from utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_an
 if TYPE_CHECKING:
     from game_map import GameMap
     from components.ai import BaseAI
+    from components.broadsides import Broadsides
     from components.crew import Crew
     from components.fighter import Fighter
     from components.sails import Sails
@@ -81,6 +82,7 @@ class Actor(Entity):
                  fighter: Fighter,
                  sails: Sails = None,
                  crew: Crew = None,
+                 broadsides: Broadsides = None,
                  view: View,
                  x: int = 0,
                  y: int = 0,
@@ -109,6 +111,8 @@ class Actor(Entity):
         if crew:
             self.crew = crew
             self.crew.parent = self
+        if broadsides:
+            self.broadsides = broadsides
         self.view = view
         self.view.parent = self
         self.flying = flying
