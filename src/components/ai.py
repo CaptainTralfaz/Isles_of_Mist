@@ -80,6 +80,8 @@ class HostileEnemy(BaseAI):
             else:
                 neighbors = self.engine.game_map.get_neighbors_at_elevations(self.entity.x, self.entity.y,
                                                                              move_elevations['all'])
+                if self.entity.game_map.port in neighbors:
+                    neighbors.remove(self.entity.game_map.port)
                 shortest_dist_coords = []
                 shortest_dist = get_distance(self.entity.x, self.entity.y, self.target_x, self.target_y)
                 

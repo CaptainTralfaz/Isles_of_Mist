@@ -1,6 +1,5 @@
 from components.base import BaseComponent
 from constants import colors
-from custom_exceptions import Impossible
 from entity import Actor
 
 
@@ -24,17 +23,22 @@ class Sails(BaseComponent):
         if self._hp == 0:
             self.destroy()
     
+    def repair(self, amount: int) -> int:
+        new_sail_value = self.hp + amount
+        if new_sail_value > self.max_hp:
+            new_sail_value = self.max_hp
+        amount_repaired = new_sail_value - self.hp
+        self.hp = new_sail_value
+        return amount_repaired
+    
     def destroy(self):
         self.raised = False
         self.engine.message_log.add_message(f"Sails have been destroyed!", colors['aqua'])
     
-    def adjust(self, adjustment):
-        if self.raised and adjustment:
-            raise Impossible("Sails already raised")
-        elif not self.raised and not adjustment:
-            raise Impossible("Sails already lowered")
-        elif self.raised and not adjustment:
-            self.engine.message_log.add_message(f"Sails lowered", colors['aqua'])
-        elif not self.raised and adjustment:
+    def adjust(self):
+        if self.raised:
+            self.raised = False
+            self.engine.message_log.add_message(f"Sails trimmed", colors['aqua'])
+        else:
+            self.raised = True
             self.engine.message_log.add_message(f"Sails raised", colors['aqua'])
-        self.raised = adjustment

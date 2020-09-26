@@ -158,7 +158,7 @@ class Weather:
 
 
 class Time:
-    def __init__(self, tick, hrs=9, mins=00, day=1, month=1, year=1111):
+    def __init__(self, hrs=9, mins=00, day=1, month=1, year=1111):
         """
         Object holding game time information
         12 months per year, 30 days per month, 24 hrs per day, 60 minutes per hour
@@ -169,7 +169,6 @@ class Time:
         self.day = day
         self.month = month
         self.year = year  # Year of Steve
-        self.tick = tick
     
     def to_json(self):
         """
@@ -182,7 +181,6 @@ class Time:
             'day': self.day,
             'month': self.month,
             'year': self.year,
-            'tick': self.tick
         }
     
     @staticmethod
@@ -192,41 +190,48 @@ class Time:
         day = json_data.get('day')
         month = json_data.get('month')
         year = json_data.get('year')
-        tick = json_data.get('tick')
         
-        return Time(tick=tick, hrs=hrs, mins=mins, day=day, month=month, year=year)
+        return Time(hrs=hrs, mins=mins, day=day, month=month, year=year)
     
-    def roll_min(self) -> None:
+    def roll_min(self, amount) -> None:
         """
         add minutes to the time ticker
         :return: None
         """
-        self.mins += self.tick
+        total = self.mins + amount
         if self.mins >= 60:
-            self.mins -= 60
-            self.roll_hrs()
+            self.mins = total - 60
+            self.roll_hrs(1)
+        else:
+            self.mins = total
     
-    def roll_hrs(self):
-        self.hrs += 1
-        if self.hrs > 23:
-            self.hrs -= 24
-            self.roll_day()
+    def roll_hrs(self, amount):
+        total = self.hrs + amount
+        if total > 23:
+            self.hrs = total - 24
+            self.roll_day(1)
+        else:
+            self.hrs = total
     
-    def roll_day(self):
-        self.day += 1
-        if self.day > 30:
-            self.day -= 30
-            self.roll_month()
+    def roll_day(self, amount):
+        total = self.day + amount
+        if total > 30:
+            self.day = total - 30
+            self.roll_month(1)
+        else:
+            self.day = total
     
-    def roll_month(self):
-        self.month += 1
+    def roll_month(self, amount):
+        total = self.month + amount
         if self.month > 12:
-            self.month -= 12
-            self.roll_year()
+            self.month = total - 12
+            self.roll_year(1)
+        else:
+            self.month = total
     
-    def roll_year(self):
-        self.year += 1
-        if self.year > 1111:
+    def roll_year(self, amount):
+        total = self.year + amount
+        if total > 1111:
             print("out of turns!")
     
     @property

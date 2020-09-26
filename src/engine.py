@@ -30,7 +30,7 @@ class Engine:
         self.ui_layout = ui_layout
         self.clock = time.Clock()
         self.weather = Weather(parent=self)
-        self.time = Time(time_tick)
+        self.time = Time()
         self.key_mod = None
     
     def handle_enemy_turns(self) -> None:
@@ -49,7 +49,7 @@ class Engine:
                 pass
     
     def handle_weather(self):
-        self.time.roll_min()
+        self.time.roll_min(time_tick)
         self.weather.roll_weather()
         self.weather.roll_wind()
         if self.weather.wind_direction is not None:
