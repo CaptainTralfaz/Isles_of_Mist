@@ -8,7 +8,7 @@ from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 from constants import colors, view_port, margin, game_font, images, sprites, tile_size, block_size, move_elevations
 from game_map import GameMap
 from ui import DisplayInfo
-from utilities import direction_angle
+from utilities import direction_angle, get_cone_target_hexes_at_location
 
 
 class RenderOrder(Enum):
@@ -127,10 +127,22 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
                                                                 game_map.engine.player.y,
                                                                 elevations=move_elevations['all'])
             target_tiles.append((game_map.engine.player.x, game_map.engine.player.y))
+            
+            distance = game_map.engine.player.broadsides.get_active_range("port")
+            if distance:
+                target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
+                                                                      "port", distance))
+
+            distance = game_map.engine.player.broadsides.get_active_range("starboard")
+            if distance:
+                target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
+                                                                      "starboard", distance))
+            
             for (x, y) in target_tiles:
-                map_surf.blit(images["highlight"],
-                              ((x - left) * tile_size - margin,
-                               (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                if game_map.in_bounds(x, y) and (x, y) in game_map.engine.player.view.fov:
+                    map_surf.blit(images["highlight"],
+                                  ((x - left) * tile_size - margin,
+                                   (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
     
     entities_sorted_for_rendering = sorted(
         game_map.entities, key=lambda i: i.render_order.value
@@ -248,8 +260,7 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     trans_y = coord_y + player.y - view_port
     # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y}")
     entities = game_map.get_targets_at_location(trans_x,
-                                                trans_y,
-                                                living_targets=False)
+                                                trans_y)
     visible_entities = []
     for entity in entities:
         if (entity.x, entity.y) in player.view.fov:
@@ -409,7 +420,7 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
     control_panel = Surface((ui_layout.control_width, ui_layout.control_height))
     arrow_keys = []
     text_keys = []
-    items = player.game_map.get_targets_at_location(player.x, player.y, living_targets=False)
+    items = player.game_map.get_items_at_location(player.x, player.y)
     port = (player.x, player.y) == player.parent.game_map.port
     
     if not port:
@@ -449,7 +460,7 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
             arrow_keys = [{'rotation': 0, 'text': 'Repair Sails'},
                           {'rotation': 90, 'text': 'Repair Hull'},
                           {'rotation': 270, 'text': 'Hire Crew'},
-                          {'rotation': 180, 'text': 'Repair Weapons'}]
+                          {'rotation': 180, 'text': 'Fix Weapons'}]
         elif status == "ship":
             if player.sails.raised:
                 arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})

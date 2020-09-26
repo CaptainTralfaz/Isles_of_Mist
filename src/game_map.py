@@ -152,15 +152,22 @@ class GameMap:
     #                     neighbors.append((neighbor_hex.col, neighbor_hex.row))
     #     return neighbors
     
-    def get_targets_at_location(self, grid_x: int, grid_y: int, living_targets: bool = True) -> List[Actor]:
-        targets = []
+    def get_targets_at_location(self, grid_x: int, grid_y: int) -> List[Actor]:
+        living_targets = []
         for entity in self.entities:
             if entity.x == grid_x and entity.y == grid_y:
-                if living_targets:
-                    if entity.is_alive:
-                        targets.append(entity)
-                else:
-                    targets.append(entity)
-        if self.engine.player in targets:
-            targets.remove(self.engine.player)
-        return targets
+                if entity.is_alive :
+                    living_targets.append(entity)
+        if self.engine.player in living_targets:
+            living_targets.remove(self.engine.player)
+        return living_targets
+
+    def get_items_at_location(self, grid_x: int, grid_y: int) -> List[Actor]:
+        items = []
+        for entity in self.entities:
+            if entity.x == grid_x and entity.y == grid_y:
+                if not entity.is_alive :
+                    items.append(entity)
+        if self.engine.player in items:
+            items.remove(self.engine.player)
+        return items

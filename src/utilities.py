@@ -119,6 +119,18 @@ def get_distance(x1: int, y1: int, x2: int, y2: int) -> int:
     return cube_distance(hex_to_cube(Hex(x1, y1)), hex_to_cube(Hex(x2, y2)))
 
 
+def cube_rotate_clockwise(cube):
+    """
+    Returns cubic coordinates of a tile when rotated clockwise one direction
+    :param cube: cube coords to rotate
+    :return: rotated coordinates
+    """
+    new_x = - cube.y
+    new_y = - cube.z
+    new_z = - cube.x
+    return Cube(x=new_x, y=new_y, z=new_z)
+
+
 def cube_line_draw(cube1: Cube, cube2: Cube) -> List[Cube]:
     """
     function to return a list of cube coordinates in a line from cube1 to cube2
@@ -174,3 +186,62 @@ def choice_from_dict(dictionary: dict) -> str:
         count -= dictionary[key]
         if count <= 0:
             return key
+
+
+def reverse_direction(direction):
+    """
+    Returns value of the opposite direction
+    :param direction: int current direction
+    :return: int opposite direction
+    """
+    new_direction = direction - 3
+    if new_direction < 0:
+        return new_direction + 6
+    else:
+        return new_direction
+
+
+def get_cone_target_hexes_at_location(entity, side: str, max_range: int):
+    """
+    Returns list of tile coordinates that can be targeted from a given facing the weapon list
+    :param entity: attacking entity
+    :param side: string name of the facing of the weapon
+    :param max_range: int distance the weapon can shoot
+    :return: list of tile coordinates
+    """
+    target_hexes = []
+    p_cube = hex_to_cube(hexagon=Hex(column=entity.x, row=entity.y))
+    if side == "port":
+        target_hexes.extend(get_cone_target_cubes(max_range=max_range,
+                                                  p_cube=p_cube,
+                                                  p_direction=entity.facing))
+    if side == "starboard":
+        target_hexes.extend(get_cone_target_cubes(max_range=max_range,
+                                                  p_cube=p_cube,
+                                                  p_direction=reverse_direction(direction=entity.facing)))
+    return target_hexes
+
+
+def get_cone_target_cubes(max_range, p_cube, p_direction):
+    """
+    Returns a list of tile coordinates between a given direction's two axes
+    :param max_range: int maximum distance a weapon can shoot
+    :param p_cube: cubic coordinates of attacker
+    :param p_direction: int attacker's facing
+    :return: list of tile coordinates
+    """
+    # this assumes direction 0, location x0 y0 z0
+    target_cubes = []
+    for x in range(1, max_range + 1):
+        for y in range(0, x + 1):
+            target_cubes.append(Cube(x=-x, y=y, z=x - y))
+    # rotate and translate, then convert to (x, y)
+    target_hexes = []
+    for cube in target_cubes:
+        r_cube = cube
+        for step in range(6 - p_direction):
+            r_cube = cube_rotate_clockwise(cube=r_cube)
+        t_cube = cube_add(cube1=p_cube, cube2=r_cube)
+        t_hex = cube_to_hex(cube=t_cube)
+        target_hexes.append((t_hex.col, t_hex.row))
+    return target_hexes

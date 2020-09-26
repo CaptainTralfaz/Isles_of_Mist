@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, List, Tuple
 
 from constants import colors, move_elevations
 from custom_exceptions import Impossible
-from utilities import choice_from_dict
+from utilities import choice_from_dict, get_cone_target_hexes_at_location
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -167,12 +167,88 @@ class AttackAction(Action):
     
     def perform(self) -> bool:
         if self.direction in ["port", "starboard"]:
-            raise Impossible("Not yet Implemented")
+            return BroadsideAction(self.entity, self.direction).perform()
         if self.direction in ["fore"]:
-            return ArrowAction(self.entity).perform()
+            return ArrowAction(self.entity, self.direction).perform()
         if self.direction in ["aft"]:
             return MineAction(self.entity).perform()
         return False
+
+
+class SplitDamageAction(Action):
+    def __init__(self, entity: Actor, targets: List[Actor], damage, direction):
+        super().__init__(entity)
+        self.targets = targets
+        self.damage = damage
+        self.direction = direction
+    
+    def perform(self) -> bool:
+        for target in self.targets:
+            damage = self.damage - target.fighter.defense
+            
+            attack_desc = f"{self.entity.name.capitalize()} shoots {target.name}"
+            if damage > 0:
+                self.engine.message_log.add_message(f"{attack_desc} for {damage} " +
+                                                    f"{target.fighter.name} damage",
+                                                    colors['mountain'])
+                target.fighter.hp -= damage
+            else:
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage",
+                                                    colors['mountain'])
+        if self.direction == "port":
+            for weapon in [w for w in self.entity.broadsides.port if w.cooldown == 0]:
+                weapon.cooldown = weapon.cooldown_max
+        elif self.direction == "starboard":
+            for weapon in [w for w in self.entity.broadsides.starboard if w.cooldown == 0]:
+                weapon.cooldown = weapon.cooldown_max
+        return True
+
+
+class BroadsideAction(SplitDamageAction):
+    def __init__(self, entity, direction):
+        self.entity = entity
+        
+        distance = self.entity.broadsides.get_active_range(direction)
+        if distance:
+            damage = self.entity.broadsides.get_active_power(direction)
+        else:
+            raise Impossible(f"No active weapons to {direction}")
+        targets = []
+        hexes = get_cone_target_hexes_at_location(entity, direction, distance)
+        for x, y in hexes:
+            if (x, y) in entity.view.fov:
+                targets.extend(self.engine.game_map.get_targets_at_location(x, y))
+        if self.entity in targets:
+            targets.remove(self.entity)
+        if len(targets) < 1:
+            raise Impossible(f"No targets to {direction}")
+        damage = damage // len(targets)
+        super().__init__(entity, targets, damage, direction)
+
+    def perform(self) -> bool:
+        return super().perform()
+
+
+class ArrowAction(SplitDamageAction):
+    def __init__(self, entity: Actor, direction):
+        self.entity = entity
+        targets = []
+        neighbor_tiles = self.engine.game_map.get_neighbors_at_elevations(self.entity.x,
+                                                                          self.entity.y,
+                                                                          elevations=move_elevations['all'])
+        neighbor_tiles.append((entity.x, entity.y))
+        for tile_x, tile_y in neighbor_tiles:
+            targets.extend(self.engine.game_map.get_targets_at_location(tile_x, tile_y))
+        if self.entity in targets:
+            targets.remove(self.entity)
+        
+        if len(targets) < 1:
+            raise Impossible(f"No adjacent targets")
+        damage = (self.entity.crew.count // 3) // len(targets)
+        super().__init__(entity, targets, damage, direction)
+    
+    def perform(self) -> bool:
+        return super().perform()
 
 
 class AutoAction(Action):
@@ -181,11 +257,9 @@ class AutoAction(Action):
     
     def perform(self) -> bool:
         # make a decision on automatic action
-        items = self.engine.game_map.get_targets_at_location(self.entity.x, self.entity.y, living_targets=False)
+        items = self.engine.game_map.get_items_at_location(self.entity.x, self.entity.y)
         if len(items) > 0:
             return SalvageAction(self.entity, items).perform()
-        # if (self.entity.x, self.entity.y) == self.engine.game_map.port:
-        #     return PortAction(self.entity).perform()
         return WaitAction(self.entity).perform()
 
 
@@ -215,7 +289,8 @@ class PortAction(Action):
             return RepairSailsAction(self.entity).perform()
         if self.event == "shipyard":
             return RepairHullAction(self.entity).perform()
-        raise Impossible(f"{self.event} action not implemented yet", colors['gray'])
+        if self.event == "weapons":
+            return RepairWeaponsAction(self.entity).perform()
 
 
 class HireCrewAction(Action):
@@ -242,6 +317,26 @@ class RepairSailsAction(Action):
             self.engine.message_log.add_message(f"Repaired 1 Sail (an hour passes)")
             return True
         raise Impossible(f"Sails are already repaired", colors['gray'])
+
+
+class RepairWeaponsAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        damaged = self.entity.broadsides.get_damaged_weapons()
+        hrs = 0
+        if damaged:
+            for weapon in damaged:
+                weapon.repair(1)
+                hrs += 1
+        if hrs:
+            hours = "hours" if hrs > 1 else "hour"
+            passes = "pass" if hrs > 1 else "passes"
+            self.engine.time.roll_hrs(hrs)
+            self.engine.message_log.add_message(f"Repaired {hrs} Weapons damage ({hrs} {hours} {passes})")
+            return True
+        raise Impossible(f"Weapons are already fully repaired", colors['gray'])
 
 
 class RepairHullAction(Action):
@@ -333,48 +428,6 @@ class MeleeAction(Action):
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])
         return True
-
-
-class SplitDamageAction(Action):
-    def __init__(self, entity: Actor, targets: List[Actor]):
-        super().__init__(entity)
-        self.targets = targets
-    
-    def perform(self) -> bool:
-        if len(self.targets) > 0:
-            split_damage = (self.entity.crew.count // 3) // len(self.targets)
-            for target in self.targets:
-                damage = split_damage - target.fighter.defense
-                
-                attack_desc = f"{self.entity.name.capitalize()} shoots {target.name}"
-                if damage > 0:
-                    self.engine.message_log.add_message(f"{attack_desc} for {damage} " +
-                                                        f"{target.fighter.name} damage",
-                                                        colors['mountain'])
-                    target.fighter.hp -= damage
-                else:
-                    self.engine.message_log.add_message(f"{attack_desc} but does no damage",
-                                                        colors['mountain'])
-            return True
-        raise Impossible("No Targets")
-
-
-class ArrowAction(SplitDamageAction):
-    def __init__(self, entity: Actor):
-        self.entity = entity
-        targets = []
-        neighbor_tiles = self.engine.game_map.get_neighbors_at_elevations(self.entity.x,
-                                                                          self.entity.y,
-                                                                          elevations=move_elevations['all'])
-        neighbor_tiles.append((entity.x, entity.y))
-        for tile_x, tile_y in neighbor_tiles:
-            targets.extend(self.engine.game_map.get_targets_at_location(tile_x, tile_y))
-        if self.entity in targets:
-            targets.remove(self.entity)
-        super().__init__(entity, targets)
-    
-    def perform(self) -> bool:
-        return super().perform()
 
 
 class MouseMoveAction(Action):
