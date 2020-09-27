@@ -1,23 +1,7 @@
-from enum import Enum
-from constants import items
-from entity import Entity
 from components.base import BaseComponent
-
-
-class Item:
-    def __init__(self, name: str, quantity: int = 1):
-        """
-        Object holding an Item
-        :param name: str name of the object
-        # :param icon: str name for the icon of the object
-        # :param category: category of the item     TODO: actually use this for sorting on the manifest display
-        # :param weight: float weight of each individual item
-        # :param volume: float volume of each individual item
-        :param quantity: int number of items
-        """
-        self.name = name
-        self.quantity = quantity
-        # self.icon = icon
+from constants import colors
+from constants import item_stats
+from entity import Entity
 
 
 class Cargo(BaseComponent):
@@ -30,14 +14,12 @@ class Cargo(BaseComponent):
         TODO: make over-volume items can be washed overboard in storm, or hit in combat
         :param max_volume: int maximum volume available in ship's cargo hold
         :param max_weight: int maximum weight a ship can SAFELY carry
-        :param manifest: list of Items TODO: change this to a dict
+        :param manifest: dict of item:quantity
         """
         self.max_volume = max_volume
         self.max_weight = max_weight
-        self.manifest = {}
-        if manifest:
-            self.add_items_to_manifest(manifest)
-
+        self.manifest = manifest
+    
     # def to_json(self):
     #     return {
     #         'max_volume': self.max_volume,
@@ -60,8 +42,8 @@ class Cargo(BaseComponent):
         :return: total weight of cargo in manifest
         """
         weight = 0
-        for item in self.manifest:
-            weight += item.weight * item.quantity
+        for item in self.manifest.keys():
+            weight += item_stats[item]['weight'] * self.manifest[item]
         return weight
     
     @property
@@ -71,8 +53,8 @@ class Cargo(BaseComponent):
         :return: total volume of cargo in manifest
         """
         volume = 0
-        for item in self.manifest:
-            volume += item.volume * item.quantity
+        for item in self.manifest.keys():
+            volume += item_stats[item]['volume'] * self.manifest[item]
         return volume
     
     def add_items_to_manifest(self, item_dict: dict):
@@ -85,9 +67,12 @@ class Cargo(BaseComponent):
         for key in item_dict.keys():
             if key in self.manifest.keys():
                 self.manifest[key] += item_dict[key]
+                self.game_map.engine.message_log.add_message(f"Added {item_dict[key]} {key} to cargo", colors['beach'])
             else:
                 self.manifest[key] = item_dict[key]
-        
+                self.game_map.engine.message_log.add_message(f"Added {item_dict[key]} {key} to cargo", colors['beach'])
+        print(self.weight)
+        print(self.volume)
     # def remove_item_from_manifest(self, item, message_log):
     #     """
     #     Removes an item from the manifest
@@ -100,7 +85,6 @@ class Cargo(BaseComponent):
     #         message_log.add_message(message="removed {} from manifest".format(item.name))
     #     else:
     #         message_log.add_message(message="not carrying any {}".format(item.name))
-
 
 #     def to_json(self):
 #         """
@@ -141,33 +125,3 @@ class Cargo(BaseComponent):
 #         :return: float total volume of Item
 #         """
 #         return self.volume * self.quantity
-#
-#
-# def adjust_quantity(cargo, item, amount, message_log):
-#     """
-#     Add or subtract quantity of an Item
-#     :param cargo: cargo object
-#     :param item: name of Item object
-#     :param amount: amount to modify quantity by
-#     :param message_log: game message log
-#     :return: None - modify Item quantity directly
-#     """
-#     item.quantity += amount
-#     if amount > 0:
-#         message_log.add_message('{} {} added to cargo'.format(amount, item.name))
-#     elif amount < 0 < amount + item.quantity:
-#         message_log.add_message('{} {} removed from cargo'.format(abs(amount), item.name))
-#     elif amount < 0 and (amount + item.quantity == 0):
-#         message_log.add_message('All {} {} removed from cargo'.format(abs(amount), item.name))
-#         cargo.remove_item_from_manifest(item=item, message_log=message_log)
-#
-#
-# class ItemCategory(Enum):
-#     """
-#     Category type of item for sorting
-#     """
-#     MATERIALS = 0
-#     GOODS = 1
-#     EXOTICS = 3
-#     SUPPLIES = 2
-#     AMMO = 4

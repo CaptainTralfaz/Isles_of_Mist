@@ -3,7 +3,6 @@ from __future__ import annotations
 from random import randint, choice
 from typing import TYPE_CHECKING, Optional, List, Tuple
 
-from components.cargo import Item
 from constants import colors, move_elevations
 from custom_exceptions import Impossible
 from utilities import choice_from_dict, get_cone_target_hexes_at_location
@@ -225,7 +224,7 @@ class BroadsideAction(SplitDamageAction):
             raise Impossible(f"No targets to {direction}")
         damage = damage // len(targets)
         super().__init__(entity, targets, damage, direction)
-
+    
     def perform(self) -> bool:
         return super().perform()
 
@@ -273,17 +272,8 @@ class SalvageAction(Action):
         for salvage in self.salvage:
             self.engine.message_log.add_message(f"You salvage {salvage.name}!", colors['beach'])
             self.entity.cargo.add_items_to_manifest(salvage.cargo.manifest)
-            
-            for item in salvage.cargo.manifest.keys():
-                self.engine.message_log.add_message(f"salvaged {salvage.cargo.manifest[item]} {item}",
-                                                    colors['beach'])
-            # remove salvage from entities list
             self.engine.game_map.entities.remove(salvage)
         return True
-        # if item.name in self.manifest.keys():
-        #     self.manifest[item.name] += item.quantity
-        # else:
-        #     self.manifest[item.name] = item.quantity
 
 
 class RepairAction(Action):
@@ -306,7 +296,7 @@ class PortAction(Action):
     def __init__(self, entity, event):
         self.event = event
         super().__init__(entity)
-
+    
     def perform(self) -> bool:
         if self.event == "merchant":
             raise Impossible(f"{self.event} action yet implemented")

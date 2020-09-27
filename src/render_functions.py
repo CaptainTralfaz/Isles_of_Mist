@@ -132,7 +132,7 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
             if distance:
                 target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
                                                                       "port", distance))
-
+            
             distance = game_map.engine.player.broadsides.get_active_range("starboard")
             if distance:
                 target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
@@ -259,8 +259,8 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     trans_x = coord_x + player.x - view_port
     trans_y = coord_y + player.y - view_port
     # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y}")
-    entities = game_map.get_targets_at_location(trans_x,
-                                                trans_y)
+    entities = game_map.get_targets_at_location(trans_x, trans_y)
+    entities.extend(game_map.get_items_at_location(trans_x, trans_y))
     visible_entities = []
     for entity in entities:
         if (entity.x, entity.y) in player.view.fov:

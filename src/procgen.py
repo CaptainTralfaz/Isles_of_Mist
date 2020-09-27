@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from opensimplex import OpenSimplex
 
 import entity_factory
+from components.cargo import Cargo
 from constants import move_elevations
 from game_map import GameMap
 from tile import Elevation, Terrain
@@ -268,6 +269,7 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             turtle = entity_factory.turtle.spawn(island_map, x, y, randint(0, 5))
             turtle.view.set_fov()
+            turtle.cargo = Cargo(max_volume=20, max_weight=20, manifest=get_entity_manifest('turtle'))
         elif rnd < .5:
             available = []
             for elevation in move_elevations['fly']:
@@ -275,6 +277,7 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             bat = entity_factory.bat.spawn(island_map, x, y, randint(0, 5))
             bat.view.set_fov()
+            bat.cargo = Cargo(max_volume=5, max_weight=5, manifest=get_entity_manifest('bat'))
         elif rnd < .7:
             available = []
             for elevation in move_elevations['shore']:
@@ -282,6 +285,7 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             mermaid = entity_factory.mermaid.spawn(island_map, x, y, randint(0, 5))
             mermaid.view.set_fov()
+            mermaid.cargo = Cargo(max_volume=5, max_weight=5, manifest=get_entity_manifest('mermaid'))
         elif rnd < .9:
             available = []
             for elevation in move_elevations['water']:
@@ -289,24 +293,28 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
             serpent.view.set_fov()
+            serpent.cargo = Cargo(max_volume=10, max_weight=10, manifest=get_entity_manifest('serpent'))
         elif rnd < .97:
             available = []
             for elevation in move_elevations['shallows']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
-            entity_factory.shipwreck.spawn(island_map, x, y)
+            shipwreck = entity_factory.shipwreck.spawn(island_map, x, y)
+            shipwreck.cargo = Cargo(max_volume=20, max_weight=20, manifest=get_entity_manifest('shipwreck'))
         elif rnd < .98:
             available = []
             for elevation in move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
-            entity_factory.chest.spawn(island_map, x, y)
+            chest = entity_factory.chest.spawn(island_map, x, y)
+            chest.cargo = Cargo(max_volume=10, max_weight=10, manifest=get_entity_manifest('chest'))
         else:
             available = []
             for elevation in move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
-            entity_factory.bottle.spawn(island_map, x, y)
+            bottle = entity_factory.bottle.spawn(island_map, x, y)
+            bottle.cargo = Cargo(max_volume=2, max_weight=2, manifest=get_entity_manifest('bottle'))
 
 
 def elevation_choices(game_map: GameMap, player_fov) -> dict:
@@ -373,7 +381,7 @@ def get_entity_manifest(entity):
         scales = randint(0, 1)
         manifest = {'meat': meat}
         if scales:
-            manifest['scales'] = scales
+            manifest['scale'] = scales
         return manifest
     elif entity == "bat":
         meat = 1

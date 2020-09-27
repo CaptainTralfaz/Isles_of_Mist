@@ -42,11 +42,13 @@ class Entity:
         self.name = name
         self.render_order = render_order
         self.elevations = elevations
-        self.cargo = cargo
         if parent:
             self.parent = parent
             parent.entities.add(self)
         self.fighter = None
+        if cargo:
+            self.cargo = cargo
+            self.cargo.parent = self
     
     @property
     def is_alive(self) -> bool:
@@ -108,19 +110,18 @@ class Actor(Entity):
             render_order=render_order)
         
         self.ai: Optional[BaseAI] = ai_cls(self)
-        self.fighter = fighter
-        self.fighter.parent = self
+        if fighter:
+            self.fighter = fighter
+            self.fighter.parent = self
         if sails:
             self.sails = sails
             self.sails.parent = self
         if crew:
             self.crew = crew
             self.crew.parent = self
-        if cargo:
-            self.cargo = cargo
-            self.cargo.parent = self
         if broadsides:
             self.broadsides = broadsides
+            self.broadsides.parent = self
         self.view = view
         self.view.parent = self
         self.flying = flying

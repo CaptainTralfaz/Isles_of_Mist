@@ -1,5 +1,3 @@
-from random import randint
-
 from pygame import image, font
 
 from tile import Elevation
@@ -217,7 +215,7 @@ weapons = {
                  'cooldown': 6},
 }
 
-items = {
+item_stats = {
     'canvas': {
         'weight': 2,
         'volume': 4,

@@ -1,16 +1,13 @@
-from random import randint
-
 from components.ai import NeutralEnemy, HostileEnemy
 from components.broadsides import Broadsides
+from components.cargo import Cargo
 from components.crew import Crew
 from components.fighter import Fighter
 from components.sails import Sails
 from components.view import View
-from components.cargo import Cargo
-from constants import animation_speed, flicker_timer, sprite_count, move_elevations, items
+from constants import animation_speed, flicker_timer, sprite_count, move_elevations
 from entity import Actor, Entity
 from sprite import Sprite
-
 
 player = Actor(x=0,
                y=0,
@@ -83,7 +80,7 @@ bat = Actor(x=0,
             facing=0,
             elevations=move_elevations['fly'],
             icon='bat_image',
-            name='Giant Bat',
+            name='Bat',
             sprite=Sprite(sprite_name="bat_sprite",
                           sprite_count=sprite_count,
                           flicker_timer=flicker_timer,
