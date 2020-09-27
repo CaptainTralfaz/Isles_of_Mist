@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from game_map import GameMap
     from components.ai import BaseAI
     from components.broadsides import Broadsides
+    from components.cargo import Cargo
     from components.crew import Crew
     from components.fighter import Fighter
     from components.sails import Sails
@@ -31,6 +32,7 @@ class Entity:
                  elevations: list,
                  sprite: Optional[Sprite] = None,
                  parent: Optional[GameMap] = None,
+                 cargo: Optional[Cargo] = None,
                  name: str = "<Unnamed>",
                  render_order: RenderOrder = RenderOrder.FLOATER):
         self.x = x
@@ -44,6 +46,9 @@ class Entity:
             self.parent = parent
             parent.entities.add(self)
         self.fighter = None
+        if cargo:
+            self.cargo = cargo
+            self.cargo.parent = self
     
     @property
     def is_alive(self) -> bool:
@@ -82,6 +87,7 @@ class Actor(Entity):
                  fighter: Fighter,
                  sails: Sails = None,
                  crew: Crew = None,
+                 cargo: Cargo = None,
                  broadsides: Broadsides = None,
                  view: View,
                  x: int = 0,
@@ -98,13 +104,15 @@ class Actor(Entity):
             y=y,
             elevations=elevations,
             icon=icon,
+            cargo=cargo,
             sprite=sprite,
             name=name,
             render_order=render_order)
         
         self.ai: Optional[BaseAI] = ai_cls(self)
-        self.fighter = fighter
-        self.fighter.parent = self
+        if fighter:
+            self.fighter = fighter
+            self.fighter.parent = self
         if sails:
             self.sails = sails
             self.sails.parent = self
@@ -113,6 +121,7 @@ class Actor(Entity):
             self.crew.parent = self
         if broadsides:
             self.broadsides = broadsides
+            self.broadsides.parent = self
         self.view = view
         self.view.parent = self
         self.flying = flying

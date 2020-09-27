@@ -128,14 +128,14 @@ class RotateAction(Action):
 
 
 class ShipAction(Action):
-    def __init__(self, entity, action):
-        self.action = action
+    def __init__(self, entity, event):
+        self.event = event
         super().__init__(entity)
     
     def perform(self) -> bool:
-        if self.action == "sail":
+        if self.event == "sails":
             return SailAction(self.entity).perform()
-        raise Impossible("ACTION NOT IMPLEMENTED YET...")
+        raise Impossible(f"{self.event} not implemented...")
 
 
 class SailAction(Action):
@@ -224,7 +224,7 @@ class BroadsideAction(SplitDamageAction):
             raise Impossible(f"No targets to {direction}")
         damage = damage // len(targets)
         super().__init__(entity, targets, damage, direction)
-
+    
     def perform(self) -> bool:
         return super().perform()
 
@@ -257,27 +257,26 @@ class AutoAction(Action):
     
     def perform(self) -> bool:
         # make a decision on automatic action
-        items = self.engine.game_map.get_items_at_location(self.entity.x, self.entity.y)
-        if len(items) > 0:
-            return SalvageAction(self.entity, items).perform()
+        salvage = self.engine.game_map.get_items_at_location(self.entity.x, self.entity.y)
+        if len(salvage) > 0:
+            return SalvageAction(self.entity, salvage).perform()
         return WaitAction(self.entity).perform()
 
 
 class SalvageAction(Action):
-    def __init__(self, entity, items):
+    def __init__(self, entity, salvage):
         super().__init__(entity)
-        self.items = items
+        self.salvage = salvage
     
     def perform(self) -> bool:
-        for item in self.items:
-            self.engine.message_log.add_message(f"You salvage {item.name}!", colors['beach'])
-            # TODO add items to inventory
-            # remove item from entities list
-            self.engine.game_map.entities.remove(item)
+        for salvage in self.salvage:
+            self.engine.message_log.add_message(f"You salvage {salvage.name}!", colors['beach'])
+            self.entity.cargo.add_items_to_manifest(salvage.cargo.manifest)
+            self.engine.game_map.entities.remove(salvage)
         return True
 
 
-class PortAction(Action):
+class RepairAction(Action):
     def __init__(self, entity, event):
         self.event = event
         super().__init__(entity)
@@ -291,6 +290,23 @@ class PortAction(Action):
             return RepairHullAction(self.entity).perform()
         if self.event == "weapons":
             return RepairWeaponsAction(self.entity).perform()
+
+
+class PortAction(Action):
+    def __init__(self, entity, event):
+        self.event = event
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        if self.event == "merchant":
+            raise Impossible(f"{self.event} action yet implemented")
+        if self.event == "barracks":
+            raise Impossible(f"{self.event} action yet implemented")
+        if self.event == "shipyard":
+            raise Impossible(f"{self.event} action yet implemented")
+        if self.event == "tavern":
+            raise Impossible(f"{self.event} action yet implemented")
+        return True
 
 
 class HireCrewAction(Action):

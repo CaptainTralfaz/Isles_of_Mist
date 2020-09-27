@@ -132,7 +132,7 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
             if distance:
                 target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
                                                                       "port", distance))
-
+            
             distance = game_map.engine.player.broadsides.get_active_range("starboard")
             if distance:
                 target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
@@ -259,8 +259,8 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     trans_x = coord_x + player.x - view_port
     trans_y = coord_y + player.y - view_port
     # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y}")
-    entities = game_map.get_targets_at_location(trans_x,
-                                                trans_y)
+    entities = game_map.get_targets_at_location(trans_x, trans_y)
+    entities.extend(game_map.get_items_at_location(trans_x, trans_y))
     visible_entities = []
     for entity in entities:
         if (entity.x, entity.y) in player.view.fov:
@@ -435,7 +435,7 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
                     arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
                 elif player.sails.hp > 0:
                     arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
-        elif status == "alt_option":  # inventory / other?
+        elif status == "special":  # inventory / other?
             pass
         elif player.is_alive:  # standard actions
             arrow_keys = [{'rotation': 0, 'text': 'Row'},
@@ -466,15 +466,17 @@ def control_panel_render(console: Surface, status, player, ui_layout: DisplayInf
                 arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
             elif player.sails.hp > 0:
                 arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
+        elif status == "special":
+            pass
         else:
             arrow_keys = [{'rotation': 0, 'text': 'Row'},
                           {'rotation': 90, 'text': 'Turn Port'},
                           {'rotation': 270, 'text': 'Turn Starboard'},
                           {'rotation': 180, 'text': 'Wait'}]
-            text_keys.append({'name': 'Shift', 'text': 'Port Actions'})
+            text_keys.append({'name': 'Shift', 'text': 'Repair Actions'})
             if player.sails:
                 text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
-            # text_keys.append({'name': 'Opt', 'text': 'Special'})
+            text_keys.append({'name': 'Opt', 'text': 'Port Actions'})
             text_keys.append({'name': 'Esc', 'text': 'Exit'})
     
     split = ui_layout.control_width // 4 + margin * 4

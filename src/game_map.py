@@ -137,36 +137,21 @@ class GameMap:
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
     
-    # def get_neighbors(self, x, y, elevation: Elevation = Elevation.BEACH, below: bool = True
-    # ) -> List[Tuple[int, int]]:
-    #     neighbors = []
-    #     for direction in cube_directions:
-    #         start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
-    #         neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
-    #         if self.in_bounds(neighbor_hex.col, neighbor_hex.row):
-    #             if below:
-    #                 if self.terrain[neighbor_hex.col][neighbor_hex.row].elevation < elevation:
-    #                     neighbors.append((neighbor_hex.col, neighbor_hex.row))
-    #             else:  # above
-    #                 if self.terrain[neighbor_hex.col][neighbor_hex.row].elevation >= elevation:
-    #                     neighbors.append((neighbor_hex.col, neighbor_hex.row))
-    #     return neighbors
-    
     def get_targets_at_location(self, grid_x: int, grid_y: int) -> List[Actor]:
         living_targets = []
         for entity in self.entities:
             if entity.x == grid_x and entity.y == grid_y:
-                if entity.is_alive :
+                if entity.is_alive:
                     living_targets.append(entity)
         if self.engine.player in living_targets:
             living_targets.remove(self.engine.player)
         return living_targets
-
+    
     def get_items_at_location(self, grid_x: int, grid_y: int) -> List[Actor]:
         items = []
         for entity in self.entities:
             if entity.x == grid_x and entity.y == grid_y:
-                if not entity.is_alive :
+                if not entity.is_alive:
                     items.append(entity)
         if self.engine.player in items:
             items.remove(self.engine.player)

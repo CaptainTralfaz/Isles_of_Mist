@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from opensimplex import OpenSimplex
 
 import entity_factory
+from components.cargo import Cargo
 from constants import move_elevations
 from game_map import GameMap
 from tile import Elevation, Terrain
@@ -268,6 +269,7 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             turtle = entity_factory.turtle.spawn(island_map, x, y, randint(0, 5))
             turtle.view.set_fov()
+            turtle.cargo = Cargo(max_volume=20, max_weight=20, manifest=get_entity_manifest('turtle'))
         elif rnd < .5:
             available = []
             for elevation in move_elevations['fly']:
@@ -275,6 +277,7 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             bat = entity_factory.bat.spawn(island_map, x, y, randint(0, 5))
             bat.view.set_fov()
+            bat.cargo = Cargo(max_volume=5, max_weight=5, manifest=get_entity_manifest('bat'))
         elif rnd < .7:
             available = []
             for elevation in move_elevations['shore']:
@@ -282,6 +285,7 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             mermaid = entity_factory.mermaid.spawn(island_map, x, y, randint(0, 5))
             mermaid.view.set_fov()
+            mermaid.cargo = Cargo(max_volume=5, max_weight=5, manifest=get_entity_manifest('mermaid'))
         elif rnd < .9:
             available = []
             for elevation in move_elevations['water']:
@@ -289,24 +293,28 @@ def place_entities(island_map: GameMap, elevations):
             (x, y) = choice(available)
             serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
             serpent.view.set_fov()
+            serpent.cargo = Cargo(max_volume=10, max_weight=10, manifest=get_entity_manifest('serpent'))
         elif rnd < .97:
             available = []
             for elevation in move_elevations['shallows']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
-            entity_factory.shipwreck.spawn(island_map, x, y)
+            shipwreck = entity_factory.shipwreck.spawn(island_map, x, y)
+            shipwreck.cargo = Cargo(max_volume=20, max_weight=20, manifest=get_entity_manifest('shipwreck'))
         elif rnd < .98:
             available = []
             for elevation in move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
-            entity_factory.chest.spawn(island_map, x, y)
+            chest = entity_factory.chest.spawn(island_map, x, y)
+            chest.cargo = Cargo(max_volume=10, max_weight=10, manifest=get_entity_manifest('chest'))
         else:
             available = []
             for elevation in move_elevations['water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
-            entity_factory.bottle.spawn(island_map, x, y)
+            bottle = entity_factory.bottle.spawn(island_map, x, y)
+            bottle.cargo = Cargo(max_volume=2, max_weight=2, manifest=get_entity_manifest('bottle'))
 
 
 def elevation_choices(game_map: GameMap, player_fov) -> dict:
@@ -365,3 +373,55 @@ def explore_land_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int,
                 frontier.put(neighbor)
                 visited.append(neighbor)
     return visited
+
+
+def get_entity_manifest(entity):
+    if entity == "serpent":
+        meat = randint(1, 2)
+        scales = randint(0, 1)
+        manifest = {'meat': meat}
+        if scales:
+            manifest['scale'] = scales
+        return manifest
+    elif entity == "bat":
+        meat = 1
+        bat_wing = randint(0, 2)
+        manifest = {'meat': meat}
+        if bat_wing:
+            manifest['bat wing'] = bat_wing
+        return manifest
+    elif entity == "turtle":
+        meat = randint(4, 8)
+        shell = randint(0, 1)
+        manifest = {'meat': meat}
+        if shell:
+            manifest['shell'] = shell
+        return manifest
+    elif entity == "mermaid":
+        fish = randint(0, 2)
+        pearl = randint(5, 10)
+        manifest = {'pearl': pearl}
+        if fish:
+            manifest['fish'] = fish
+        return manifest
+    elif entity == 'chest':
+        pearl = randint(10, 30)
+        if randint(0, 1):
+            tar = randint(3, 5)
+            rope = randint(3, 5)
+            return {'pearl': pearl,
+                    'tar': tar,
+                    'rope': rope}
+        else:
+            fruit = randint(4, 9)
+            rum = randint(4, 7)
+            return {'pearl': pearl,
+                    'fruit': fruit,
+                    'rum': rum}
+    elif entity == 'bottle':
+        return {('message' if randint(0, 1) else 'map'): 1}
+    elif entity == 'shipwreck':
+        canvas = randint(3, 5)
+        wood = randint(4, 8)
+        return {'canvas': canvas,
+                'wood': wood}

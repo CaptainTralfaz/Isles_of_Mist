@@ -2,7 +2,7 @@ from random import choice
 
 from components.base import BaseComponent
 from components.weapon import Weapon
-from constants import colors
+from constants import colors, weapons
 from custom_exceptions import Impossible
 from entity import Actor
 
@@ -14,22 +14,28 @@ class Broadsides(BaseComponent):
     
     def __init__(self, slot_count: int, port: list = None, starboard: list = None):
         self.slot_count = slot_count
+        self.port = []
+        self.starboard = []
         if port is None:
-            self.port = []
-            self.attach(location="port",
-                        weapon=Weapon(parent=self, hp=3, defense=2, dist=3, power=3, cooldown=4, name="Ballista"))
-            # self.attach(location="port",
-            #             weapon=Weapon(parent=self, hp=4, defense=3, dist=4, power=4, cooldown=5, name="Cannon"))
+            self.attach(location="port", weapon=self.make_weapon('ballista'))
         else:
             for weapon in port:
-                self.attach(location="port", weapon=weapon)
+                self.attach(location="port", weapon=self.make_weapon(weapon))
         if starboard is None:
-            self.starboard = []
-            self.attach(location="starboard",
-                        weapon=Weapon(parent=self, hp=3, defense=2, dist=3, power=3, cooldown=4, name="Ballista"))
+            self.attach(location="starboard", weapon=self.make_weapon('ballista'))
         else:
             for weapon in starboard:
-                self.attach(location="starboard", weapon=weapon)
+                self.attach(location="starboard", weapon=self.make_weapon(weapon))
+
+    def make_weapon(self, name: str):
+        weapon = weapons[name]
+        return Weapon(parent=self,
+                      hp=weapon['hp'],
+                      defense=weapon['defense'],
+                      dist=weapon['range'],
+                      power=weapon['power'],
+                      cooldown=weapon['cooldown'],
+                      name=name.capitalize())
         
     def attach(self, location: str, weapon: Weapon) -> None:
         if location == "port":
