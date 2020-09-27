@@ -297,14 +297,21 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y} ({entity.x}:{entity.y})")
     if len(entity_list) > 0:
         info_surf = Surface((max(widths) + margin * 2,
-                             (len(entities) - 1) * 2 + len(entity_list) * game_font.get_height() + margin * 2))
-        render_border(info_surf, game_map.engine.time.get_sky_color)
+                             len(entity_list) * game_font.get_height()  # font heights
+                             + margin  # borders
+                             + (len(entity_list)) * 2))  # spacers between fonts
         height = 0
         for name, hp, max_hp in entity_list:
             if hp is not None and hp > 0:
                 info_surf.blit(render_simple_bar(hp, max_hp, max(widths)),
-                               (margin, margin + height * game_font.get_height() + 2 * height))
-            info_surf.blit(name, (margin, margin + height * game_font.get_height() + 2 * height))
+                               (margin,
+                                margin  # border
+                                + height * game_font.get_height()  # font height
+                                + 2 * height))  # spacer
+            info_surf.blit(name, (margin,
+                                  margin  # border
+                                  + height * game_font.get_height()  # font height
+                                  + 2 * height))  # spacer
             height += 1
         
         blit_x = mouse_x + ui.mini_width + margin * 2
@@ -314,6 +321,7 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
         if blit_y > ui.viewport_height:
             blit_y = ui.viewport_height - info_surf.get_height() - margin
         
+        render_border(info_surf, game_map.engine.time.get_sky_color)
         console.blit(info_surf, (blit_x, blit_y))
 
 
@@ -413,7 +421,7 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
                 vertical += weapon_bar.get_height() + margin // 2
     
     console.blit(status_panel, (0, ui_layout.mini_height))
-    # TODO render and cargo
+    # TODO cargo (ammo / money)
 
 
 def control_panel_render(console: Surface, status, player, ui_layout: DisplayInfo, sky):

@@ -29,16 +29,19 @@ player = Actor(x=0,
                          max_count=10,
                          defense=1,
                          name="crew"),
-               broadsides=Broadsides(slot_count=1, port=['heavy cannon'], starboard=['heavy cannon']),
+               broadsides=Broadsides(slot_count=2,
+                                     port=['ballista'],
+                                     starboard=['ballista']),
                cargo=Cargo(max_weight=200,
                            max_volume=200,
-                           manifest={'rope': 10,
-                                     'wood': 10,
-                                     'meat': 10,
-                                     'water': 10,
-                                     'tar': 10,
-                                     'canvas': 10,
-                                     }),
+                           manifest={
+                               'rope': 10,
+                               'wood': 10,
+                               'meat': 10,
+                               'water': 10,
+                               'tar': 10,
+                               'canvas': 10,
+                           }),
                view=View(5))
 
 turtle = Actor(x=0,
@@ -114,19 +117,16 @@ shipwreck = Entity(x=0,
                    y=0,
                    elevations=move_elevations['shallows'],
                    icon='shipwreck',
-                   name='Shipwreck',
-                   )
+                   name='Shipwreck')
 
 bottle = Entity(x=0,
                 y=0,
                 elevations=move_elevations['water'],
                 icon='bottle',
-                name='Bottle',
-                )
+                name='Bottle')
 
 chest = Entity(x=0,
                y=0,
                elevations=move_elevations['water'],
                icon='chest',
-               name='Chest',
-               )
+               name='Chest')

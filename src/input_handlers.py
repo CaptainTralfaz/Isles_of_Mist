@@ -27,17 +27,17 @@ AUTO_KEYS = {
 }
 
 ATTACK_KEYS = {
-    pygame.K_LEFT: "port",
-    pygame.K_RIGHT: "starboard",
     pygame.K_UP: "fore",
+    pygame.K_RIGHT: "starboard",
+    pygame.K_LEFT: "port",
     pygame.K_DOWN: "aft",
 }
 
 PORT_KEYS = {
-    pygame.K_UP: "merchant",        # buy/sell cargo
-    pygame.K_RIGHT: "shipyard",     # ship upgrades
-    pygame.K_LEFT: "barracks",      # special crew
-    pygame.K_DOWN: "tavern",        # rumors
+    pygame.K_UP: "merchant",  # buy/sell cargo
+    pygame.K_RIGHT: "shipyard",  # ship upgrades
+    pygame.K_LEFT: "barracks",  # special crew
+    pygame.K_DOWN: "tavern",  # rumors
 }
 
 REPAIR_KEYS = {
