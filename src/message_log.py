@@ -47,8 +47,8 @@ class MessageLog:
         """
         message_surf = Surface((ui_layout.messages_width, ui_layout.messages_height))
         render_border(message_surf, self.parent.time.get_sky_color)
-        self.render_messages(message_surf, 0, ui_layout.messages_height - 2 * margin,
-                             ui_layout.messages_width - 2 * margin, message_count, self.messages)
+        self.render_messages(message_surf=message_surf, x=0, y=ui_layout.messages_height - 2 * margin,
+                             height=message_count, messages=self.messages)
         console.blit(message_surf, (ui_layout.status_width, ui_layout.viewport_height))
     
     @classmethod
@@ -57,7 +57,6 @@ class MessageLog:
             message_surf: Surface,
             x: int,
             y: int,
-            width: int,
             height: int,  # height in messages
             messages: Reversible[Message],
     ) -> Surface:
