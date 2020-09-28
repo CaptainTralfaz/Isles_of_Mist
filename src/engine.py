@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from pygame import Surface, time
 
 from actions import MovementAction
+from camera import Camera
 from constants import time_tick
 from custom_exceptions import Impossible
 from input_handlers import MainEventHandler
@@ -32,7 +33,8 @@ class Engine:
         self.weather = Weather(parent=self)
         self.time = Time()
         self.key_mod = None
-    
+        self.camera = Camera()
+        
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             if entity.is_alive and entity.ai:
@@ -56,7 +58,9 @@ class Engine:
             self.weather.roll_mist(self.game_map)
     
     def render_all(self, main_surface: Surface) -> None:
-        viewport_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
+        self.camera.update(self.player, self.ui_layout)
+        viewport_render(game_map=self.game_map, main_display=main_surface,
+                        ui_layout=self.ui_layout, camera=self.camera)
         
         mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
         

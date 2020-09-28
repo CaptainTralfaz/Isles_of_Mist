@@ -5,6 +5,7 @@ from typing import Tuple
 import pygame.transform as transform
 from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
+from camera import Camera
 from constants import colors, view_port, margin, game_font, images, sprites, tile_size, block_size, move_elevations
 from game_map import GameMap
 from ui import DisplayInfo
@@ -86,28 +87,28 @@ def mini_map_render(game_map: GameMap, main_display: display, ui_layout: Display
     main_display.blit(mini_surf, (0, 0))
 
 
-def viewport_render(game_map: GameMap, main_display: display, ui_layout: DisplayInfo) -> None:
-    half_tile = tile_size // 2
+def viewport_render(game_map: GameMap, main_display: display, ui_layout: DisplayInfo, camera: Camera) -> None:
+    player = game_map.engine.player
+    overlap = 3
+    view_size = 2 * view_port + 1
+    view_extra = 2 * view_port + 1 + 2 * overlap
     
-    left = game_map.engine.player.x - view_port
-    right = left + 2 * view_port + 1
+    left = player.x - view_port - overlap
+    right = left + view_size + 2 * overlap
     
-    top = game_map.engine.player.y - view_port - 1
-    bottom = top + 2 * view_port + 3
+    top = player.y - view_port - overlap
+    bottom = top + view_size + 2 * overlap
     
-    map_surf = Surface(((2 * view_port + 1) * tile_size, (2 * view_port + 1) * tile_size + 2 * margin))
-    offset = game_map.engine.player.x % 2 * half_tile
+    map_surf = Surface((view_extra * tile_size, view_extra * tile_size))
     
     for x in range(left, right):
         for y in range(top, bottom):
             if game_map.in_bounds(x, y) and game_map.terrain[x][y].explored:
                 map_surf.blit(images[game_map.terrain[x][y].elevation.name.lower()],
-                              ((x - left) * tile_size - margin,
-                               (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                              map_to_surface_coords(x, y, left, top, overlap, player, camera))
                 if game_map.terrain[x][y].decoration:
                     map_surf.blit(images[game_map.terrain[x][y].decoration],
-                                  ((x - left) * tile_size,
-                                   (y - top - 1) * tile_size + (x % 2) * half_tile + margin - offset))
+                                  map_to_surface_coords(x, y, left, top, overlap, player, camera, entity=True))
                 # coord_text = game_font.render(f"{x}:{y}", False, (0, 0, 0))
                 # map_surf.blit(coord_text,
                 #               ((x - left) * tile_size,
@@ -115,81 +116,96 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
     
     for x in range(left, right):
         for y in range(top, bottom):
-            if (x, y) not in game_map.engine.player.view.fov:
+            if (x, y) not in player.view.fov:
                 map_surf.blit(images["fog_of_war"],
-                              ((x - left) * tile_size - margin,
-                               (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                              map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     if game_map.engine.key_mod:
         if game_map.engine.key_mod == "targeting" \
-                and not (game_map.engine.player.x, game_map.engine.player.y) == game_map.port:
-            target_tiles = game_map.get_neighbors_at_elevations(game_map.engine.player.x,
-                                                                game_map.engine.player.y,
-                                                                elevations=move_elevations['all'])
-            target_tiles.append((game_map.engine.player.x, game_map.engine.player.y))
+                and not (player.x, player.y) == game_map.port:
+            target_tiles = game_map.get_neighbors_at_elevations(player.x, player.y, elevations=move_elevations['all'])
+            target_tiles.append((player.x, player.y))
             
-            distance = game_map.engine.player.broadsides.get_active_range("port")
+            distance = player.broadsides.get_active_range("port")
             if distance:
-                target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
-                                                                      "port", distance))
+                target_tiles.extend(get_cone_target_hexes_at_location(player, "port", distance))
             
-            distance = game_map.engine.player.broadsides.get_active_range("starboard")
+            distance = player.broadsides.get_active_range("starboard")
             if distance:
-                target_tiles.extend(get_cone_target_hexes_at_location(game_map.engine.player,
-                                                                      "starboard", distance))
+                target_tiles.extend(get_cone_target_hexes_at_location(player, "starboard", distance))
             
             for (x, y) in target_tiles:
-                if game_map.in_bounds(x, y) and (x, y) in game_map.engine.player.view.fov:
+                if game_map.in_bounds(x, y) and (x, y) in player.view.fov:
                     map_surf.blit(images["highlight"],
-                                  ((x - left) * tile_size - margin,
-                                   (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                                  map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     entities_sorted_for_rendering = sorted(
         game_map.entities, key=lambda i: i.render_order.value
     )
     
     for entity in entities_sorted_for_rendering:
-        if entity.sprite and (entity.x, entity.y) in game_map.engine.player.view.fov:
+        if entity.sprite and (entity.x, entity.y) in player.view.fov:
             entity.sprite.update(game_map.engine.clock.get_fps())
-            map_surf.blit(get_rotated_image(sprites[entity.sprite.sprite_name][entity.sprite.pointer],
-                                            entity.facing),
-                          ((entity.x - left) * tile_size,
-                           (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
-        elif (entity.x, entity.y) in game_map.engine.player.view.fov \
+            map_surf.blit(get_rotated_image(sprites[entity.sprite.sprite_name][entity.sprite.pointer], entity.facing),
+                          map_to_surface_coords(entity.x, entity.y, left, top, overlap, player, camera, entity=True))
+        elif (entity.x, entity.y) in player.view.fov \
                 and entity.icon is not None \
                 and entity.is_alive \
                 and entity.fighter and entity.fighter.name == 'hull':
             ship_icon = create_ship_icon(entity)
             map_surf.blit(get_rotated_image(ship_icon, entity.facing),
-                          ((entity.x - left) * tile_size,
-                           (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
-        elif (entity.x, entity.y) in game_map.engine.player.view.fov \
+                          map_to_surface_coords(entity.x, entity.y, left, top, overlap, player, camera, entity=True))
+        elif (entity.x, entity.y) in player.view.fov \
                 and entity.icon is not None \
                 and entity.is_alive:
             map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
-                          ((entity.x - left) * tile_size,
-                           (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+                          map_to_surface_coords(entity.x, entity.y, left, top,
+                                                overlap, player, camera, entity=True))
         elif (entity.x, entity.y) in game_map.engine.player.view.fov \
                 and entity.icon is not None:
             map_surf.blit(images[entity.icon],
-                          ((entity.x - left) * tile_size,
-                           (entity.y - top - 1) * tile_size + (entity.x % 2) * half_tile + margin - offset))
+                          map_to_surface_coords(entity.x, entity.y, left, top, overlap, player, camera, entity=True))
     
-    for x, y in game_map.engine.player.view.fov:
+    for x, y in player.view.fov:
         if game_map.in_bounds(x, y) and game_map.terrain[x][y].mist:
             map_surf.blit(images["mist"],
-                          ((x - left) * tile_size - margin,
-                           (y - top - 1) * tile_size + (x % 2) * half_tile - margin - offset))
+                          map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
-    render_border(map_surf, game_map.engine.time.get_sky_color)
-    
-    tint_surf = Surface(((2 * view_port + 1) * tile_size, (2 * view_port + 1) * tile_size + 2 * margin))
+    tint_surf = Surface((map_surf.get_width(), map_surf.get_height()))
     tint_surf.set_alpha(abs(game_map.engine.time.hrs * 60 + game_map.engine.time.mins - 720) // 8)
     tint = game_map.engine.time.get_sky_color
     tint_surf.fill(tint)
-    
     map_surf.blit(tint_surf, (0, 0))
-    main_display.blit(map_surf, (ui_layout.mini_width, 0))
+    
+    view_surf = map_surf.subsurface((0,
+                                     player.x % 2 * tile_size // 2),
+                                    (ui_layout.viewport_width - 2 * margin,
+                                     ui_layout.viewport_height - 2 * margin))
+    
+    border_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
+    render_border(border_surf, game_map.engine.time.get_sky_color)
+    border_surf.blit(view_surf, (margin, margin))
+    main_display.blit(border_surf, (ui_layout.mini_width, 0))
+
+
+def map_to_surface_coords(x, y, left, top, overlap, player, camera, entity=None) -> Tuple[int, int]:
+    new_x = (x - left - overlap) * tile_size - 2 * margin + player.x * tile_size - camera.x
+    new_y = ((y - top - overlap) * tile_size + (x % 2) * tile_size // 2 - 2 * margin
+             + (player.x + left) % 2 * tile_size // 2
+             + player.y * tile_size - camera.y)
+    if entity:
+        new_x += margin
+        new_y += 2 * margin
+    return (new_x, new_y)
+
+
+# def map_to_surface_coords(x, y, left, top, overlap, camera, entity=None) -> Tuple[int, int]:
+#     new_x = (x - left - overlap) * tile_size - 2 * margin - camera.x
+#     new_y = (y - top - overlap) * tile_size + (x % 2) * tile_size // 2 - 2 * margin - camera.y
+#     if entity:
+#         new_x += margin
+#         new_y += 2 * margin
+#     return (new_x, new_y)
 
 
 def render_hp_bar(text: str,
