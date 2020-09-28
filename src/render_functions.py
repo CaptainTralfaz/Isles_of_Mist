@@ -191,7 +191,7 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
 def map_to_surface_coords(x, y, left, top, overlap, player, camera, entity=None) -> Tuple[int, int]:
     new_x = (x - left - overlap) * tile_size - 2 * margin + player.x * tile_size - camera.x
     new_y = ((y - top - overlap) * tile_size + (x % 2) * tile_size // 2 - 2 * margin
-             - (player.x +1) % 2 * tile_size // 2 + tile_size // 2
+             - (player.x + 1) % 2 * tile_size // 2 + tile_size // 2
              + player.y * tile_size - camera.y)
     if entity:
         new_x += margin
