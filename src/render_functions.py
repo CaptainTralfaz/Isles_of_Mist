@@ -436,6 +436,27 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
                 status_panel.blit(weapon_bar, (margin, vertical))
                 vertical += weapon_bar.get_height() + margin // 2
     
+    if entity.cargo:
+        names = []
+        icons = []
+        counts = []
+        for ammo in ['arrows', 'bolts', 'cannonballs', 'mines']:
+            if entity.cargo.item_type_in_manifest(ammo):
+                names.append(game_font.render(f"{ammo.capitalize()}", True, colors['mountain']))
+                icons.append(images[ammo])
+                counts.append(game_font.render(f"{entity.cargo.manifest[ammo]}", True, colors['mountain']))
+        height = len(names)
+        if height > 0:
+            ammo_surf = Surface((ui_layout.status_width - 2 * margin,
+                                 height * game_font.get_height()))  # + (height - 1) * tile_size // 2
+            for i in range(0, height):
+                ammo_surf.blit(names[i], (0,  i * game_font.get_height()))
+                ammo_surf.blit(icons[i], (ammo_surf.get_width() - icons[i].get_width(),
+                                          i * game_font.get_height()))
+                ammo_surf.blit(counts[i],
+                               (ammo_surf.get_width() - icons[i].get_width() - counts[i].get_width(),
+                                i * game_font.get_height()))
+            status_panel.blit(ammo_surf, (margin, status_panel.get_height() - ammo_surf.get_height() - margin))
     console.blit(status_panel, (0, ui_layout.mini_height))
     # TODO cargo (ammo / money)
 

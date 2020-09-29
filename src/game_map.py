@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from random import randint
 from queue import Queue
 from typing import Iterable, List, Tuple, Dict, Set, TYPE_CHECKING
 
-from constants import view_port
+from constants import view_port, colors
 from tile import Elevation, Terrain
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
 
 if TYPE_CHECKING:
-    from entity import Entity
+    from entity import Entity, Actor
     from engine import Engine
 
 
@@ -194,7 +195,7 @@ class GameMap:
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
     
-    def get_targets_at_location(self, grid_x: int, grid_y: int) -> List[Entity]:
+    def get_targets_at_location(self, grid_x: int, grid_y: int) -> List[Actor]:
         """
         Returns a list of Actors at a particular coordinate
         :param grid_x: x int coordinate of game map
@@ -225,3 +226,39 @@ class GameMap:
         if self.engine.player in items:
             items.remove(self.engine.player)
         return items
+
+    def decoration_damage(self, x: int, y: int, entity: Actor):
+        color = colors['pink'] if entity == self.engine.player else colors['mountain']
+        # Todo add in damage for cargo: over-weight, over-volume
+        if entity.fighter.name == "hull":
+            if entity.parent.game_map.terrain[x][y].decoration:
+                decoration = self.terrain[x][y].decoration
+                damage = 0
+                if entity.cargo and entity.cargo.weight > entity.cargo.max_weight:
+                    damage += 1
+                if decoration in ['rocks']:
+                    damage += 2
+                    self.engine.message_log.add_message(
+                        f"{entity.name} takes {damage} hull damage while trying to dodge rocks", color)
+                    entity.fighter.take_damage(damage)
+                elif decoration in ['coral']:
+                    self.engine.message_log.add_message(
+                        f"{entity.name} takes {damage} hull damage from scraping coral", color)
+                    entity.fighter.take_damage(damage)
+                elif decoration in ['sandbar']:
+                    if damage > 0:
+                        self.engine.message_log.add_message(
+                            f"{entity.name} takes {damage} hull damage from bumping sandbar", color)
+                        entity.fighter.take_damage(damage)
+        if not entity.flying and entity.parent.game_map.terrain[x][y].decoration:
+            if entity.parent.game_map.terrain[x][y].decoration in ['minefield']:
+                damage = randint(2, 5)
+                if (entity.x, entity.y) in self.engine.player.view.fov:
+                    self.engine.message_log.add_message(f"Mines explode!", colors['red'])
+                    self.engine.message_log.add_message(
+                        f"{entity.name} takes {damage} {entity.fighter.name} damage!", color)
+                entity.fighter.take_damage(damage)
+                if damage > 3:
+                    if (entity.x, entity.y) in self.engine.player.view.fov:
+                        self.engine.message_log.add_message(f"Minefield has been cleared")
+                    entity.parent.game_map.terrain[x][y].decoration = None

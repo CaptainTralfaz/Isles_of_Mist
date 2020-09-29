@@ -73,32 +73,8 @@ class MovementAction(Action):
                     if self.entity.sails.raised:
                         self.entity.sails.adjust()
                         return True
-                color = colors['pink'] if self.entity == self.engine.player else colors['mountain']
-                if self.entity.fighter.name == "hull":
-                    if self.entity.parent.game_map.terrain[x][y].decoration:
-                        decoration = self.entity.parent.game_map.terrain[x][y].decoration
-                        if decoration in ['rocks']:
-                            self.entity.parent.engine.message_log.add_message(
-                                f"{self.entity.name} takes 2 hull damage while trying to dodge rocks", color)
-                            self.entity.fighter.take_damage(2)
-                        elif decoration in ['coral']:
-                            self.entity.parent.engine.message_log.add_message(
-                                f"{self.entity.name} takes 1 hull damage from scraping coral", color)
-                            self.entity.fighter.take_damage(1)
-                if not self.entity.flying and self.entity.parent.game_map.terrain[x][y].decoration:
-                    if self.entity.parent.game_map.terrain[x][y].decoration in ['mines']:
-                        damage = randint(2, 5)
-                        if (self.entity.x, self.entity.y) in self.engine.player.view.fov:
-                            self.entity.parent.engine.message_log.add_message(
-                                f"Mines explode!", colors['red'])
-                            self.entity.parent.engine.message_log.add_message(
-                                f"{self.entity.name} takes {damage} {self.entity.fighter.name} damage!", color)
-                        self.entity.fighter.take_damage(damage)
-                        if damage > 3:
-                            if (self.entity.x, self.entity.y) in self.engine.player.view.fov:
-                                self.entity.parent.engine.message_log.add_message(
-                                    f"Minefield has been cleared")
-                            self.entity.parent.game_map.terrain[x][y].decoration = None
+                if self.entity.game_map.terrain[x][y].decoration is not None:
+                    self.entity.game_map.decoration_damage(x=x, y=y, entity=self.entity)
                 return True
             # player can't move here
             elif self.entity == self.engine.player:
@@ -155,8 +131,11 @@ class MineAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        self.engine.game_map.terrain[self.entity.x][self.entity.y].decoration = "mines"
-        self.engine.message_log.add_message(f"Mines placed")
+        if not self.entity.cargo.item_type_in_manifest('mines'):
+            raise Impossible("No mines in inventory!")
+        self.engine.game_map.terrain[self.entity.x][self.entity.y].decoration = "minefield"
+        self.entity.cargo.remove_items_from_manifest({'mines': 1})
+        self.engine.message_log.add_message("Mines placed")
         return True
 
 
@@ -176,11 +155,12 @@ class AttackAction(Action):
 
 
 class SplitDamageAction(Action):
-    def __init__(self, entity: Actor, targets: List[Actor], damage, direction):
+    def __init__(self, entity: Actor, targets: List[Actor], damage, direction, ammo):
         super().__init__(entity)
         self.targets = targets
         self.damage = damage
         self.direction = direction
+        self.ammo = ammo
     
     def perform(self) -> bool:
         for target in self.targets:
@@ -201,6 +181,7 @@ class SplitDamageAction(Action):
         elif self.direction == "starboard":
             for weapon in [w for w in self.entity.broadsides.starboard if w.cooldown == 0]:
                 weapon.cooldown = weapon.cooldown_max
+        self.entity.cargo.remove_items_from_manifest(self.ammo)
         return True
 
 
@@ -213,6 +194,15 @@ class BroadsideAction(SplitDamageAction):
             damage = self.entity.broadsides.get_active_power(direction)
         else:
             raise Impossible(f"No active weapons to {direction}")
+        ammo = self.entity.broadsides.get_active_weapon_ammo_types(direction)
+        enough_ammo = True
+        for ammo_type in ammo.keys():
+            if ammo_type not in self.entity.cargo.manifest.keys():
+                enough_ammo = False
+            elif self.entity.cargo.manifest[ammo_type] - ammo[ammo_type] < 0:
+                enough_ammo = False
+        if not enough_ammo:
+            raise Impossible(f"Not enough ammo to fire {direction} broadsides")
         targets = []
         hexes = get_cone_target_hexes_at_location(entity, direction, distance)
         for x, y in hexes:
@@ -222,8 +212,9 @@ class BroadsideAction(SplitDamageAction):
             targets.remove(self.entity)
         if len(targets) < 1:
             raise Impossible(f"No targets to {direction}")
+        
         damage = damage // len(targets)
-        super().__init__(entity, targets, damage, direction)
+        super().__init__(entity, targets, damage, direction, ammo)
     
     def perform(self) -> bool:
         return super().perform()
@@ -232,6 +223,16 @@ class BroadsideAction(SplitDamageAction):
 class ArrowAction(SplitDamageAction):
     def __init__(self, entity: Actor, direction):
         self.entity = entity
+        ammo = {'arrows': self.entity.crew.count // 3}
+        enough_ammo = True
+        for ammo_type in ammo.keys():
+            if ammo_type not in self.entity.cargo.manifest.keys():
+                enough_ammo = False
+            elif self.entity.cargo.manifest[ammo_type] - ammo[ammo_type] < 0:
+                enough_ammo = False
+        if not enough_ammo:
+            raise Impossible(f"Not enough arrows!")
+
         targets = []
         neighbor_tiles = self.engine.game_map.get_neighbors_at_elevations(self.entity.x,
                                                                           self.entity.y,
@@ -241,11 +242,10 @@ class ArrowAction(SplitDamageAction):
             targets.extend(self.engine.game_map.get_targets_at_location(tile_x, tile_y))
         if self.entity in targets:
             targets.remove(self.entity)
-        
         if len(targets) < 1:
             raise Impossible(f"No adjacent targets")
         damage = (self.entity.crew.count // 3) // len(targets)
-        super().__init__(entity, targets, damage, direction)
+        super().__init__(entity, targets, damage, direction, ammo)
     
     def perform(self) -> bool:
         return super().perform()
@@ -270,7 +270,7 @@ class SalvageAction(Action):
     
     def perform(self) -> bool:
         for salvage in self.salvage:
-            self.engine.message_log.add_message(f"You salvage {salvage.name}!", colors['beach'])
+            self.engine.message_log.add_message(f"You salvage {salvage.name}!", colors['orange'])
             self.entity.cargo.add_items_to_manifest(salvage.cargo.manifest)
             self.engine.game_map.entities.remove(salvage)
         return True
