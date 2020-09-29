@@ -34,6 +34,10 @@ rain = image.load("assets/misc/rain.png")
 sky = image.load("assets/misc/sky.png")
 storm = image.load("assets/misc/storm.png")
 sun = image.load("assets/misc/sun.png")
+arrows = image.load("assets/misc/arrows.png")
+bolts = image.load("assets/misc/bolts.png")
+cannonballs = image.load("assets/misc/cannonballs.png")
+mines = image.load("assets/misc/mines.png")
 
 player_image = image.load("assets/entities/ship_icon.png")
 turtle_image = image.load("assets/entities/turtle.png")
@@ -58,7 +62,7 @@ volcano = image.load("assets/terrain/volcano.png")
 fog_of_war = image.load("assets/terrain/fog_of_war.png")
 mist = image.load("assets/terrain/mist.png")
 highlight = image.load("assets/terrain/highlight.png")
-mines = image.load("assets/terrain/mines.png")
+minefield = image.load("assets/terrain/minefield.png")
 
 port = image.load("assets/terrain/port.png")
 coral = image.load("assets/terrain/coral.png")
@@ -119,6 +123,7 @@ images = {
     'port': port,
     'highlight': highlight,
     'mines': mines,
+    'minefield': minefield,
     'arrow_key': arrow_key,
     'compass': compass,
     'pointer': pointer,
@@ -130,6 +135,9 @@ images = {
     'rainy': rain,
     'clear': sky,
     'stormy': storm,
+    'arrows': arrows,
+    'bolts': bolts,
+    'cannonballs': cannonballs,
 }
 
 colors = {
@@ -162,7 +170,7 @@ colors = {
     'rocks': (225, 225, 225),
     'seaweed': (50, 175, 50),
     'sandbar': (225, 200, 125),
-    'mines': (200, 0, 0),
+    'minefield': (200, 0, 0),
     'port': (255, 255, 255),
 }
 
@@ -182,37 +190,51 @@ weapons = {
                  'defense': 2,
                  'range': 3,
                  'power': 3,
-                 'cooldown': 4},
+                 'cooldown': 4,
+                 'ammo': 'bolts',
+                 },
     'heavy ballista': {'hp': 4,
-                       'defense': 2,
+                       'defense': 3,
                        'range': 4,
                        'power': 4,
-                       'cooldown': 4},
+                       'cooldown': 4,
+                       'ammo': 'bolts',
+                       },
     'repeating ballista': {'hp': 3,
                            'defense': 2,
                            'range': 3,
                            'power': 3,
-                           'cooldown': 3},
+                           'cooldown': 3,
+                           'ammo': 'bolts',
+                           },
     'cannon': {'hp': 5,
                'defense': 3,
                'range': 4,
                'power': 5,
-               'cooldown': 5},
+               'cooldown': 5,
+               'ammo': 'cannonballs',
+               },
     'organ gun': {'hp': 5,
                   'defense': 3,
                   'range': 4,
                   'power': 4,
-                  'cooldown': 4},
+                  'cooldown': 4,
+                  'ammo': 'cannonballs',
+                  },
     'heavy cannon': {'hp': 6,
                      'defense': 4,
                      'range': 5,
                      'power': 6,
-                     'cooldown': 6},
+                     'cooldown': 6,
+                     'ammo': 'cannonballs',
+                     },
     'longguns': {'hp': 5,
                  'defense': 4,
                  'range': 6,
                  'power': 5,
-                 'cooldown': 6},
+                 'cooldown': 6,
+                 'ammo': 'cannonballs',
+                 },
 }
 
 item_stats = {
@@ -290,5 +312,25 @@ item_stats = {
         'weight': 1,
         'volume': 3,
         'category': 'exotics',
+    },
+    'cannonballs': {
+        'weight': 2,
+        'volume': 1,
+        'category': 'ammo',
+    },
+    'bolts': {
+        'weight': 1,
+        'volume': 2,
+        'category': 'ammo',
+    },
+    'mines': {
+        'weight': 2,
+        'volume': 2,
+        'category': 'ammo',
+    },
+    'arrows': {
+        'weight': .1,
+        'volume': .1,
+        'category': 'ammo',
     },
 }

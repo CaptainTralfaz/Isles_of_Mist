@@ -406,16 +406,19 @@ def get_entity_manifest(entity):
         return manifest
     elif entity == 'chest':
         pearl = randint(10, 30)
+        arrows = randint(20, 30)
         if randint(0, 1):
             tar = randint(3, 5)
             rope = randint(3, 5)
             return {'pearl': pearl,
+                    'arrows': arrows,
                     'tar': tar,
                     'rope': rope}
         else:
             fruit = randint(4, 9)
             rum = randint(4, 7)
             return {'pearl': pearl,
+                    'arrows': arrows,
                     'fruit': fruit,
                     'rum': rum}
     elif entity == 'bottle':
@@ -423,5 +426,13 @@ def get_entity_manifest(entity):
     elif entity == 'shipwreck':
         canvas = randint(3, 5)
         wood = randint(4, 8)
-        return {'canvas': canvas,
-                'wood': wood}
+        bolts = randint(10, 20)
+        cannonballs = randint(5, 10)
+        mines = randint(0, 2)
+        manifest = {'canvas': canvas,
+                    'wood': wood,
+                    'bolts': bolts,
+                    'cannonballs': cannonballs}
+        if mines:
+            manifest['mines'] = mines
+        return manifest

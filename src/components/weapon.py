@@ -1,4 +1,5 @@
 from __future__ import annotations
+from enum import Enum, auto
 
 from typing import TYPE_CHECKING
 
@@ -12,7 +13,7 @@ class Weapon(BaseComponent):
     parent: Broadsides
     
     def __init__(self, parent, hp: int, defense: int, dist: int, power: int,
-                 cooldown: int, name: str = "weapon", can_hit: dict = "body"):
+                 cooldown: int, ammo: str, name: str = "weapon", can_hit: dict = "body"):
         self.max_hp = hp
         self._hp = hp
         self.defense = defense
@@ -23,6 +24,7 @@ class Weapon(BaseComponent):
         self.cooldown = 0
         self.cooldown_max = cooldown
         self.parent = parent
+        self.ammo = ammo
     
     @property
     def hp(self) -> int:

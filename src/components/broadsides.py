@@ -35,7 +35,8 @@ class Broadsides(BaseComponent):
                       dist=weapon['range'],
                       power=weapon['power'],
                       cooldown=weapon['cooldown'],
-                      name=name.capitalize())
+                      name=name.capitalize(),
+                      ammo=weapon['ammo'])
         
     def attach(self, location: str, weapon: Weapon) -> None:
         if location == "port":
@@ -60,6 +61,19 @@ class Broadsides(BaseComponent):
             return sum(power)
         else:
             return None
+
+    def get_active_weapon_ammo_types(self, location):
+        if location == "port":
+            ammo_list = [weapon.ammo for weapon in self.port if weapon.cooldown == 0]
+        else:
+            ammo_list = [weapon.ammo for weapon in self.starboard if weapon.cooldown == 0]
+        ammo = {}
+        for ammo_type in ammo_list:
+            if ammo_type in ammo.keys():
+                ammo[ammo_type] += 1
+            else:
+                ammo[ammo_type] = 1
+        return ammo
 
     def get_damaged_weapons(self):
         damaged = [weapon for weapon in self.port if weapon.hp < weapon.max_hp]
