@@ -67,7 +67,7 @@ def mini_map_render(game_map: GameMap, main_display: display, ui_layout: Display
                                        margin + y * block_size + (x % 2) * block_size // 2 - 2))
                 if game_map.terrain[x][y].decoration:
                     if game_map.terrain[x][y].elevation in move_elevations['land']:
-                        color = 'black' if colors[game_map.terrain[x][y].decoration] in ["port"] else 'white'
+                        color = 'white' if game_map.terrain[x][y].decoration in ["port"] else 'black'
                         block.fill(colors['red'])
                         mini_surf.blit(block, (margin + x * block_size,
                                                margin + y * block_size + (x % 2) * block_size // 2 - 2))
@@ -289,6 +289,10 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     
     widths = []
     entity_list = []
+    # (x, y) = surface_to_map_coords(mouse_x, mouse_y, player.x)
+    # xy = game_font.render(f"{x}:{y}", True, colors['mountain'])
+    # widths.append(xy.get_width())
+    # entity_list.append((xy, None, None))
     for entity in entities_sorted_for_rendering:
         name = game_font.render(f"{entity.name}", True, colors['mountain'])
         widths.append(name.get_width())
@@ -459,7 +463,7 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
                                 i * game_font.get_height()))
             status_panel.blit(ammo_surf, (margin, status_panel.get_height() - ammo_surf.get_height() - margin))
     console.blit(status_panel, (0, ui_layout.mini_height))
-    # TODO cargo (ammo / money)
+    # TODO cargo (money?)
 
 
 def control_panel_render(console: Surface, status, player, ui_layout: DisplayInfo, sky):
