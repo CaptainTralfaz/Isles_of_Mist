@@ -242,6 +242,7 @@ class GameMap:
                         f"{entity.name} takes {damage} hull damage while trying to dodge rocks", color)
                     entity.fighter.take_damage(damage)
                 elif decoration in ['coral']:
+                    damage += 1
                     self.engine.message_log.add_message(
                         f"{entity.name} takes {damage} hull damage from scraping coral", color)
                     entity.fighter.take_damage(damage)

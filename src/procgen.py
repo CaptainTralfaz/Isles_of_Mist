@@ -19,9 +19,9 @@ if TYPE_CHECKING:
 
 ISLAND_GEN = {
     'frequency': 3,
-    'rand_pow_x_low': 5,
+    'rand_pow_x_low': 8,
     'rand_pow_x_high': 10,
-    'rand_pow_y_low': 5,
+    'rand_pow_y_low': 8,
     'rand_pow_y_high': 10,
 }
 
