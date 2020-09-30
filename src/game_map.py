@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from random import randint
 from queue import Queue
-from typing import Iterable, List, Tuple, Dict, Set, TYPE_CHECKING
+from typing import Iterable, List, Tuple, Optional, Set, TYPE_CHECKING
 
-from constants import view_port, colors
+from constants import colors
 from tile import Elevation, Terrain
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
 
@@ -119,47 +119,20 @@ class GameMap:
         :return: bool
         """
         return self.terrain[x][y].elevation in elevations
-    
-    def gen_distance_map(self,
-                         target_x: int,
-                         target_y: int,
-                         elevations: List[Elevation]
-                         ) -> Dict[Tuple[int, int]:int]:
-        """
-        convert a dict of (x, y) coordinates -> (c, r) coordinates
-            to a dict of (x, y) coordinates -> int distances (straight distance, not really following the path)
-        :param target_x: x int coordinate of game map
-        :param target_y: y int coordinate of game map
-        :param elevations: list of Elevation enums
-        :return: dict of tuple (x, y) coordinates -> int coordinates
-        """
-        # TODO cut short when path is found?
-        path_map = self.gen_path_map(target_x, target_y, elevations)
-        distance_map = dict()
-        
-        for w in range(max(0, target_x - view_port), min(self.width, (target_x + view_port))):
-            for h in range(max(0, target_y - view_port), min(self.height, target_y + view_port)):
-                path = []
-                if path_map.get((w, h)):
-                    current = (w, h)
-                    while current != (target_x, target_y):
-                        path.append(current)
-                        if not current:
-                            break
-                        current = path_map[current]
-                if path:
-                    distance_map[(w, h)] = len(path)
-        return distance_map
-    
-    def gen_path_map(self,
-                     target_x: int,
-                     target_y: int,
-                     elevations: List[Elevation]
-                     ) -> Dict[Tuple[int, int]:Tuple[int, int]]:
+
+    def get_path(self,
+                 entity_x: int,
+                 entity_y: int,
+                 target_x: int,
+                 target_y: int,
+                 elevations: List[Elevation]
+                 ) -> List[Tuple[int, int]]:
         """
         Create a grid of (x, y) coordinates mapping to the (x, y) they came from
-        :param target_x: x int coordinate of game map
-        :param target_y: y int coordinate of game map
+        :param entity_x: x int coordinate of this entity on game map
+        :param entity_y: y int coordinate of this entity on game map
+        :param target_x: x int coordinate of target on game map
+        :param target_y: y int coordinate of target on game map
         :param elevations: list of Elevation enums
         :return: dict of tuple (x, y) coordinates -> tuple (x, y) coordinates
         """
@@ -168,6 +141,8 @@ class GameMap:
         came_from = dict()
         came_from[(target_x, target_y)] = (target_x, target_y)
         
+        # make a list of hexes adjacent to target
+        path_found = False
         while not frontier.empty():
             current = frontier.get()
             x, y = current
@@ -175,8 +150,24 @@ class GameMap:
                 if neighbor not in came_from:
                     frontier.put(neighbor)
                     came_from[(neighbor[0], neighbor[1])] = current
-        return came_from
-    
+                    if neighbor == (entity_x, entity_y):
+                        # found a path to target
+                        path_found = True
+                        break
+        if path_found:
+            path = []
+            current = (entity_x, entity_y)
+            while current != (target_x, target_y):
+                path.append(current)
+                if not current:
+                    break
+                current = came_from[current]
+            path.reverse()
+            path.pop()  # remove entity's current hex
+            return path
+
+        return []
+
     def get_neighbors_at_elevations(self, x, y, elevations: List[Elevation]) -> List[Tuple[int, int]]:
         """
         Returns a list of Tuple (x, y) coordinates that are adjacent to given (x, y) coordinates
@@ -195,7 +186,7 @@ class GameMap:
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
     
-    def get_targets_at_location(self, grid_x: int, grid_y: int) -> List[Actor]:
+    def get_targets_at_location(self, grid_x: int, grid_y: int) -> List[Optional]:
         """
         Returns a list of Actors at a particular coordinate
         :param grid_x: x int coordinate of game map

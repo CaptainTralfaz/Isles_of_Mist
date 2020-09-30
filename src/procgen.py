@@ -110,7 +110,7 @@ def generate_map(map_width: int, map_height: int, engine: Engine, seed: int) -> 
     ocean = explore_water_iterative(island_map)
     islands = explore_islands(island_map, ocean)
     island = big_island(islands)
-    place_port(island_map, island)
+    place_port(island_map, island, ocean)
     place_player(island_map, player)
     
     elevations = elevation_choices(island_map, player.view.fov)
@@ -124,7 +124,7 @@ def place_player(island_map, player):
     direction = 0
     edge = randint(0, 3)
     if edge == 0:
-        player_x = randint(0, island_map.width - 1)
+        player_x = randint(1, island_map.width - 2)
         player_y = 1
         if player_x < island_map.width // 4:
             direction = 2
@@ -134,13 +134,13 @@ def place_player(island_map, player):
             direction = 3
     elif edge == 1:
         player_x = island_map.width - 2
-        player_y = randint(0, island_map.height - 1)
+        player_y = randint(1, island_map.height - 2)
         if player_y < island_map.width // 2:
             direction = 4
         else:
             direction = 5
     elif edge == 2:
-        player_x = randint(0, island_map.width - 1)
+        player_x = randint(1, island_map.width - 2)
         player_y = island_map.height - 2
         if player_x < island_map.width // 4:
             direction = 1
@@ -150,7 +150,7 @@ def place_player(island_map, player):
             direction = 0
     elif edge == 3:
         player_x = 1
-        player_y = randint(0, island_map.height - 1)
+        player_y = randint(1, island_map.height - 2)
         if player_y < island_map.width // 2:
             direction = 3
         else:
@@ -182,11 +182,15 @@ def big_island(island_list: List[List[Tuple[int, int]]]) -> List[Tuple[int, int]
     return biggest
 
 
-def place_port(island_map: GameMap, island):
+def place_port(island_map: GameMap, island, ocean):
     coastline = []
     for (x, y) in island:
         neighbors = island_map.get_neighbors_at_elevations(x, y, elevations=entity_factory.move_elevations['water'])
+        coast = False
         for neighbor in neighbors:
+            if neighbor in ocean:
+                coast = True
+        if coast:
             coastline.append((x, y))
     (x, y) = choice(coastline)
     island_map.terrain[x][y].decoration = "port"
@@ -288,7 +292,7 @@ def place_entities(island_map: GameMap, elevations):
             mermaid.cargo = Cargo(max_volume=5, max_weight=5, manifest=get_entity_manifest('mermaid'))
         elif rnd < .9:
             available = []
-            for elevation in move_elevations['water']:
+            for elevation in move_elevations['deep_water']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             serpent = entity_factory.serpent.spawn(island_map, x, y, randint(0, 5))
@@ -303,7 +307,7 @@ def place_entities(island_map: GameMap, elevations):
             shipwreck.cargo = Cargo(max_volume=20, max_weight=20, manifest=get_entity_manifest('shipwreck'))
         elif rnd < .98:
             available = []
-            for elevation in move_elevations['water']:
+            for elevation in move_elevations['ocean']:
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             chest = entity_factory.chest.spawn(island_map, x, y)
@@ -426,8 +430,8 @@ def get_entity_manifest(entity):
     elif entity == 'shipwreck':
         canvas = randint(3, 5)
         wood = randint(4, 8)
-        bolts = randint(10, 20)
-        cannonballs = randint(5, 10)
+        bolts = randint(3, 6)
+        cannonballs = randint(2, 5)
         mines = randint(0, 2)
         manifest = {'canvas': canvas,
                     'wood': wood,
