@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from random import randint
+from random import randint, choice
 
 from constants import colors
 from game_map import GameMap
@@ -38,7 +38,7 @@ wind_dir = {
 class Weather:
     def __init__(self, parent, wind_direction: int = None, conditions: Conditions = None):
         self.wind_direction = randint(0, 5) if wind_direction is None else wind_direction
-        self.conditions = Conditions(randint(1, 3)) if conditions is None else conditions
+        self.conditions = Conditions(randint(2, 3)) if conditions is None else conditions
         self.wind_count = 0
         self.wind_min_count = 25
         self.conditions_count = 0
@@ -115,47 +115,73 @@ class Weather:
     
     def roll_mist(self, game_map: GameMap):
         new_mist = []
-        for x in range(game_map.width):
-            for y in range(game_map.height):
-                if game_map.terrain[x][y].mist:
-                    new_mist.append(get_neighbor(x, y, self.wind_direction))
-                game_map.terrain[x][y].mist = False
-        # add new mist at edges:
-        bottom = True if self.wind_direction in [0, 1, 5] else False
-        left = True if self.wind_direction in [1, 2] else False
-        top = True if self.wind_direction in [2, 3, 4] else False
-        right = True if self.wind_direction in [4, 5] else False
-        
         tod_mist = self.engine.time.get_time_of_day_info['mist']
         weather_mist = weather_effects[self.engine.weather.conditions]['mist']
         mist_chance = tod_mist + weather_mist
-        
-        if top:
+
+        if self.wind_direction is not None:
+            # move mist with wind
             for x in range(game_map.width):
-                mist = True if randint(0, 99) < mist_chance else False
-                if mist:
-                    new_mist.append((x, 0))
-        if right:
-            for y in range(game_map.height):
-                mist = True if randint(0, 99) < mist_chance else False
-                if mist:
-                    new_mist.append((game_map.width - 1, y))
-        if bottom:
+                for y in range(game_map.height):
+                    if game_map.terrain[x][y].mist:
+                        new_mist.append(get_neighbor(x, y, self.wind_direction))
+                    game_map.terrain[x][y].mist = False
+            # add new mist at edges:
+            bottom = True if self.wind_direction in [0, 1, 5] else False
+            left = True if self.wind_direction in [1, 2] else False
+            top = True if self.wind_direction in [2, 3, 4] else False
+            right = True if self.wind_direction in [4, 5] else False
+            
+            if top:
+                for x in range(game_map.width):
+                    mist = True if randint(0, 99) < mist_chance else False
+                    if mist:
+                        new_mist.append((x, 0))
+            if right:
+                for y in range(game_map.height):
+                    mist = True if randint(0, 99) < mist_chance else False
+                    if mist:
+                        new_mist.append((game_map.width - 1, y))
+            if bottom:
+                for x in range(game_map.width):
+                    mist = True if randint(0, 99) < mist_chance else False
+                    if mist:
+                        new_mist.append((x, game_map.height - 1))
+            if left:
+                for y in range(game_map.height):
+                    mist = True if randint(0, 99) < mist_chance else False
+                    if mist:
+                        new_mist.append((0, y))
+        else:
+            # else collect mist without moving
             for x in range(game_map.width):
-                mist = True if randint(0, 99) < mist_chance else False
-                if mist:
-                    new_mist.append((x, game_map.height - 1))
-        if left:
-            for y in range(game_map.height):
-                mist = True if randint(0, 99) < mist_chance else False
-                if mist:
-                    new_mist.append((0, y))
-        
+                for y in range(game_map.height):
+                    if game_map.terrain[x][y].mist:
+                        new_mist.append((x, y))
+                    game_map.terrain[x][y].mist = False
+            
+        # adjust mist toward current %
+        mist_target = mist_chance * 100
+        mist_actual = (len(new_mist) * 10000) // (game_map.width * game_map.height)
+        mist_change = abs((mist_target - mist_actual) // 10)
+        if mist_target > mist_actual:
+            for i in range(mist_change):  # might hit a tile with mist already, but who cares?
+                pick_x = randint(0, game_map.width - 1)
+                pick_y = randint(0, game_map.width - 1)
+                if (pick_x, pick_y) not in new_mist:
+                    new_mist.append((pick_x, pick_y))
+            # print(f"{mist_target} > {mist_actual}: added {mist_change} mist")
+        else:
+            for i in range(mist_change):
+                pick = choice(new_mist)
+                new_mist.remove(pick)
+            # print(f"{mist_target} > {mist_actual}: removed {mist_change} mist")
+
         # add new fog to terrain
         for x, y in new_mist:
             if game_map.in_bounds(x, y):
                 game_map.terrain[x][y].mist = True
-
+        
 
 class Time:
     def __init__(self, hrs=9, mins=00, day=1, month=1, year=1111):

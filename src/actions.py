@@ -63,9 +63,14 @@ class MovementAction(Action):
     def perform(self) -> bool:
         x, y = self.entity.get_next_hex()
         if self.entity.game_map.in_bounds(x, y):
-            can_move = (self.entity.game_map.game_map.can_move_to(x, y, self.entity.elevations)
+            # TODO currently no decorations on land (except port)
+            # use this for when a point of interest is added to a coastline space,
+            #  examples: hermit hut, fisherman village, "X" marks the spot
+            # event = (self.entity == self.engine.player and
+            #          self.entity.game_map.terrain[x][y].decoration is not None)
+            can_move = (self.entity.game_map.can_move_to(x, y, self.entity.elevations)
                         and not (x, y) == self.engine.game_map.port) \
-                       or ((x, y) == self.engine.game_map.port and self.entity == self.engine.player)
+                        or ((x, y) == self.engine.game_map.port and self.entity == self.engine.player)
             if can_move:
                 self.entity.move()
                 if (x, y) == self.engine.game_map.port and self.entity is self.engine.player:
@@ -73,7 +78,8 @@ class MovementAction(Action):
                     if self.entity.sails.raised:
                         self.entity.sails.adjust()
                         return True
-                if self.entity.game_map.terrain[x][y].decoration is not None:
+                # damage from terrain decorations
+                elif self.entity.game_map.terrain[x][y].decoration is not None:
                     self.entity.game_map.decoration_damage(x=x, y=y, entity=self.entity)
                 return True
             # player can't move here

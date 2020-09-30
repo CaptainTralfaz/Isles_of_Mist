@@ -66,11 +66,21 @@ def mini_map_render(game_map: GameMap, main_display: display, ui_layout: Display
                 mini_surf.blit(block, (margin + x * block_size,
                                        margin + y * block_size + (x % 2) * block_size // 2 - 2))
                 if game_map.terrain[x][y].decoration:
-                    mini_block.fill(colors[game_map.terrain[x][y].decoration])
-                    mini_surf.blit(mini_block,
-                                   (margin + 1 + x * block_size,
-                                    margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
-    
+                    if game_map.terrain[x][y].elevation in move_elevations['land']:
+                        color = 'black' if colors[game_map.terrain[x][y].decoration] in ["port"] else 'white'
+                        block.fill(colors['red'])
+                        mini_surf.blit(block, (margin + x * block_size,
+                                               margin + y * block_size + (x % 2) * block_size // 2 - 2))
+                        mini_block.fill(color)
+                        mini_surf.blit(mini_block,
+                                       (margin + 1 + x * block_size,
+                                        margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
+                    else:
+                        mini_block.fill(colors[game_map.terrain[x][y].decoration])
+                        mini_surf.blit(mini_block,
+                                       (margin + 1 + x * block_size,
+                                        margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
+
     for entity in game_map.entities:
         if (entity.x, entity.y) in game_map.engine.player.view.fov \
                 and entity.icon is not None:
@@ -197,15 +207,6 @@ def map_to_surface_coords(x, y, left, top, overlap, player, camera, entity=None)
         new_x += margin
         new_y += 2 * margin
     return (new_x, new_y)
-
-
-# def map_to_surface_coords(x, y, left, top, overlap, camera, entity=None) -> Tuple[int, int]:
-#     new_x = (x - left - overlap) * tile_size - 2 * margin - camera.x
-#     new_y = (y - top - overlap) * tile_size + (x % 2) * tile_size // 2 - 2 * margin - camera.y
-#     if entity:
-#         new_x += margin
-#         new_y += 2 * margin
-#     return (new_x, new_y)
 
 
 def render_hp_bar(text: str,

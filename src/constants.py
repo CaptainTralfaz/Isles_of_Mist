@@ -13,11 +13,11 @@ caption = "Isles of Mist"
 
 # TODO Variable later ??
 game_font = font.Font('freesansbold.ttf', 16)
-view_port = 9
+view_port = 8
 message_count = 10
 
 time_tick = 2
-FPS = 20
+FPS = 30
 sprite_count = 4
 animation_speed = 2.0
 flicker_timer = 0.0
@@ -171,11 +171,12 @@ colors = {
     'seaweed': (50, 175, 50),
     'sandbar': (225, 200, 125),
     'minefield': (200, 0, 0),
-    'port': (255, 255, 255),
 }
 
 move_elevations = {
     'water': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS],
+    'deep_water': [Elevation.OCEAN, Elevation.WATER],
+    'ocean': [Elevation.OCEAN],
     'land': [Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO],
     'fly': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE],
     'shore': [Elevation.SHALLOWS, Elevation.BEACH],

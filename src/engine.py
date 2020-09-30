@@ -54,17 +54,12 @@ class Engine:
         self.time.roll_min(time_tick)
         self.weather.roll_weather()
         self.weather.roll_wind()
-        if self.weather.wind_direction is not None:
-            self.weather.roll_mist(self.game_map)
+        self.weather.roll_mist(self.game_map)
     
     def render_all(self, main_surface: Surface) -> None:
         self.camera.update(self.player)
-        viewport_render(game_map=self.game_map, main_display=main_surface,
-                        ui_layout=self.ui_layout, camera=self.camera)
-        
+
         mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
-        
-        self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
         
         status_panel_render(console=main_surface, entity=self.player, weather=self.weather, time=self.time,
                             ui_layout=self.ui_layout)
@@ -72,12 +67,18 @@ class Engine:
         control_panel_render(console=main_surface, status=self.key_mod, player=self.player,
                              ui_layout=self.ui_layout, sky=self.time.get_sky_color)
         
-        # stuff under mouse
-        if self.ui_layout.mini_width <= self.mouse_location[0] < self.ui_layout.display_width - 1 \
-                and 0 < self.mouse_location[1] < self.ui_layout.viewport_height - 1:
-            render_entity_info(console=main_surface,
-                               game_map=self.game_map,
-                               player=self.player,
-                               mouse_x=self.mouse_location[0] - self.ui_layout.mini_width,
-                               mouse_y=self.mouse_location[1],
-                               ui=self.ui_layout)
+        # viewport/messages depending on mouse
+        if self.ui_layout.in_messages(self.mouse_location[0], self.mouse_location[1]):
+            self.message_log.render_max(console=main_surface, ui_layout=self.ui_layout)
+        else:
+            viewport_render(game_map=self.game_map, main_display=main_surface,
+                            ui_layout=self.ui_layout, camera=self.camera)
+            self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
+            if self.ui_layout.in_viewport(self.mouse_location[0], self.mouse_location[1]):
+                render_entity_info(console=main_surface,
+                                   game_map=self.game_map,
+                                   player=self.player,
+                                   mouse_x=self.mouse_location[0] - self.ui_layout.mini_width,
+                                   mouse_y=self.mouse_location[1],
+                                   ui=self.ui_layout)
+

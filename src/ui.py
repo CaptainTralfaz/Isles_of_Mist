@@ -16,3 +16,9 @@ class DisplayInfo:
         self.control_height = self.messages_height
         self.control_width = self.mini_width
         self.status_height = self.display_height - self.mini_height - self.control_height
+    
+    def in_viewport(self, x: int, y: int) -> bool:
+        return self.mini_width <= x < self.display_width - 1 and 0 < y < self.viewport_height - 1
+
+    def in_messages(self, x: int, y: int) -> bool:
+        return self.mini_width <= x < self.display_width - 1 and self.viewport_height < y < self.display_height - 1

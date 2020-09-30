@@ -14,13 +14,6 @@ class Message:
         self.color = color
         self.count = 1
     
-    @property
-    def full_text(self) -> str:
-        """The full text of this message, including the count if necessary."""
-        if self.count > 1:
-            return f"{self.plain_text} (x{self.count})"
-        return self.plain_text
-
 
 class MessageLog:
     def __init__(self, parent) -> None:
@@ -48,9 +41,22 @@ class MessageLog:
         message_surf = Surface((ui_layout.messages_width, ui_layout.messages_height))
         render_border(message_surf, self.parent.time.get_sky_color)
         self.render_messages(message_surf=message_surf, x=0, y=ui_layout.messages_height - 2 * margin,
-                             height=message_count, messages=self.messages)
+                             height=(ui_layout.messages_height - 2 * margin) // game_font.get_height(),
+                             messages=self.messages)
         console.blit(message_surf, (ui_layout.status_width, ui_layout.viewport_height))
-    
+
+    def render_max(self, console: Surface, ui_layout: DisplayInfo) -> None:
+        """Render this log over the given area.
+        `x`, `y`, `width`, `height` is the rectangular region to render onto
+        the `console`.
+        """
+        message_surf = Surface((ui_layout.messages_width, ui_layout.display_height))
+        render_border(message_surf, self.parent.time.get_sky_color)
+        self.render_messages(message_surf=message_surf, x=0, y=ui_layout.display_height - 2 * margin,
+                             height=(ui_layout.display_height - 2 * margin) // game_font.get_height(),
+                             messages=self.messages)
+        console.blit(message_surf, (ui_layout.status_width, 0))
+
     @classmethod
     def render_messages(
             cls,
