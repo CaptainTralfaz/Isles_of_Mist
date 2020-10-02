@@ -8,6 +8,7 @@ from actions import MovementAction
 from camera import Camera
 from constants import time_tick
 from custom_exceptions import Impossible
+from game_states import GameStates
 from input_handlers import MainEventHandler
 from message_log import MessageLog
 from render_functions import render_entity_info, status_panel_render, control_panel_render, viewport_render, \
@@ -34,7 +35,8 @@ class Engine:
         self.time = Time()
         self.key_mod = None
         self.camera = Camera()
-        
+        self.game_state = GameStates.ACTION
+    
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             if entity.is_alive and entity.ai:
@@ -58,14 +60,14 @@ class Engine:
     
     def render_all(self, main_surface: Surface) -> None:
         self.camera.update(self.player)
-
+        
         mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
         
         status_panel_render(console=main_surface, entity=self.player, weather=self.weather, time=self.time,
                             ui_layout=self.ui_layout)
         
-        control_panel_render(console=main_surface, status=self.key_mod, player=self.player,
-                             ui_layout=self.ui_layout, sky=self.time.get_sky_color)
+        control_panel_render(console=main_surface, key_mod=self.key_mod, game_state=self.game_state,
+                             player=self.player, ui_layout=self.ui_layout, sky=self.time.get_sky_color)
         
         # viewport/messages depending on mouse
         if self.ui_layout.in_messages(self.mouse_location[0], self.mouse_location[1]):
@@ -81,4 +83,3 @@ class Engine:
                                    mouse_x=self.mouse_location[0] - self.ui_layout.mini_width,
                                    mouse_y=self.mouse_location[1],
                                    ui=self.ui_layout)
-

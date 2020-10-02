@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, choice
 from typing import List, Tuple
 
 direction_angle = [0, 60, 120, 180, 240, 300]
@@ -245,3 +245,19 @@ def get_cone_target_cubes(max_range, p_cube, p_direction):
         t_hex = cube_to_hex(cube=t_cube)
         target_hexes.append((t_hex.col, t_hex.row))
     return target_hexes
+
+
+def closest_rotation(target: Tuple[int, int], entity) -> int:
+    facing_left = entity.facing
+    for turns in range(0, 5):
+        facing_left -= 1
+        if facing_left < 0:
+            facing_left = 5
+        left_hex = get_neighbor(entity.x, entity.y, facing_left)
+        if left_hex == target:
+            if turns in [0, 1]:  # left is shorter
+                return -1
+            elif turns in [3, 4]:  # right is shorter
+                return 1
+            else:  # directly behind - turn randomly
+                return choice([-1, 1])

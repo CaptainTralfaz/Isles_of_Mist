@@ -1,8 +1,7 @@
 from components.base import BaseComponent
-from constants import colors
+from constants import colors, move_elevations
 from entity import Actor
-from game_map import Elevation
-from input_handlers import GameOverEventHandler
+from game_states import GameStates
 from render_functions import RenderOrder
 
 
@@ -29,11 +28,11 @@ class Crew(BaseComponent):
         if self.engine.player is self.parent:
             death_message = "All your crew are dead! Game Over!"
             self.parent.icon = "shipwreck"
-            self.engine.event_handler = GameOverEventHandler(self.engine)
+            self.engine.game_state = GameStates.PLAYER_DEAD
             death_message_color = colors['red']
         else:
             death_message = f"{self.parent.name} has no crew left!"
-            if self.game_map.terrain[self.parent.x][self.parent.y].elevation < Elevation.BEACH:
+            if self.game_map.terrain[self.parent.x][self.parent.y].elevation in move_elevations["water"]:
                 self.parent.icon = "carcass"
             else:
                 self.parent.icon = None

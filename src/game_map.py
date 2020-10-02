@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from random import randint
 from queue import Queue
-from typing import Iterable, List, Tuple, Optional, Set, TYPE_CHECKING
+from random import randint
+from typing import Iterable, List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 
 from constants import colors
 from tile import Elevation, Terrain
-from utilities import Hex, cube_directions, cube_add, cube_to_hex, hex_to_cube, cube_neighbor, cube_line_draw
+from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
+    hex_to_cube, cube_neighbor, cube_line_draw, get_distance
 
 if TYPE_CHECKING:
     from entity import Entity, Actor
@@ -119,7 +120,7 @@ class GameMap:
         :return: bool
         """
         return self.terrain[x][y].elevation in elevations
-
+    
     def get_path(self,
                  entity_x: int,
                  entity_y: int,
@@ -141,7 +142,6 @@ class GameMap:
         came_from = dict()
         came_from[(target_x, target_y)] = (target_x, target_y)
         
-        # make a list of hexes adjacent to target
         path_found = False
         while not frontier.empty():
             current = frontier.get()
@@ -165,9 +165,53 @@ class GameMap:
             path.reverse()
             path.pop()  # remove entity's current hex
             return path
-
+        
         return []
-
+    
+    def get_distance_map(self,
+                         entity_x: int,
+                         entity_y: int,
+                         target_x: int,
+                         target_y: int,
+                         elevations: List[Elevation]
+                         ) -> Dict[Tuple[int, int]:int]:
+        """
+        Create a grid of (x, y) coordinates mapping to the (x, y) they came from
+        :param entity_x: x int coordinate of this entity on game map
+        :param entity_y: y int coordinate of this entity on game map
+        :param target_x: x int coordinate of target on game map
+        :param target_y: y int coordinate of target on game map
+        :param elevations: list of Elevation enums
+        :return: dict of tuple (x, y) coordinates -> tuple (x, y) coordinates
+        """
+        frontier = Queue()
+        frontier.put((target_x, target_y))
+        came_from = dict()
+        came_from[(target_x, target_y)] = (target_x, target_y)
+        
+        # lets create the dict, but stop when we've included ALL the neighbors around the target
+        #  rather than just when we find the target
+        surrounding = self.get_neighbors_at_elevations(x=entity_x, y=entity_y, elevations=elevations)
+        
+        while not frontier.empty():
+            current = frontier.get()
+            x, y = current
+            for neighbor in self.get_neighbors_at_elevations(x=x, y=y, elevations=elevations):
+                if neighbor not in came_from and self.in_bounds(neighbor[0], neighbor[1]):
+                    frontier.put(neighbor)
+                    came_from[(neighbor[0], neighbor[1])] = current
+                    if neighbor in surrounding:
+                        surrounding.remove(neighbor)
+                        if len(surrounding) <= 0:
+                            with frontier.mutex:
+                                frontier.queue.clear()
+        # change came_from to distances
+        distance_map = {}
+        for (x, y) in came_from.keys():
+            distance_map[x, y] = get_distance(x, y, target_x, target_y)
+        
+        return distance_map
+    
     def get_neighbors_at_elevations(self, x, y, elevations: List[Elevation]) -> List[Tuple[int, int]]:
         """
         Returns a list of Tuple (x, y) coordinates that are adjacent to given (x, y) coordinates
@@ -217,7 +261,7 @@ class GameMap:
         if self.engine.player in items:
             items.remove(self.engine.player)
         return items
-
+    
     def decoration_damage(self, x: int, y: int, entity: Actor):
         color = colors['pink'] if entity == self.engine.player else colors['mountain']
         # Todo add in damage for cargo: over-weight, over-volume
