@@ -1,5 +1,4 @@
 from __future__ import annotations
-from enum import Enum, auto
 
 from typing import TYPE_CHECKING
 
@@ -37,7 +36,8 @@ class Weapon(BaseComponent):
             self.destroy()
     
     def destroy(self):
-        self.parent.destroy(self)
+        self.parent.detach(self)
+        self.parent.parent.cargo.remove_items_from_manifest({self.name: 1})
     
     def repair(self, amount: int) -> int:
         new_hull_value = self.hp + amount

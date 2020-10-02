@@ -17,16 +17,16 @@ class Broadsides(BaseComponent):
         self.port = []
         self.starboard = []
         if port is None:
-            self.attach(location="port", weapon=self.make_weapon('ballista'))
+            self.attach(location="port", weapon='ballista')
         else:
             for weapon in port:
-                self.attach(location="port", weapon=self.make_weapon(weapon))
+                self.attach(location="port", weapon=weapon)
         if starboard is None:
-            self.attach(location="starboard", weapon=self.make_weapon('ballista'))
+            self.attach(location="starboard", weapon='ballista')
         else:
             for weapon in starboard:
-                self.attach(location="starboard", weapon=self.make_weapon(weapon))
-
+                self.attach(location="starboard", weapon=weapon)
+    
     def make_weapon(self, name: str):
         weapon = weapons[name]
         return Weapon(parent=self,
@@ -37,21 +37,27 @@ class Broadsides(BaseComponent):
                       cooldown=weapon['cooldown'],
                       name=name.capitalize(),
                       ammo=weapon['ammo'])
-        
-    def attach(self, location: str, weapon: Weapon) -> None:
+    
+    def attach(self, location: str, weapon: str) -> None:
         if location == "port":
             if len(self.port) < self.slot_count:
-                self.port.append(weapon)
+                self.port.append(self.make_weapon(weapon))
         elif location == "starboard":
             if len(self.starboard) < self.slot_count:
-                self.starboard.append(weapon)
+                self.starboard.append(self.make_weapon(weapon))
+    
+    def detach(self, weapon: Weapon) -> None:
+        if weapon in self.port:
+            self.port.remove(weapon)
+        elif weapon in self.starboard:
+            self.starboard.remove(weapon)
     
     def get_active_weapons(self, location):
         if location == "port":
             return [weapon for weapon in self.port if weapon.cooldown == 0]
         else:
             return [weapon for weapon in self.starboard if weapon.cooldown == 0]
-            
+    
     def get_active_power(self, location):
         if location == "port":
             power = [weapon.power for weapon in self.port if weapon.cooldown == 0]
@@ -61,7 +67,7 @@ class Broadsides(BaseComponent):
             return sum(power)
         else:
             return None
-
+    
     def get_active_weapon_ammo_types(self, location):
         if location == "port":
             ammo_list = [weapon.ammo for weapon in self.port if weapon.cooldown == 0]
@@ -74,12 +80,19 @@ class Broadsides(BaseComponent):
             else:
                 ammo[ammo_type] = 1
         return ammo
-
+    
+    def get_attached_weapon_ammo_types(self):
+        ammo_list = []
+        for weapon in self.port:
+            if weapon.ammo not in ammo_list:
+                ammo_list.append(weapon.ammo)
+        return ammo_list
+    
     def get_damaged_weapons(self):
         damaged = [weapon for weapon in self.port if weapon.hp < weapon.max_hp]
         damaged.extend(weapon for weapon in self.starboard if weapon.hp < weapon.max_hp)
         return damaged
-
+    
     def get_active_range(self, location):
         if location == "port":
             ranges = [weapon.range for weapon in self.port if weapon.cooldown == 0]
@@ -95,20 +108,13 @@ class Broadsides(BaseComponent):
             weapon.cooldown -= 1
         for weapon in [w for w in self.starboard if w.cooldown > 0]:
             weapon.cooldown -= 1
-
-    def destroy(self, weapon: Weapon) -> None:
-        # self.parent.game_map.engine.message_log.add_message(f"{weapon.name} is destroyed!", color=colors['orange'])
-        if weapon in self.port:
-            self.port.remove(weapon)
-        elif weapon in self.starboard:
-            self.starboard.remove(weapon)
     
     def upgrade(self) -> None:
         if self.slot_count + 1 > max_slots:
             raise Impossible("Weapon slots already at maximum")
         self.slot_count += 1
-        # self.parent.game_map.engine.message_log.add_message(
-        #     f"Upgraded maximum number of weapons per side to {self.slot_count}", text_color=colors['cyan'])
+        self.parent.game_map.engine.message_log.add_message(
+            f"Upgraded maximum number of weapons per side to {self.slot_count}", text_color=colors['cyan'])
     
     def pick_weapon(self) -> (Weapon, str):
         side = []

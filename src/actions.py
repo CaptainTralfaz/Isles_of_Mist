@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, List, Tuple
 
 from constants import colors, move_elevations
 from custom_exceptions import Impossible
+from game_states import GameStates
 from utilities import choice_from_dict, get_cone_target_hexes_at_location
 
 if TYPE_CHECKING:
@@ -32,9 +33,13 @@ class Action:
         raise NotImplementedError()
 
 
-# class ActionEscape(Action):
-#     def perform(self) -> None:
-#         raise SystemExit()
+class ExitMenuAction(Action):
+    def __init__(self, entity):
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        self.engine.game_state = GameStates.ACTION
+        return False
 
 
 class ActionQuit(Action):
@@ -70,14 +75,13 @@ class MovementAction(Action):
             #          self.entity.game_map.terrain[x][y].decoration is not None)
             can_move = (self.entity.game_map.can_move_to(x, y, self.entity.elevations)
                         and not (x, y) == self.engine.game_map.port) \
-                        or ((x, y) == self.engine.game_map.port and self.entity == self.engine.player)
+                       or ((x, y) == self.engine.game_map.port and self.entity == self.engine.player)
             if can_move:
                 self.entity.move()
                 if (x, y) == self.engine.game_map.port and self.entity is self.engine.player:
                     self.engine.message_log.add_message(f"Welcome to Port!", colors['cyan'])
                     if self.entity.sails.raised:
                         self.entity.sails.adjust()
-                        return True
                 # damage from terrain decorations
                 elif self.entity.game_map.terrain[x][y].decoration is not None:
                     self.entity.game_map.decoration_damage(x=x, y=y, entity=self.entity)
@@ -110,14 +114,67 @@ class RotateAction(Action):
 
 
 class ShipAction(Action):
-    def __init__(self, entity, event):
+    def __init__(self, entity, event, status):
         self.event = event
+        self.status = status
         super().__init__(entity)
     
     def perform(self) -> bool:
         if self.event == "sails":
             return SailAction(self.entity).perform()
-        raise Impossible(f"{self.event} not implemented...")
+        else:
+            return ConfigureAction(self.entity, self.event, self.status).perform()
+
+
+class ConfigureAction(Action):
+    def __init__(self, entity, event, state):
+        self.event = event
+        self.state = state
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        print(self.event, self.state)
+        if self.event in ["up", "sails"]:
+            return False
+        elif self.event in ["down", "weapons"]:
+            if self.state == GameStates.WEAPON_CONFIG:
+                self.engine.game_state = GameStates.ACTION
+            else:
+                self.engine.game_state = GameStates.WEAPON_CONFIG
+            return False
+        elif self.event in ["left", "crew"]:
+            if self.state == GameStates.CREW_CONFIG:
+                self.engine.game_state = GameStates.ACTION
+            else:
+                self.engine.game_state = GameStates.CREW_CONFIG
+            return False
+        elif self.event in ["right", "cargo"]:
+            if self.state == GameStates.CARGO_CONFIG:
+                self.engine.game_state = GameStates.ACTION
+            else:
+                self.engine.game_state = GameStates.CARGO_CONFIG
+            return False
+        raise Impossible(f"{self.event} wtf...")
+
+
+class MoveHighlightAction(Action):
+    def __init__(self, entity, event):
+        self.event = event
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        print(f"moving highlight {self.event}")
+        return False
+
+
+class MoveSelectedAction(Action):
+    def __init__(self, entity, event):
+        self.event = event
+        super().__init__(entity)
+    
+    def perform(self) -> bool:
+        print(f"moving selection {self.event}")
+        return False
 
 
 class SailAction(Action):
@@ -238,7 +295,7 @@ class ArrowAction(SplitDamageAction):
                 enough_ammo = False
         if not enough_ammo:
             raise Impossible(f"Not enough arrows!")
-
+        
         targets = []
         neighbor_tiles = self.engine.game_map.get_neighbors_at_elevations(self.entity.x,
                                                                           self.entity.y,

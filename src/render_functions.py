@@ -7,6 +7,7 @@ from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
 from camera import Camera
 from constants import colors, view_port, margin, game_font, images, sprites, tile_size, block_size, move_elevations
+from control_panel import get_keys
 from game_map import GameMap
 from ui import DisplayInfo
 from utilities import direction_angle, get_cone_target_hexes_at_location
@@ -80,7 +81,7 @@ def mini_map_render(game_map: GameMap, main_display: display, ui_layout: Display
                         mini_surf.blit(mini_block,
                                        (margin + 1 + x * block_size,
                                         margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
-
+    
     for entity in game_map.entities:
         if (entity.x, entity.y) in game_map.engine.player.view.fov \
                 and entity.icon is not None:
@@ -131,7 +132,7 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
                               map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     if game_map.engine.key_mod:
-        if game_map.engine.key_mod == "targeting" \
+        if game_map.engine.key_mod == "shift" \
                 and not (player.x, player.y) == game_map.port:
             target_tiles = game_map.get_neighbors_at_elevations(player.x, player.y, elevations=move_elevations['all'])
             target_tiles.append((player.x, player.y))
@@ -445,7 +446,9 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
         names = []
         icons = []
         counts = []
-        for ammo in ['arrows', 'bolts', 'cannonballs', 'mines']:
+        ammo_list = ['arrows', 'mines']
+        ammo_list.extend(entity.broadsides.get_attached_weapon_ammo_types())
+        for ammo in sorted(ammo_list):
             if entity.cargo.item_type_in_manifest(ammo):
                 names.append(game_font.render(f"{ammo.capitalize()}", True, colors['mountain']))
                 icons.append(images[ammo])
@@ -455,7 +458,7 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
             ammo_surf = Surface((ui_layout.status_width - 2 * margin,
                                  height * game_font.get_height()))  # + (height - 1) * tile_size // 2
             for i in range(0, height):
-                ammo_surf.blit(names[i], (0,  i * game_font.get_height()))
+                ammo_surf.blit(names[i], (0, i * game_font.get_height()))
                 ammo_surf.blit(icons[i], (ammo_surf.get_width() - icons[i].get_width(),
                                           i * game_font.get_height()))
                 ammo_surf.blit(counts[i],
@@ -466,70 +469,12 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
     # TODO cargo (money?)
 
 
-def control_panel_render(console: Surface, status, player, ui_layout: DisplayInfo, sky):
+def control_panel_render(console: Surface, key_mod, game_state, player, ui_layout: DisplayInfo, sky):
     control_panel = Surface((ui_layout.control_width, ui_layout.control_height))
-    arrow_keys = []
-    text_keys = []
-    items = player.game_map.get_items_at_location(player.x, player.y)
-    port = (player.x, player.y) == player.parent.game_map.port
     
-    if not port:
-        if status == "targeting":
-            arrow_keys = [{'rotation': 0, 'text': 'Shoot Arrows'},
-                          {'rotation': 90, 'text': 'Port Guns'},
-                          {'rotation': 270, 'text': 'Starboard Guns'},
-                          {'rotation': 180, 'text': 'Drop Mines'}]
-        elif status == "ship":  # sails, etc.
-            if player.sails:
-                if player.sails.raised:
-                    arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
-                elif player.sails.hp > 0:
-                    arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
-        elif status == "special":  # inventory / other?
-            pass
-        elif player.is_alive:  # standard actions
-            arrow_keys = [{'rotation': 0, 'text': 'Row'},
-                          {'rotation': 90, 'text': 'Turn Port'},
-                          {'rotation': 270, 'text': 'Turn Starboard'}]
-            text_keys.append({'name': 'Shift', 'text': 'Targeting'})
-            
-            down_text = 'Wait'
-            if player.sails:
-                text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
-                if player.sails.raised:
-                    down_text = 'Coast'
-            if len(items) > 0:
-                down_text = 'Salvage'
-            
-            arrow_keys.append({'rotation': 180, 'text': down_text})
-            # text_keys.append({'name': 'Opt', 'text': 'Special'})
-            text_keys.append({'name': 'Esc', 'text': 'Exit'})
+    arrow_keys, text_keys = get_keys(key_mod, game_state, player)
     
-    else:  # Player is in port
-        if status == "targeting":
-            arrow_keys = [{'rotation': 0, 'text': 'Repair Sails'},
-                          {'rotation': 90, 'text': 'Repair Hull'},
-                          {'rotation': 270, 'text': 'Hire Crew'},
-                          {'rotation': 180, 'text': 'Fix Weapons'}]
-        elif status == "ship":
-            if player.sails.raised:
-                arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
-            elif player.sails.hp > 0:
-                arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
-        elif status == "special":
-            pass
-        else:
-            arrow_keys = [{'rotation': 0, 'text': 'Row'},
-                          {'rotation': 90, 'text': 'Turn Port'},
-                          {'rotation': 270, 'text': 'Turn Starboard'},
-                          {'rotation': 180, 'text': 'Wait'}]
-            text_keys.append({'name': 'Shift', 'text': 'Repair Actions'})
-            if player.sails:
-                text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
-            text_keys.append({'name': 'Opt', 'text': 'Port Actions'})
-            text_keys.append({'name': 'Esc', 'text': 'Exit'})
-    
-    split = ui_layout.control_width // 4 + margin * 4
+    split = ui_layout.control_width // 4 + margin * 2
     vertical = margin * 2
     spacer = 3
     if arrow_keys:
