@@ -12,7 +12,7 @@ class Weapon(BaseComponent):
     parent: Broadsides
     
     def __init__(self, parent, hp: int, defense: int, dist: int, power: int,
-                 cooldown: int, ammo: str, name: str = "weapon", can_hit: dict = "body"):
+                 cooldown: int, ammo: str, name: str = "weapon", can_hit: dict = "body") -> None:
         self.max_hp = hp
         self._hp = hp
         self.defense = defense
@@ -33,12 +33,8 @@ class Weapon(BaseComponent):
     def hp(self, value: int) -> None:
         self._hp = max(0, min(value, self.max_hp))
         if self._hp == 0:
-            self.destroy()
-    
-    def destroy(self):
-        self.parent.detach(self)
-        self.parent.parent.cargo.remove_items_from_manifest({self.name: 1})
-    
+            self.parent.destroy(self)
+        
     def repair(self, amount: int) -> int:
         new_hull_value = self.hp + amount
         if new_hull_value > self.max_hp:

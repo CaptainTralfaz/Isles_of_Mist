@@ -1,7 +1,7 @@
 from game_states import GameStates
 
 
-def get_keys(key_mod, game_state, player, ):
+def get_keys(key_mod, game_state, player):
     arrow_keys = []
     text_keys = []
     
@@ -18,14 +18,27 @@ def get_keys(key_mod, game_state, player, ):
             arrow_keys.append({'rotation': 90, 'text': 'Cargo Config'})
             arrow_keys.append({'rotation': 270, 'text': 'Crew Config'})
             arrow_keys.append({'rotation': 180, 'text': 'Weapon Config'})
+        
         elif not port:
             if key_mod == "shift":
                 arrow_keys = [{'rotation': 0, 'text': 'Shoot Arrows'},
                               {'rotation': 90, 'text': 'Port Guns'},
                               {'rotation': 270, 'text': 'Starboard Guns'},
                               {'rotation': 180, 'text': 'Drop Mines'}]
-            elif key_mod == "option":  # inventory / other?
-                pass
+            elif key_mod == "option":  # crew actions
+                up = player.crew.assignments.get('up')
+                right = player.crew.assignments.get('right')
+                left = player.crew.assignments.get('left')
+                down = player.crew.assignments.get('down')
+                if up:
+                    arrow_keys.append({'rotation': 0, 'text': f"{up.occupation.capitalize()}"})
+                if right:
+                    arrow_keys.append({'rotation': 90, 'text': f"{right.occupation.capitalize()}"})
+                if left:
+                    arrow_keys.append({'rotation': 270, 'text': f"{left.occupation.capitalize()}"})
+                if down:
+                    arrow_keys.append({'rotation': 180, 'text': f"{down.occupation.capitalize()}"})
+            
             elif player.is_alive:  # standard actions
                 arrow_keys = [{'rotation': 0, 'text': 'Row'},
                               {'rotation': 90, 'text': 'Turn Port'},
@@ -39,9 +52,12 @@ def get_keys(key_mod, game_state, player, ):
                         down_text = 'Coast'
                 if len(items) > 0:
                     down_text = 'Salvage'
-                
                 arrow_keys.append({'rotation': 180, 'text': down_text})
-                # text_keys.append({'name': 'Opt', 'text': 'Special'})
+                
+                assignments = [key for key in player.crew.assignments.keys()
+                               if player.crew.assignments[key] is not None]
+                if len(assignments) > 0:
+                    text_keys.append({'name': 'Opt', 'text': 'Crew Actions'})
                 text_keys.append({'name': 'Esc', 'text': 'Main Menu'})
         
         else:  # Player is in port
@@ -67,14 +83,26 @@ def get_keys(key_mod, game_state, player, ):
                     text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
                 text_keys.append({'name': 'Opt', 'text': 'Port Actions'})
                 text_keys.append({'name': 'Esc', 'text': 'Main Menu'})
+    
     elif game_state == GameStates.WEAPON_CONFIG:
         if key_mod == "command":
             arrow_keys = [{'rotation': 90, 'text': 'Cargo Config'},
                           {'rotation': 270, 'text': 'Crew Config'},
                           {'rotation': 180, 'text': 'Exit Config'}]
         elif key_mod == "shift":
-            arrow_keys = [{'rotation': 90, 'text': 'Assign Starboard'},
-                          {'rotation': 270, 'text': 'Assign Port'}]
+            selected = player.broadsides.selected
+            location, weapon = player.broadsides.all_weapons[selected]
+            arrow_keys.append({'rotation': 0, 'text': 'Move Up'})
+            if location == "port":
+                arrow_keys.append({'rotation': 270, 'text': 'Remove'})
+            elif location == "starboard":
+                arrow_keys.append({'rotation': 90, 'text': 'Remove'})
+            else:
+                if len(player.broadsides.starboard) < player.broadsides.slot_count:
+                    arrow_keys.append({'rotation': 90, 'text': 'Assign Starboard'})
+                if len(player.broadsides.port) < player.broadsides.slot_count:
+                    arrow_keys.append({'rotation': 270, 'text': 'Assign Port'})
+            arrow_keys.append({'rotation': 180, 'text': 'Move Down'})
         else:
             arrow_keys = [{'rotation': 0, 'text': 'Move Up'},
                           {'rotation': 180, 'text': 'Move Down'}]
@@ -113,6 +141,7 @@ def get_keys(key_mod, game_state, player, ):
             text_keys = [{'name': 'Shift', 'text': 'Adjust Count'},
                          {'name': 'Cmd', 'text': 'Config Menu'},
                          {'name': 'Esc', 'text': 'Exit Config'}]
+    
     elif game_state == GameStates.PLAYER_DEAD:
         if key_mod == "command":
             arrow_keys = [{'rotation': 90, 'text': 'Cargo Config'},
@@ -121,4 +150,5 @@ def get_keys(key_mod, game_state, player, ):
         else:
             text_keys = [{'name': 'Cmd', 'text': 'Ship Actions'},
                          {'name': 'Esc', 'text': 'Main Menu'}]
+    
     return arrow_keys, text_keys
