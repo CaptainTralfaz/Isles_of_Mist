@@ -6,9 +6,11 @@ import pygame.transform as transform
 from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
 from camera import Camera
-from constants import colors, view_port, margin, game_font, images, sprites, tile_size, block_size, move_elevations
+from constants import colors, view_port, margin, game_font, images, sprites, \
+    tile_size, block_size, move_elevations, item_stats
 from control_panel import get_keys
 from game_map import GameMap
+from game_states import GameStates
 from ui import DisplayInfo
 from utilities import direction_angle, get_cone_target_hexes_at_location
 
@@ -131,7 +133,7 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
                 map_surf.blit(images["fog_of_war"],
                               map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
-    if game_map.engine.key_mod:
+    if game_map.engine.key_mod and game_map.engine.game_state == GameStates.ACTION:
         if game_map.engine.key_mod == "shift" \
                 and not (player.x, player.y) == game_map.port:
             target_tiles = game_map.get_neighbors_at_elevations(player.x, player.y, elevations=move_elevations['all'])
@@ -474,7 +476,7 @@ def control_panel_render(console: Surface, key_mod, game_state, player, ui_layou
     
     arrow_keys, text_keys = get_keys(key_mod, game_state, player)
     
-    split = ui_layout.control_width // 4 + margin * 2
+    split = ui_layout.control_width // 4 + margin
     vertical = margin * 2
     spacer = 3
     if arrow_keys:
@@ -677,13 +679,106 @@ def create_ship_icon(entity) -> Surface:
         icon.blit(sheet.subsurface(wake), (0, 0))  # wake
     icon.blit(sheet.subsurface(hull), (0, 0))  # hull
     if entity.sails.raised:
-        icon.blit(sheet.subsurface(sail), (0, 0))  # wake
-        icon.blit(sheet.subsurface(emblem), (0, 0))  # wake
-    
-    # add
-    # if entity.affiliation:
-    #     emblem_sheet = sheet.subsurface(emblem)
-    #     # colorize it somehow ?
-    #     icon.blit(emblem_sheet, (0, 0))  # wake
-    
+        icon.blit(sheet.subsurface(sail), (0, 0))  # sail
+        # if entity.affiliation:
+        #     emblem_sheet = sheet.subsurface(emblem)
+        #     # colorize it somehow ?
+        #     icon.blit(emblem_sheet, (0, 0))  # emblem
+        icon.blit(sheet.subsurface(emblem), (0, 0))  # emblem
+
     return icon
+
+
+def cargo_render(console: Surface,
+                 key_mod: str,
+                 cargo,
+                 time,
+                 ui_layout: DisplayInfo,
+                 sky: Tuple[int, int, int]) -> None:
+    cargo_surf = Surface((ui_layout.viewport_width, ui_layout.display_height))
+    
+    count = 0
+    height = margin
+    for key in cargo.manifest.keys():
+        if count == cargo.selected:
+            text_color = colors['black']
+            background = colors['mountain']
+        else:
+            text_color = colors['mountain']
+            background = colors['black']
+        item_surf = game_font.render(f"{key}:  {cargo.manifest[key]}", True, text_color, background)
+        cargo_surf.blit(item_surf, (margin, height))
+        height += game_font.get_height()
+        count += 1
+    tint_surf = Surface((cargo_surf.get_width(), cargo_surf.get_height()))
+    tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
+    tint = time.get_sky_color
+    tint_surf.fill(tint)
+    cargo_surf.blit(tint_surf, (0, 0))
+
+    render_border(cargo_surf, sky)
+    console.blit(cargo_surf, (ui_layout.mini_width, 0))
+
+
+def crew_render(console: Surface,
+                key_mod: str,
+                crew,
+                time,
+                ui_layout: DisplayInfo,
+                sky: Tuple[int, int, int]) -> None:
+    cargo_surf = Surface((ui_layout.viewport_width, ui_layout.display_height))
+    
+    count = 0
+    height = margin
+    for crewman in crew.roster:
+        if count == crew.selected:
+            text_color = colors['black']
+            background = colors['mountain']
+        else:
+            text_color = colors['mountain']
+            background = colors['black']
+        item_surf = game_font.render(f"{crewman.name} the {crewman.occupation}", True, text_color, background)
+        cargo_surf.blit(item_surf, (margin, height))
+        height += game_font.get_height()
+        count += 1
+    tint_surf = Surface((cargo_surf.get_width(), cargo_surf.get_height()))
+    tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
+    tint = time.get_sky_color
+    tint_surf.fill(tint)
+    cargo_surf.blit(tint_surf, (0, 0))
+    
+    render_border(cargo_surf, sky)
+    console.blit(cargo_surf, (ui_layout.mini_width, 0))
+
+
+def weapon_render(console: Surface,
+                  key_mod: str,
+                  broadsides,
+                  time,
+                  ui_layout: DisplayInfo,
+                  sky: Tuple[int, int, int]) -> None:
+    weapon_surf = Surface((ui_layout.viewport_width, ui_layout.display_height))
+    
+    count = 0
+    height = margin
+    weapon_list = broadsides.all_weapons
+    
+    for location, weapon in weapon_list:
+        if count == broadsides.selected:
+            text_color = colors['black']
+            background = colors['mountain']
+        else:
+            text_color = colors['mountain']
+            background = colors['black']
+        item_surf = game_font.render(f"{weapon.name}", True, text_color, background)
+        weapon_surf.blit(item_surf, (margin, height))
+        height += game_font.get_height()
+        count += 1
+    tint_surf = Surface((weapon_surf.get_width(), weapon_surf.get_height()))
+    tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
+    tint = time.get_sky_color
+    tint_surf.fill(tint)
+    weapon_surf.blit(tint_surf, (0, 0))
+    
+    render_border(weapon_surf, sky)
+    console.blit(weapon_surf, (ui_layout.mini_width, 0))

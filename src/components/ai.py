@@ -127,7 +127,9 @@ class HostileFlyingEnemy(BaseAI):
                     shortest = self.distance_map[neighbor]
             
             # if we're facing the target hex:
-            if self.distance_map[get_neighbor(self.entity.x, self.entity.y, self.entity.facing)] == shortest:
+            next_hex = get_neighbor(self.entity.x, self.entity.y, self.entity.facing)
+            if self.engine.game_map.in_bounds(next_hex[0], next_hex[1]) \
+                    and self.distance_map[next_hex] == shortest:
                 # just move forward
                 return MovementAction(self.entity).perform()  # and move to it
             # can't move forward, so lets rotate
@@ -135,7 +137,6 @@ class HostileFlyingEnemy(BaseAI):
                 self.target = None
                 self.distance_map = {}
                 return WanderAction(self.entity).perform()
-            
             else:
                 return RotateAction(self.entity, closest_rotation(target, self.entity)).perform()
         

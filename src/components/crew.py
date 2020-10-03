@@ -1,19 +1,32 @@
+from typing import List
+from random import choice
 from components.base import BaseComponent
 from constants import colors, move_elevations
 from entity import Actor
 from game_states import GameStates
+from input_handlers import GameOverEventHandler
 from render_functions import RenderOrder
+from utilities import choice_from_dict
 
 
 class Crew(BaseComponent):
     parent: Actor
     
-    def __init__(self, count: int, max_count: int, defense: int, name: str = "crew"):
+    def __init__(self, count: int,
+                 max_count: int,
+                 defense: int,
+                 name: str = "crew",
+                 roster: List = None):
         self.max_count = max_count
         self._count = count
         self.defense = defense
         self.name = name
-    
+        self.roster = roster
+        if self.roster is None:
+            self.roster = []
+            self.generate_roster()
+        self.selected = 0
+        
     @property
     def count(self) -> int:
         return self._count
@@ -28,6 +41,7 @@ class Crew(BaseComponent):
         if self.engine.player is self.parent:
             death_message = "All your crew are dead! Game Over!"
             self.parent.icon = "shipwreck"
+            self.engine.event_handler = GameOverEventHandler(self.engine)
             self.engine.game_state = GameStates.PLAYER_DEAD
             death_message_color = colors['red']
         else:
@@ -44,7 +58,6 @@ class Crew(BaseComponent):
         self.parent.render_order = RenderOrder.CORPSE
         self.parent.view.distance = 0
         self.parent.flying = False
-        
         self.engine.message_log.add_message(death_message, death_message_color)
     
     def hire(self, amount: int) -> int:
@@ -53,7 +66,45 @@ class Crew(BaseComponent):
             new_crew_value = self.max_count
         amount_hired = new_crew_value - self.count
         self.count = new_crew_value
+        for crew in range(amount_hired):
+            crewman = Crewman()
+            self.roster.append(crewman)
+            self.engine.message_log.add_message(f"Hired {crewman.name} the {crewman.occupation}", colors['orange'])
         return amount_hired
     
     def take_damage(self, amount: int) -> None:
+        for crew in range(amount):
+            if len(self.roster) > 0:
+                pick = choice(self.roster)
+                self.engine.message_log.add_message(f"{pick.name} the {pick.occupation} has perished!", colors['orange'])
+                self.roster.remove(pick)
         self.count -= amount
+
+    def generate_roster(self):
+        for count in range(self.count):
+            self.roster.append(Crewman())
+
+
+class Crewman:
+    def __init__(self, occupation: str = None):
+        self.name = self.generate_name()
+        self.occupation = occupation
+        if self.occupation is None:
+            self.occupation = self.generate_occupation()
+    
+    @staticmethod
+    def generate_name():
+        first = choice(["Jim", "Billy", "Sam", "Jack", "Davey"])
+        last = choice(["Jones", "Bones", "Tate", "Sparrow", "Turner"])
+        return f"{first} {last}"
+    
+    @staticmethod
+    def generate_occupation():
+        return choice_from_dict({"sailor": 90,
+                                 "cook": 10,
+                                 "soldier": 5,
+                                 "archer": 10,
+                                 "rogue": 10,
+                                 "captain": 5,
+                                 "farmer": 5,
+                                 })

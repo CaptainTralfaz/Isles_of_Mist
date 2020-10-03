@@ -2,6 +2,7 @@ from components.base import BaseComponent
 from constants import colors, move_elevations
 from entity import Actor
 from game_states import GameStates
+from input_handlers import GameOverEventHandler
 from render_functions import RenderOrder
 
 
@@ -33,6 +34,7 @@ class Fighter(BaseComponent):
         if self.engine.player is self.parent:
             death_message = "You died!"
             self.parent.icon = 'shipwreck'
+            self.engine.event_handler = GameOverEventHandler(self.engine)
             self.engine.game_state = GameStates.PLAYER_DEAD
             death_message_color = colors['red']
         else:

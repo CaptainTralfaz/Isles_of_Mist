@@ -7,7 +7,7 @@ import pygame.mouse as mouse
 
 from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
     ShipAction, AttackAction, PortAction, RepairAction, ExitMenuAction, ConfigureAction, \
-    MoveSelectedAction, MoveHighlightAction
+    MoveSelectedAction, ChangeSelectionAction
 from constants import colors
 from custom_exceptions import Impossible
 from game_states import GameStates
@@ -202,7 +202,7 @@ class WeaponConfigurationHandler(EventHandler):
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
                 if event.key in CONFIGURE_KEYS:
-                    response = MoveHighlightAction(player, CONFIGURE_KEYS[event.key])
+                    response = ChangeSelectionAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
                 elif event.key == pygame.K_ESCAPE:
                     response = ExitMenuAction(player)
         
@@ -263,7 +263,7 @@ class CrewConfigurationHandler(EventHandler):
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
                 if event.key in CONFIGURE_KEYS:
-                    response = MoveHighlightAction(player, CONFIGURE_KEYS[event.key])
+                    response = ChangeSelectionAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
                 elif event.key == pygame.K_ESCAPE:
                     response = ExitMenuAction(player)
         
@@ -289,7 +289,6 @@ class CargoConfigurationHandler(EventHandler):
                     continue
                 try:
                     something_happened = action.perform()
-                
                 except Impossible as e:
                     self.engine.message_log.add_message(e.args[0], colors['gray'])
                     return False
@@ -324,7 +323,7 @@ class CargoConfigurationHandler(EventHandler):
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
                 if event.key in CONFIGURE_KEYS:
-                    response = MoveHighlightAction(player, CONFIGURE_KEYS[event.key])
+                    response = ChangeSelectionAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
                 elif event.key == pygame.K_ESCAPE:
                     response = ExitMenuAction(player)
         
@@ -336,29 +335,45 @@ class CargoConfigurationHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+    
     def handle_events(self):
-        self.engine.key_mod = None
+        something_happened = False
         # noinspection PyArgumentList
         events = pygame.event.get(pump=True)
-        
         if len(events) > 0:
             for event in events:
                 action = self.process_event(event)
                 if action is None:
                     continue
                 try:
-                    action.perform()
-                except Exception:
+                    something_happened = action.perform()
+                except Impossible as e:
+                    self.engine.message_log.add_message(e.args[0], colors['gray'])
                     return False
-    
+            
+            if something_happened:
+                pass
+            if self.engine.game_state != GameStates.CARGO_CONFIG:
+                get_handler(self.engine)
+
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None
         if event.type == pygame.QUIT:
             response = ActionQuit(player)
+        if event.type == pygame.KEYUP:
+            if event.mod == pygame.KMOD_NONE:
+                self.engine.key_mod = None
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                response = ActionQuit(player)
+            if event.mod in MODIFIERS:
+                self.engine.key_mod = MODIFIERS[event.mod]
+            if self.engine.key_mod == "command" and event.key in CONFIGURE_KEYS:
+                response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    response = ActionQuit(player)
         
         if event.type == pygame.MOUSEMOTION:
             response = MouseMoveAction(player, mouse.get_pos())
