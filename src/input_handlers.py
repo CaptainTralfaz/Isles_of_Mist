@@ -7,7 +7,7 @@ import pygame.mouse as mouse
 
 from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
     ShipAction, AttackAction, PortAction, RepairAction, ExitMenuAction, ConfigureAction, \
-    MoveSelectedAction, ChangeSelectionAction
+    SelectedAction, ChangeSelectionAction
 from constants import colors
 from custom_exceptions import Impossible
 from game_states import GameStates
@@ -197,7 +197,7 @@ class WeaponConfigurationHandler(EventHandler):
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
             if self.engine.key_mod == "shift" and event.key in CONFIGURE_KEYS:
-                response = MoveSelectedAction(player, CONFIGURE_KEYS[event.key])
+                response = SelectedAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod == "command" and event.key in CONFIGURE_KEYS:
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
@@ -258,7 +258,7 @@ class CrewConfigurationHandler(EventHandler):
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
             if self.engine.key_mod == "shift" and event.key in CONFIGURE_KEYS:
-                response = MoveSelectedAction(player, CONFIGURE_KEYS[event.key])
+                response = SelectedAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod == "command" and event.key in CONFIGURE_KEYS:
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
@@ -318,7 +318,7 @@ class CargoConfigurationHandler(EventHandler):
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
             if self.engine.key_mod == "shift" and event.key in CONFIGURE_KEYS:
-                response = MoveSelectedAction(player, CONFIGURE_KEYS[event.key])
+                response = SelectedAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod == "command" and event.key in CONFIGURE_KEYS:
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:

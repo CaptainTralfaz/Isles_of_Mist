@@ -239,7 +239,7 @@ def render_hp_bar(text: str,
         current_bar = Surface((current_bar_length, game_font.get_height()))
         current_bar.fill(colors[top_color])
         max_bar.blit(current_bar, (0, 0))
-    bar_text = game_font.render(f"{text}:", True, colors[font_color])
+    bar_text = game_font.render(f"{text}", True, colors[font_color])
     bar_nums = game_font.render(f"{current}/{maximum}", True, colors[font_color])
     max_bar.blit(bar_text, (1, 1))
     max_bar.blit(bar_nums, (max_bar.get_width() - bar_nums.get_width(), 1))
@@ -690,12 +690,11 @@ def create_ship_icon(entity) -> Surface:
 
 
 def cargo_render(console: Surface,
-                 key_mod: str,
                  cargo,
                  time,
                  ui_layout: DisplayInfo,
                  sky: Tuple[int, int, int]) -> None:
-    cargo_surf = Surface((ui_layout.viewport_width, ui_layout.display_height))
+    cargo_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
     
     count = 0
     height = margin
@@ -721,12 +720,11 @@ def cargo_render(console: Surface,
 
 
 def crew_render(console: Surface,
-                key_mod: str,
                 crew,
                 time,
                 ui_layout: DisplayInfo,
                 sky: Tuple[int, int, int]) -> None:
-    cargo_surf = Surface((ui_layout.viewport_width, ui_layout.display_height))
+    crew_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
     
     count = 0
     height = margin
@@ -737,33 +735,38 @@ def crew_render(console: Surface,
         else:
             text_color = colors['mountain']
             background = colors['black']
-        item_surf = game_font.render(f"{crewman.name} the {crewman.occupation}", True, text_color, background)
-        cargo_surf.blit(item_surf, (margin, height))
+        occupation_surf = game_font.render(f"{crewman.occupation.capitalize()}", True, colors['mountain'])
+        crew_surf.blit(occupation_surf, (margin, height))
+        name_surf = game_font.render(f"{crewman.name}", True, text_color, background)
+        crew_surf.blit(name_surf, (margin + 160, height))
+        for key in crew.assignments.keys():
+            if crew.assignments[key] == crewman:
+                assign_surf = game_font.render(f"{str(key).capitalize()}", True, colors['mountain'])
+                crew_surf.blit(assign_surf, (margin + 100, height))
         height += game_font.get_height()
         count += 1
-    tint_surf = Surface((cargo_surf.get_width(), cargo_surf.get_height()))
+    tint_surf = Surface((crew_surf.get_width(), crew_surf.get_height()))
     tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
     tint = time.get_sky_color
     tint_surf.fill(tint)
-    cargo_surf.blit(tint_surf, (0, 0))
+    crew_surf.blit(tint_surf, (0, 0))
     
-    render_border(cargo_surf, sky)
-    console.blit(cargo_surf, (ui_layout.mini_width, 0))
+    render_border(crew_surf, sky)
+    console.blit(crew_surf, (ui_layout.mini_width, 0))
 
 
 def weapon_render(console: Surface,
-                  key_mod: str,
                   broadsides,
                   time,
                   ui_layout: DisplayInfo,
                   sky: Tuple[int, int, int]) -> None:
-    weapon_surf = Surface((ui_layout.viewport_width, ui_layout.display_height))
+    weapon_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
     
     count = 0
-    height = margin
+    height = margin * 2
     weapon_list = broadsides.all_weapons
     
-    for location, weapon in weapon_list:
+    for (location, weapon) in weapon_list:
         if count == broadsides.selected:
             text_color = colors['black']
             background = colors['mountain']
@@ -771,9 +774,15 @@ def weapon_render(console: Surface,
             text_color = colors['mountain']
             background = colors['black']
         item_surf = game_font.render(f"{weapon.name}", True, text_color, background)
-        weapon_surf.blit(item_surf, (margin, height))
-        height += game_font.get_height()
+        weapon_surf.blit(item_surf, (margin + 100, height))
+        hp_surf = render_hp_bar("", weapon.hp, weapon.max_hp, ui_layout.status_width - 2 * margin)
+        weapon_surf.blit(hp_surf, (margin + 250, height))
+        if location in ["port", "starboard"]:
+            port_surf = game_font.render(f"{location.capitalize()}", True, colors['mountain'])
+            weapon_surf.blit(port_surf, ((margin + 100 - port_surf.get_width()) // 2, height))
+        height += game_font.get_height() + margin
         count += 1
+        
     tint_surf = Surface((weapon_surf.get_width(), weapon_surf.get_height()))
     tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
     tint = time.get_sky_color

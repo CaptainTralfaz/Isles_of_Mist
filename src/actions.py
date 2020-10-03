@@ -40,6 +40,9 @@ class ExitMenuAction(Action):
     def perform(self) -> bool:
         if self.entity.is_alive:
             self.engine.game_state = GameStates.ACTION
+            self.entity.cargo.selected = 0
+            self.entity.crew.selected = 0
+            self.entity.broadsides.selected = 0
         else:
             self.engine.game_state = GameStates.PLAYER_DEAD
         return False
@@ -130,13 +133,12 @@ class ShipAction(Action):
 
 
 class ConfigureAction(Action):
-    def __init__(self, entity, event, state):
+    def __init__(self, entity: Actor, event: str, state: GameStates) -> None:
         self.event = event
         self.state = state
         super().__init__(entity)
     
     def perform(self) -> bool:
-        print(self.event, self.state)
         if self.event in ["up", "sails"]:
             return False
         elif self.event in ["down", "weapons"]:
@@ -190,12 +192,78 @@ class ChangeSelectionAction(Action):
         return False
 
 
-class MoveSelectedAction(Action):
+class AssignCrewAction(Action):
     def __init__(self, entity, event):
+        super().__init__(entity)
         self.event = event
+    
+    def perform(self) -> bool:
+        if not self.entity.is_alive:
+            raise Impossible("Can't assign crew when dead")
+        if self.entity.crew.assignments[self.event] == self.entity.crew.roster[self.entity.crew.selected]:
+            self.entity.crew.assignments[self.event] = None
+            self.engine.message_log.add_message(f"assigning nobody to '{self.event}' key")
+            return False
+        else:
+            self.entity.crew.assignments[self.event] = self.entity.crew.roster[self.entity.crew.selected]
+            self.engine.message_log.add_message(f"assigning {self.entity.crew.roster[self.entity.crew.selected].name}"
+                                                f" to '{self.event}' key")
+            self.engine.game_state = GameStates.ACTION
+            return True
+
+
+class AssignWeaponAction(Action):
+    def __init__(self, entity, event, state):
+        super().__init__(entity)
+        self.event = event
+        self.state = state
+    
+    def perform(self) -> bool:
+        if not self.entity.is_alive:
+            raise Impossible("Can't assign weapons when dead")
+        if self.event in ["up", "down"]:
+            return ChangeSelectionAction(self.entity, self.event, self.state).perform()
+
+        location, weapon = self.entity.broadsides.all_weapons[self.entity.broadsides.selected]
+        if location in ["storage"]:
+            if self.event == "left" and len(self.entity.broadsides.port) < self.entity.broadsides.slot_count:
+                self.entity.broadsides.attach(location="port", weapon=weapon)
+                self.entity.broadsides.storage.remove(weapon)
+                self.engine.message_log.add_message(f"Readied {weapon.name.capitalize()} to Port ")
+                self.engine.game_state = GameStates.ACTION
+                return True
+            elif self.event == "right" and len(self.entity.broadsides.starboard) < self.entity.broadsides.slot_count:
+                self.entity.broadsides.attach(location="starboard", weapon=weapon)
+                self.entity.broadsides.storage.remove(weapon)
+                self.engine.message_log.add_message(f"Readied {weapon.name.capitalize()} to Starboard ")
+                self.engine.game_state = GameStates.ACTION
+                return True
+        elif location in ["port"]:
+            if self.event == "left":
+                self.entity.broadsides.detach(weapon)
+                self.engine.message_log.add_message(f"Removed {weapon.name.capitalize()} from Port ")
+                self.engine.game_state = GameStates.ACTION
+                return True
+        elif location in ["starboard"]:
+            if self.event == "right":
+                self.entity.broadsides.detach(weapon)
+                self.engine.message_log.add_message(f"Removed {weapon.name.capitalize()} from Starboard ")
+                self.engine.game_state = GameStates.ACTION
+                return True
+        return False
+    
+
+class SelectedAction(Action):
+    def __init__(self, entity, event, state):
+        self.event = event
+        self.state = state
         super().__init__(entity)
     
     def perform(self) -> bool:
+        if self.state == GameStates.CREW_CONFIG:
+            return AssignCrewAction(self.entity, self.event).perform()
+        if self.state == GameStates.WEAPON_CONFIG:
+            return AssignWeaponAction(self.entity, self.event, self.state).perform()
         print(f"moving selection {self.event}")
         return False
 

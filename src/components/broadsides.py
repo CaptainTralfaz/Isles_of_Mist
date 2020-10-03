@@ -1,9 +1,9 @@
 from random import choice
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Optional
 
 from components.base import BaseComponent
 from components.weapon import Weapon
-from constants import colors, weapons
+from constants import colors, weapons, item_stats
 from custom_exceptions import Impossible
 from entity import Actor
 
@@ -23,15 +23,37 @@ class Broadsides(BaseComponent):
         self.storage = []
         if port is not None:
             for weapon in port:
-                self.attach(location="port", weapon=weapon)
+                self.attach(location="port", weapon=self.make_weapon(weapon), new_game=True)
         if starboard is not None:
             for weapon in starboard:
-                self.attach(location="starboard", weapon=weapon)
+                self.attach(location="starboard", weapon=self.make_weapon(weapon), new_game=True)
         self.selected = 0
         if storage is not None:
             for weapon in storage:
                 self.storage.append(self.make_weapon(name=weapon))
-    
+
+    @property
+    def weight(self) -> int:
+        """
+        Determines total weight of weapons
+        :return: total weight of weapons
+        """
+        weight = 0
+        for weapon in self.all_weapons:
+            weight += item_stats[weapon]['weight']
+        return weight
+
+    @property
+    def volume(self) -> int:
+        """
+        Determines total volume of weapons
+        :return: total volume of weapons
+        """
+        weight = 0
+        for weapon in self.all_weapons:
+            weight += item_stats[weapon]['volume']
+        return weight
+
     @property
     def all_weapons(self) -> List[Tuple[str, Weapon]]:
         weapon_list = []
@@ -43,7 +65,7 @@ class Broadsides(BaseComponent):
             weapon_list.append(("storage", weapon))
         return weapon_list
     
-    def make_weapon(self, name: str):
+    def make_weapon(self, name: str) -> Weapon:
         weapon = weapons[name]
         return Weapon(parent=self,
                       hp=weapon['hp'],
@@ -54,14 +76,18 @@ class Broadsides(BaseComponent):
                       name=name.capitalize(),
                       ammo=weapon['ammo'])
     
-    def attach(self, location: str, weapon: str) -> None:
+    def attach(self, location: str, weapon: Weapon, new_game: bool = False) -> None:
         if location == "port":
             if len(self.port) < self.slot_count:
-                self.port.append(self.make_weapon(weapon))
+                if not new_game:
+                    weapon.cooldown = weapon.cooldown_max
+                self.port.append(weapon)
         elif location == "starboard":
             if len(self.starboard) < self.slot_count:
-                self.starboard.append(self.make_weapon(weapon))
-            
+                if not new_game:
+                    weapon.cooldown = weapon.cooldown_max
+                self.starboard.append(weapon)
+
     def detach(self, weapon: Weapon) -> None:
         if weapon in self.port:
             self.port.remove(weapon)
@@ -70,13 +96,13 @@ class Broadsides(BaseComponent):
             self.starboard.remove(weapon)
             self.storage.append(weapon)
 
-    def get_active_weapons(self, location):
+    def get_active_weapons(self, location: str) -> List[Weapon]:
         if location == "port":
             return [weapon for weapon in self.port if weapon.cooldown == 0]
         else:
             return [weapon for weapon in self.starboard if weapon.cooldown == 0]
     
-    def get_active_power(self, location):
+    def get_active_power(self, location: str) -> Optional[int]:
         if location == "port":
             power = [weapon.power for weapon in self.port if weapon.cooldown == 0]
         else:
@@ -86,7 +112,7 @@ class Broadsides(BaseComponent):
         else:
             return None
     
-    def get_active_weapon_ammo_types(self, location):
+    def get_active_weapon_ammo_types(self, location: str) -> Dict[str, int]:
         if location == "port":
             ammo_list = [weapon.ammo for weapon in self.port if weapon.cooldown == 0]
         else:
@@ -99,19 +125,22 @@ class Broadsides(BaseComponent):
                 ammo[ammo_type] = 1
         return ammo
     
-    def get_attached_weapon_ammo_types(self):
+    def get_attached_weapon_ammo_types(self) -> List[str]:
         ammo_list = []
         for weapon in self.port:
             if weapon.ammo not in ammo_list:
                 ammo_list.append(weapon.ammo)
+        for weapon in self.starboard:
+            if weapon.ammo not in ammo_list:
+                ammo_list.append(weapon.ammo)
         return ammo_list
     
-    def get_damaged_weapons(self):
+    def get_damaged_weapons(self) -> List[Weapon]:
         damaged = [weapon for weapon in self.port if weapon.hp < weapon.max_hp]
         damaged.extend(weapon for weapon in self.starboard if weapon.hp < weapon.max_hp)
         return damaged
     
-    def get_active_range(self, location):
+    def get_active_range(self, location: str) -> Optional[int]:
         if location == "port":
             ranges = [weapon.range for weapon in self.port if weapon.cooldown == 0]
         else:
@@ -121,7 +150,7 @@ class Broadsides(BaseComponent):
         else:
             return None
     
-    def tick_cooldown(self):
+    def tick_cooldown(self) -> None:
         for weapon in [w for w in self.port if w.cooldown > 0]:
             weapon.cooldown -= 1
         for weapon in [w for w in self.starboard if w.cooldown > 0]:
@@ -145,3 +174,11 @@ class Broadsides(BaseComponent):
             return self.port[-1], pick
         else:
             return self.starboard[-1], pick
+        
+    def destroy(self, weapon: Weapon) -> None:
+        if weapon in self.storage:
+            self.storage.remove(weapon)
+        elif weapon in self.port:
+            self.port.remove(weapon)
+        elif weapon in self.starboard:
+            self.starboard.remove(weapon)

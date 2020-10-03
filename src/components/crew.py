@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from random import choice
 from components.base import BaseComponent
 from constants import colors, move_elevations
@@ -16,7 +16,8 @@ class Crew(BaseComponent):
                  max_count: int,
                  defense: int,
                  name: str = "crew",
-                 roster: List = None):
+                 roster: List = None,
+                 assignments: Dict = None) -> None:
         self.max_count = max_count
         self._count = count
         self.defense = defense
@@ -26,7 +27,31 @@ class Crew(BaseComponent):
             self.roster = []
             self.generate_roster()
         self.selected = 0
-        
+        if assignments is None:
+            self.assignments = {'up': None,
+                                'right': None,
+                                'left': None,
+                                'down': None
+                                }
+        else:
+            self.assignments = assignments
+
+    @property
+    def weight(self):
+        """
+        Determines total weight of crew
+        :return: total weight of crew
+        """
+        return self.count * 75
+
+    @property
+    def volume(self):
+        """
+        Determines total volume of crew
+        :return: total volume of crew
+        """
+        return self.count * 75
+
     @property
     def count(self) -> int:
         return self._count
@@ -69,14 +94,22 @@ class Crew(BaseComponent):
         for crew in range(amount_hired):
             crewman = Crewman()
             self.roster.append(crewman)
-            self.engine.message_log.add_message(f"Hired {crewman.name} the {crewman.occupation}", colors['orange'])
+            self.engine.message_log.add_message(f"Hired {crewman.name} the {crewman.occupation}",
+                                                colors['orange'])
         return amount_hired
     
     def take_damage(self, amount: int) -> None:
         for crew in range(amount):
             if len(self.roster) > 0:
+                # pick a crewman
                 pick = choice(self.roster)
-                self.engine.message_log.add_message(f"{pick.name} the {pick.occupation} has perished!", colors['orange'])
+                self.engine.message_log.add_message(f"{pick.name} the {pick.occupation} has perished!",
+                                                    colors['orange'])
+                # un-assign picked crewman
+                for key in self.assignments.keys():
+                    if self.assignments[key] == pick:
+                        self.assignments[key] = None
+                # kill crewman
                 self.roster.remove(pick)
         self.count -= amount
 
@@ -94,8 +127,8 @@ class Crewman:
     
     @staticmethod
     def generate_name():
-        first = choice(["Jim", "Billy", "Sam", "Jack", "Davey"])
-        last = choice(["Jones", "Bones", "Tate", "Sparrow", "Turner"])
+        first = choice(["Jim", "Billy", "Sam", "Jack", "Davey", "Mick", "Alex"])
+        last = choice(["Jones", "Bones", "Tate", "Sparrow", "Turner", "Silver", "Corday", "Conroy"])
         return f"{first} {last}"
     
     @staticmethod
@@ -107,4 +140,15 @@ class Crewman:
                                  "rogue": 10,
                                  "captain": 5,
                                  "farmer": 5,
+                                 "carpenter": 5,
+                                 "engineer": 5,
+                                 "sharpshooter": 5,
+                                 "mistweaver": 1,
+                                 "seer": 5,
+                                 "diver": 5,
+                                 "scryer": 1,
+                                 "steward": 5,
+                                 "smith": 5,
+                                 "stormbringer": 1,
+                                 "surgeon": 1,
                                  })
