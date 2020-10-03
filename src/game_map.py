@@ -197,7 +197,7 @@ class GameMap:
             current = frontier.get()
             x, y = current
             for neighbor in self.get_neighbors_at_elevations(x=x, y=y, elevations=elevations):
-                if neighbor not in came_from and self.in_bounds(neighbor[0], neighbor[1]):
+                if neighbor not in came_from:
                     frontier.put(neighbor)
                     came_from[(neighbor[0], neighbor[1])] = current
                     if neighbor in surrounding:

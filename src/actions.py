@@ -38,7 +38,10 @@ class ExitMenuAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        self.engine.game_state = GameStates.ACTION
+        if self.entity.is_alive:
+            self.engine.game_state = GameStates.ACTION
+        else:
+            self.engine.game_state = GameStates.PLAYER_DEAD
         return False
 
 
@@ -138,32 +141,52 @@ class ConfigureAction(Action):
             return False
         elif self.event in ["down", "weapons"]:
             if self.state == GameStates.WEAPON_CONFIG:
-                self.engine.game_state = GameStates.ACTION
+                return ExitMenuAction(self.entity).perform()
             else:
                 self.engine.game_state = GameStates.WEAPON_CONFIG
             return False
         elif self.event in ["left", "crew"]:
             if self.state == GameStates.CREW_CONFIG:
-                self.engine.game_state = GameStates.ACTION
+                return ExitMenuAction(self.entity).perform()
             else:
                 self.engine.game_state = GameStates.CREW_CONFIG
             return False
         elif self.event in ["right", "cargo"]:
             if self.state == GameStates.CARGO_CONFIG:
-                self.engine.game_state = GameStates.ACTION
+                return ExitMenuAction(self.entity).perform()
             else:
                 self.engine.game_state = GameStates.CARGO_CONFIG
             return False
-        raise Impossible(f"{self.event} wtf...")
+        raise Impossible(f"bad state {self.event}   wtf...")
 
 
-class MoveHighlightAction(Action):
-    def __init__(self, entity, event):
+class ChangeSelectionAction(Action):
+    def __init__(self, entity, event, state):
         self.event = event
+        self.state = state
         super().__init__(entity)
     
     def perform(self) -> bool:
-        print(f"moving highlight {self.event}")
+        if self.state == GameStates.WEAPON_CONFIG:
+            component = self.entity.broadsides
+            length = len(self.entity.broadsides.all_weapons) - 1
+        elif self.state == GameStates.CARGO_CONFIG:
+            component = self.entity.cargo
+            length = len(self.entity.cargo.manifest.keys()) - 1
+        elif self.state == GameStates.CREW_CONFIG:
+            component = self.entity.crew
+            length = len(self.entity.crew.roster) - 1
+        else:
+            raise Impossible("Bad State")
+        
+        if self.event == "up":
+            component.selected -= 1
+            if component.selected < 0:
+                component.selected = length
+        if self.event == "down":
+            component.selected += 1
+            if component.selected > length:
+                component.selected = 0
         return False
 
 
@@ -490,7 +513,7 @@ class MeleeAction(Action):
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.crew.name}"
             if damage > 0:
                 self.engine.message_log.add_message(f"{attack_desc} and kills {damage} members", colors['pink'])
-                self.target.crew.count -= damage
+                self.target.crew.take_damage(damage)
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])
         elif gets_hit == "weapon":

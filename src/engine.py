@@ -12,7 +12,7 @@ from game_states import GameStates
 from input_handlers import MainEventHandler
 from message_log import MessageLog
 from render_functions import render_entity_info, status_panel_render, control_panel_render, viewport_render, \
-    mini_map_render
+    mini_map_render, cargo_render, crew_render, weapon_render
 from ui import DisplayInfo
 from weather import Weather, Time
 
@@ -59,9 +59,7 @@ class Engine:
         self.weather.roll_mist(self.game_map)
     
     def render_all(self, main_surface: Surface) -> None:
-        self.camera.update(self.player)
-        
-        mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
+        mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout or GameStates.WEAPON_CONFIG)
         
         status_panel_render(console=main_surface, entity=self.player, weather=self.weather, time=self.time,
                             ui_layout=self.ui_layout)
@@ -70,16 +68,28 @@ class Engine:
                              player=self.player, ui_layout=self.ui_layout, sky=self.time.get_sky_color)
         
         # viewport/messages depending on mouse
-        if self.ui_layout.in_messages(self.mouse_location[0], self.mouse_location[1]):
-            self.message_log.render_max(console=main_surface, ui_layout=self.ui_layout)
-        else:
-            viewport_render(game_map=self.game_map, main_display=main_surface,
-                            ui_layout=self.ui_layout, camera=self.camera)
-            self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
-            if self.ui_layout.in_viewport(self.mouse_location[0], self.mouse_location[1]):
-                render_entity_info(console=main_surface,
-                                   game_map=self.game_map,
-                                   player=self.player,
-                                   mouse_x=self.mouse_location[0] - self.ui_layout.mini_width,
-                                   mouse_y=self.mouse_location[1],
-                                   ui=self.ui_layout)
+        if self.game_state in [GameStates.ACTION, GameStates.PLAYER_DEAD]:
+            self.camera.update(self.player)
+            if self.ui_layout.in_messages(self.mouse_location[0], self.mouse_location[1]):
+                self.message_log.render_max(console=main_surface, ui_layout=self.ui_layout)
+            else:
+                viewport_render(game_map=self.game_map, main_display=main_surface,
+                                ui_layout=self.ui_layout, camera=self.camera)
+                self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
+                if self.ui_layout.in_viewport(self.mouse_location[0], self.mouse_location[1]):
+                    render_entity_info(console=main_surface,
+                                       game_map=self.game_map,
+                                       player=self.player,
+                                       mouse_x=self.mouse_location[0] - self.ui_layout.mini_width,
+                                       mouse_y=self.mouse_location[1],
+                                       ui=self.ui_layout)
+        elif self.game_state == GameStates.CARGO_CONFIG:
+            cargo_render(console=main_surface, key_mod=self.key_mod, cargo=self.player.cargo,
+                         time=self.time, ui_layout=self.ui_layout, sky=self.time.get_sky_color)
+        elif self.game_state == GameStates.CREW_CONFIG:
+            crew_render(console=main_surface, key_mod=self.key_mod, crew=self.player.crew,
+                        time=self.time, ui_layout=self.ui_layout, sky=self.time.get_sky_color)
+        elif self.game_state == GameStates.WEAPON_CONFIG:
+            weapon_render(console=main_surface, key_mod=self.key_mod, broadsides=self.player.broadsides,
+                          time=self.time, ui_layout=self.ui_layout, sky=self.time.get_sky_color)
+

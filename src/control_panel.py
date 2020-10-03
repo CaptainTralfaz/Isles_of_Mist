@@ -42,7 +42,7 @@ def get_keys(key_mod, game_state, player, ):
                 
                 arrow_keys.append({'rotation': 180, 'text': down_text})
                 # text_keys.append({'name': 'Opt', 'text': 'Special'})
-                text_keys.append({'name': 'Esc', 'text': 'Exit'})
+                text_keys.append({'name': 'Esc', 'text': 'Main Menu'})
         
         else:  # Player is in port
             if key_mod == "shift":
@@ -66,49 +66,59 @@ def get_keys(key_mod, game_state, player, ):
                 if player.sails:
                     text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
                 text_keys.append({'name': 'Opt', 'text': 'Port Actions'})
-                text_keys.append({'name': 'Esc', 'text': 'Exit'})
+                text_keys.append({'name': 'Esc', 'text': 'Main Menu'})
     elif game_state == GameStates.WEAPON_CONFIG:
         if key_mod == "command":
             arrow_keys = [{'rotation': 90, 'text': 'Cargo Config'},
                           {'rotation': 270, 'text': 'Crew Config'},
                           {'rotation': 180, 'text': 'Exit Config'}]
         elif key_mod == "shift":
-            arrow_keys = [{'rotation': 0, 'text': 'Weapon Up'},
-                          {'rotation': 90, 'text': 'Weapon Right'},
-                          {'rotation': 270, 'text': 'Weapon Left'},
-                          {'rotation': 180, 'text': 'Weapon Down'}]
+            arrow_keys = [{'rotation': 90, 'text': 'Assign Starboard'},
+                          {'rotation': 270, 'text': 'Assign Port'}]
         else:
             arrow_keys = [{'rotation': 0, 'text': 'Move Up'},
-                          {'rotation': 90, 'text': 'Move Right'},
-                          {'rotation': 270, 'text': 'Move Left'},
                           {'rotation': 180, 'text': 'Move Down'}]
-            text_keys = [{'name': 'Shift', 'text': 'Select Weapon'}]
+            text_keys = [{'name': 'Shift', 'text': 'Assign Weapon'},
+                         {'name': 'Cmd', 'text': 'Config Menu'},
+                         {'name': 'Esc', 'text': 'Exit Config'}]
+
     elif game_state == GameStates.CREW_CONFIG:
         if key_mod == "command":
             arrow_keys = [{'rotation': 90, 'text': 'Cargo Config'},
                           {'rotation': 270, 'text': 'Exit Config'},
                           {'rotation': 180, 'text': 'Weapon Config'}]
         elif key_mod == "shift":
-            arrow_keys = [{'rotation': 0, 'text': 'Set Crew Up'},
-                          {'rotation': 90, 'text': 'Set Crew Right'},
-                          {'rotation': 270, 'text': 'Set Crew Left'},
-                          {'rotation': 180, 'text': 'Set Crew Down'}]
+            arrow_keys = [{'rotation': 0, 'text': 'Assign Crew Up'},
+                          {'rotation': 90, 'text': 'Assign Crew Right'},
+                          {'rotation': 270, 'text': 'Assign Crew Left'},
+                          {'rotation': 180, 'text': 'Assign Crew Down'}]
         else:
             arrow_keys = [{'rotation': 0, 'text': 'Move Up'},
-                          {'rotation': 90, 'text': 'Move Right'},
-                          {'rotation': 270, 'text': 'Move Left'},
                           {'rotation': 180, 'text': 'Move Down'}]
-            text_keys = [{'name': 'Shift', 'text': 'Select Crewman'}]
+            text_keys = [{'name': 'Shift', 'text': 'Assign Crewman'},
+                         {'name': 'Cmd', 'text': 'Config Menu'},
+                         {'name': 'Esc', 'text': 'Exit Config'}]
+
     elif game_state == GameStates.CARGO_CONFIG:
-        if key_mod == "command":
+        if key_mod == "shift":
+            arrow_keys = [{'rotation': 90, 'text': 'Increase Count'},
+                          {'rotation': 270, 'text': 'Decrease Count'}]
+        elif key_mod == "command":
             arrow_keys = [{'rotation': 90, 'text': 'Exit Config'},
                           {'rotation': 270, 'text': 'Crew Config'},
                           {'rotation': 180, 'text': 'Weapon Config'}]
         else:
             arrow_keys = [{'rotation': 0, 'text': 'Move Up'},
-                          {'rotation': 90, 'text': 'Move Right'},
-                          {'rotation': 270, 'text': 'Move Left'},
                           {'rotation': 180, 'text': 'Move Down'}]
+            text_keys = [{'name': 'Shift', 'text': 'Adjust Count'},
+                         {'name': 'Cmd', 'text': 'Config Menu'},
+                         {'name': 'Esc', 'text': 'Exit Config'}]
     elif game_state == GameStates.PLAYER_DEAD:
-        text_keys = [{'name': 'Esc', 'text': 'Exit'}]
+        if key_mod == "command":
+            arrow_keys = [{'rotation': 90, 'text': 'Cargo Config'},
+                          {'rotation': 270, 'text': 'Crew Config'},
+                          {'rotation': 180, 'text': 'Weapon Config'}]
+        else:
+            text_keys = [{'name': 'Cmd', 'text': 'Ship Actions'},
+                         {'name': 'Esc', 'text': 'Main Menu'}]
     return arrow_keys, text_keys

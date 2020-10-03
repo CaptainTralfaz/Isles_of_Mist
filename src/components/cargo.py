@@ -1,3 +1,5 @@
+from typing import Dict
+
 from components.base import BaseComponent
 from constants import colors
 from constants import item_stats
@@ -8,7 +10,7 @@ from entity import Entity
 class Cargo(BaseComponent):
     parent: Entity
     
-    def __init__(self, max_volume: float, max_weight: float, manifest=None):
+    def __init__(self, max_volume: float, max_weight: float, manifest: Dict = None, selected: int = 0):
         """
         Holds maximum weight and volume of a container, and a list of Items currently held
         TODO: make over-weight effect ship's damage taken from hitting decorations
@@ -20,7 +22,8 @@ class Cargo(BaseComponent):
         self.max_volume = max_volume
         self.max_weight = max_weight
         self.manifest = manifest
-    
+        self.selected = selected
+        
     # def to_json(self):
     #     return {
     #         'max_volume': self.max_volume,

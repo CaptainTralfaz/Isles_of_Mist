@@ -1,4 +1,5 @@
 from random import choice
+from typing import List, Tuple
 
 from components.base import BaseComponent
 from components.weapon import Weapon
@@ -12,20 +13,35 @@ max_slots = 4
 class Broadsides(BaseComponent):
     parent: Actor
     
-    def __init__(self, slot_count: int, port: list = None, starboard: list = None):
+    def __init__(self, slot_count: int,
+                 port: List[str] = None,
+                 starboard: List[str] = None,
+                 storage: List[str] = None) -> None:
         self.slot_count = slot_count
         self.port = []
         self.starboard = []
-        if port is None:
-            self.attach(location="port", weapon='ballista')
-        else:
+        self.storage = []
+        if port is not None:
             for weapon in port:
                 self.attach(location="port", weapon=weapon)
-        if starboard is None:
-            self.attach(location="starboard", weapon='ballista')
-        else:
+        if starboard is not None:
             for weapon in starboard:
                 self.attach(location="starboard", weapon=weapon)
+        self.selected = 0
+        if storage is not None:
+            for weapon in storage:
+                self.storage.append(self.make_weapon(name=weapon))
+    
+    @property
+    def all_weapons(self) -> List[Tuple[str, Weapon]]:
+        weapon_list = []
+        for weapon in self.port:
+            weapon_list.append(("port", weapon))
+        for weapon in self.starboard:
+            weapon_list.append(("starboard", weapon))
+        for weapon in self.storage:
+            weapon_list.append(("storage", weapon))
+        return weapon_list
     
     def make_weapon(self, name: str):
         weapon = weapons[name]
@@ -45,13 +61,15 @@ class Broadsides(BaseComponent):
         elif location == "starboard":
             if len(self.starboard) < self.slot_count:
                 self.starboard.append(self.make_weapon(weapon))
-    
+            
     def detach(self, weapon: Weapon) -> None:
         if weapon in self.port:
             self.port.remove(weapon)
+            self.storage.append(weapon)
         elif weapon in self.starboard:
             self.starboard.remove(weapon)
-    
+            self.storage.append(weapon)
+
     def get_active_weapons(self, location):
         if location == "port":
             return [weapon for weapon in self.port if weapon.cooldown == 0]
