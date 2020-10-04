@@ -31,7 +31,7 @@ class Engine:
         self.message_log = MessageLog(parent=self)
         self.ui_layout = ui_layout
         self.clock = time.Clock()
-        self.weather = Weather(parent=self)
+        self.weather = Weather(parent=self, width=ui_layout.viewport_width, height=ui_layout.viewport_height)
         self.time = Time()
         self.key_mod = None
         self.camera = Camera()
@@ -59,7 +59,7 @@ class Engine:
         self.weather.roll_mist(self.game_map)
     
     def render_all(self, main_surface: Surface) -> None:
-        mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout or GameStates.WEAPON_CONFIG)
+        mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
         
         status_panel_render(console=main_surface, entity=self.player, weather=self.weather, time=self.time,
                             ui_layout=self.ui_layout)
@@ -68,14 +68,13 @@ class Engine:
                              player=self.player, ui_layout=self.ui_layout, sky=self.time.get_sky_color)
         
         # viewport/messages depending on mouse
-
         if self.ui_layout.in_messages(self.mouse_location[0], self.mouse_location[1]):
             self.message_log.render_max(console=main_surface, ui_layout=self.ui_layout)
         else:
             self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
             if self.game_state in [GameStates.ACTION, GameStates.PLAYER_DEAD]:
                 self.camera.update(self.player)
-                viewport_render(game_map=self.game_map, main_display=main_surface,
+                viewport_render(game_map=self.game_map, main_display=main_surface, weather=self.weather,
                                 ui_layout=self.ui_layout, camera=self.camera)
                 if self.ui_layout.in_viewport(self.mouse_location[0], self.mouse_location[1]):
                     render_entity_info(console=main_surface,
@@ -93,4 +92,3 @@ class Engine:
             elif self.game_state == GameStates.WEAPON_CONFIG:
                 weapon_render(console=main_surface, broadsides=self.player.broadsides, time=self.time,
                               ui_layout=self.ui_layout, sky=self.time.get_sky_color)
-

@@ -1,7 +1,9 @@
 from enum import Enum, auto
 from random import randint, choice
 
-from constants import colors
+from pygame import draw, Surface
+
+from constants import colors, margin
 from game_map import GameMap
 from utilities import direction_angle, get_neighbor
 
@@ -36,7 +38,7 @@ wind_dir = {
 
 
 class Weather:
-    def __init__(self, parent, wind_direction: int = None, conditions: Conditions = None):
+    def __init__(self, parent, width: int, height: int, wind_direction: int = None, conditions: Conditions = None):
         self.wind_direction = randint(0, 5) if wind_direction is None else wind_direction
         self.conditions = Conditions(randint(2, 3)) if conditions is None else conditions
         self.wind_count = 0
@@ -44,6 +46,7 @@ class Weather:
         self.conditions_count = 0
         self.conditions_min_count = 50
         self.engine = parent
+        self.rain = Rain(width, height)
     
     @property
     def get_weather_info(self):
@@ -118,7 +121,7 @@ class Weather:
         tod_mist = self.engine.time.get_time_of_day_info['mist']
         weather_mist = weather_effects[self.engine.weather.conditions]['mist']
         mist_chance = tod_mist + weather_mist
-
+        
         if self.wind_direction is not None:
             # move mist with wind
             for x in range(game_map.width):
@@ -159,7 +162,7 @@ class Weather:
                     if game_map.terrain[x][y].mist:
                         new_mist.append((x, y))
                     game_map.terrain[x][y].mist = False
-            
+        
         # adjust mist toward current %
         mist_target = mist_chance * 100
         mist_actual = (len(new_mist) * 10000) // (game_map.width * game_map.height)
@@ -176,12 +179,57 @@ class Weather:
                 pick = choice(new_mist)
                 new_mist.remove(pick)
             # print(f"{mist_target} > {mist_actual}: removed {mist_change} mist")
-
+        
         # add new fog to terrain
         for x, y in new_mist:
             if game_map.in_bounds(x, y):
                 game_map.terrain[x][y].mist = True
+
+
+class Rain:
+    def __init__(self, view_width, view_height):
+        self.width = view_width - 2 * margin
+        self.height = view_height - 2 * margin
+        self.locations = self.gen_locations()
+    
+    # Loop 50 times and add an object in a random x,y position
+    def gen_locations(self):
+        locations = []
+        for i in range(100):
+            x = randint(0, self.width - 1)
+            y = randint(0, self.height - 1)
+            s = randint(10, 20)
+            locations.append((x, y, s))
+        return locations
+    
+    def render(self, console, conditions):
+        rain_surf = Surface((console.get_width(), console.get_height()))
+        rain_surf.fill(colors['dk_gray'])
+        if conditions == Conditions.RAINY:
+            alpha = 50
+        elif conditions == Conditions.STORMY:
+            if randint(0, 100) == 0:
+                alpha = 255
+                rain_surf.fill(colors['lt_gray'])
+            else:
+                alpha = 80
+        else:
+            alpha = 0
+        rain_surf.set_alpha(alpha)
         
+        new_loc = []
+        for x, y, s in self.locations:
+            # Draw the line
+            draw.line(rain_surf, colors['mountain'], (x, y), (x, y - s), 1)
+            # reset if past bottom of viewport
+            if y + s > self.height:
+                x = randint(0, self.width - 1)
+                y = 0
+                s = randint(10, 20)
+            new_loc.append((x, y + s, s))
+        self.locations = new_loc
+        console.blit(rain_surf, (0, 0))
+
 
 class Time:
     def __init__(self, hrs=9, mins=00, day=1, month=1, year=1111):
