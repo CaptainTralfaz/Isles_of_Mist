@@ -12,6 +12,7 @@ from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
 if TYPE_CHECKING:
     from entity import Entity, Actor
     from engine import Engine
+    from weather import Conditions
 
 
 class GameMap:
@@ -262,7 +263,7 @@ class GameMap:
             items.remove(self.engine.player)
         return items
     
-    def decoration_damage(self, x: int, y: int, entity: Actor):
+    def decoration_damage(self, x: int, y: int, entity: Actor, conditions: Conditions):
         color = colors['pink'] if entity == self.engine.player else colors['mountain']
         # Todo add in damage for cargo: over-weight, over-volume
         if entity.fighter.name == "hull":
@@ -286,6 +287,11 @@ class GameMap:
                         self.engine.message_log.add_message(
                             f"{entity.name} takes {damage} hull damage from bumping sandbar", color)
                         entity.fighter.take_damage(damage)
+                crew_loss = 1 if conditions == Conditions.STORMY else 0
+                if entity.crew and crew_loss:
+                    self.engine.message_log.add_message(
+                        f"Man Overboard!", color)
+                    entity.crew.take_damage(crew_loss)
         if not entity.flying and entity.parent.game_map.terrain[x][y].decoration:
             if entity.parent.game_map.terrain[x][y].decoration in ['minefield']:
                 damage = randint(2, 5)

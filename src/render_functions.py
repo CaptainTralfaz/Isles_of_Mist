@@ -13,6 +13,7 @@ from game_map import GameMap
 from game_states import GameStates
 from ui import DisplayInfo
 from utilities import direction_angle, get_cone_target_hexes_at_location
+from weather import Weather
 
 
 class RenderOrder(Enum):
@@ -100,7 +101,11 @@ def mini_map_render(game_map: GameMap, main_display: display, ui_layout: Display
     main_display.blit(mini_surf, (0, 0))
 
 
-def viewport_render(game_map: GameMap, main_display: display, ui_layout: DisplayInfo, camera: Camera) -> None:
+def viewport_render(game_map: GameMap,
+                    main_display: display,
+                    weather: Weather,
+                    ui_layout: DisplayInfo,
+                    camera: Camera) -> None:
     player = game_map.engine.player
     overlap = 3
     view_size = 2 * view_port + 1
@@ -228,6 +233,9 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
         if game_map.in_bounds(x, y) and game_map.terrain[x][y].mist:
             map_surf.blit(images["mist"],
                           map_to_surface_coords(x, y, left, top, overlap, player, camera))
+    
+    if weather.rain:
+        weather.rain.render(console=map_surf, conditions=weather.conditions)
     
     tint_surf = Surface((map_surf.get_width(), map_surf.get_height()))
     tint_surf.set_alpha(abs(game_map.engine.time.hrs * 60 + game_map.engine.time.mins - 720) // 8)
