@@ -1,8 +1,7 @@
 from typing import Dict
 
 from components.base import BaseComponent
-from constants import colors
-from constants import item_stats
+from constants import colors, item_stats
 from custom_exceptions import Impossible
 from entity import Entity
 
@@ -23,7 +22,7 @@ class Cargo(BaseComponent):
         self.max_weight = max_weight
         self.manifest = manifest
         self.selected = selected
-        
+    
     # def to_json(self):
     #     return {
     #         'max_volume': self.max_volume,
@@ -99,8 +98,5 @@ class Cargo(BaseComponent):
                                                                  colors['beach'])
                     self.game_map.engine.message_log.add_message(f"{self.manifest[key]} {key} left in cargo",
                                                                  colors['beach'])
-
-
             else:
                 raise Impossible(f"No such item {key} in manifest")
-

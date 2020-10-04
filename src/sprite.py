@@ -7,6 +7,11 @@ class Sprite:
         self.flicker_speed = animation_speed / sprite_count
     
     def update(self, fps):
+        """
+        update sprite time counter - change picture if necessary
+        :param fps: frames per second
+        :return: None
+        """
         if fps > 0.0:
             self.flicker_timer += 1 / fps
         if self.flicker_timer >= self.flicker_speed:

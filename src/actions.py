@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from random import randint, choice
-from typing import TYPE_CHECKING, Optional, List, Tuple
+from typing import TYPE_CHECKING, Optional, List, Tuple, Dict
 
-from constants import colors, move_elevations
+from constants import colors, move_elevations, Location
 from custom_exceptions import Impossible
 from game_states import GameStates
 from utilities import choice_from_dict, get_cone_target_hexes_at_location
@@ -223,35 +223,35 @@ class AssignWeaponAction(Action):
             raise Impossible("Can't assign weapons when dead")
         if self.event in ["up", "down"]:
             return ChangeSelectionAction(self.entity, self.event, self.state).perform()
-
+        
         location, weapon = self.entity.broadsides.all_weapons[self.entity.broadsides.selected]
         if location in ["storage"]:
             if self.event == "left" and len(self.entity.broadsides.port) < self.entity.broadsides.slot_count:
-                self.entity.broadsides.attach(location="port", weapon=weapon)
+                self.entity.broadsides.attach(location=Location.PORT, weapon=weapon)
                 self.entity.broadsides.storage.remove(weapon)
                 self.engine.message_log.add_message(f"Readied {weapon.name.capitalize()} to Port ")
                 self.engine.game_state = GameStates.ACTION
                 return True
             elif self.event == "right" and len(self.entity.broadsides.starboard) < self.entity.broadsides.slot_count:
-                self.entity.broadsides.attach(location="starboard", weapon=weapon)
+                self.entity.broadsides.attach(location=Location.STARBOARD, weapon=weapon)
                 self.entity.broadsides.storage.remove(weapon)
                 self.engine.message_log.add_message(f"Readied {weapon.name.capitalize()} to Starboard ")
                 self.engine.game_state = GameStates.ACTION
                 return True
-        elif location in ["port"]:
+        elif location in [Location.PORT]:
             if self.event == "left":
                 self.entity.broadsides.detach(weapon)
                 self.engine.message_log.add_message(f"Removed {weapon.name.capitalize()} from Port ")
                 self.engine.game_state = GameStates.ACTION
                 return True
-        elif location in ["starboard"]:
+        elif location in [Location.STARBOARD]:
             if self.event == "right":
                 self.entity.broadsides.detach(weapon)
                 self.engine.message_log.add_message(f"Removed {weapon.name.capitalize()} from Starboard ")
                 self.engine.game_state = GameStates.ACTION
                 return True
         return False
-    
+
 
 class SelectedAction(Action):
     def __init__(self, entity, event, state):
@@ -299,17 +299,21 @@ class AttackAction(Action):
         self.direction = direction
     
     def perform(self) -> bool:
-        if self.direction in ["port", "starboard"]:
+        if self.direction in [Location.PORT, Location.STARBOARD]:
             return BroadsideAction(self.entity, self.direction).perform()
-        if self.direction in ["fore"]:
+        if self.direction in [Location.FORE]:
             return ArrowAction(self.entity, self.direction).perform()
-        if self.direction in ["aft"]:
+        if self.direction in [Location.AFT]:
             return MineAction(self.entity).perform()
         return False
 
 
 class SplitDamageAction(Action):
-    def __init__(self, entity: Actor, targets: List[Actor], damage, direction, ammo):
+    def __init__(self, entity: Actor,
+                 targets: List[Actor],
+                 damage: int,
+                 direction: Location,
+                 ammo: Dict[str, int]):
         super().__init__(entity)
         self.targets = targets
         self.damage = damage
@@ -329,10 +333,10 @@ class SplitDamageAction(Action):
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage",
                                                     colors['mountain'])
-        if self.direction == "port":
+        if self.direction == Location.PORT:
             for weapon in [w for w in self.entity.broadsides.port if w.cooldown == 0]:
                 weapon.cooldown = weapon.cooldown_max
-        elif self.direction == "starboard":
+        elif self.direction == Location.STARBOARD:
             for weapon in [w for w in self.entity.broadsides.starboard if w.cooldown == 0]:
                 weapon.cooldown = weapon.cooldown_max
         self.entity.cargo.remove_items_from_manifest(self.ammo)
@@ -340,14 +344,14 @@ class SplitDamageAction(Action):
 
 
 class BroadsideAction(SplitDamageAction):
-    def __init__(self, entity, direction):
+    def __init__(self, entity, direction: Location):
         self.entity = entity
         
         distance = self.entity.broadsides.get_active_range(direction)
         if distance:
             damage = self.entity.broadsides.get_active_power(direction)
         else:
-            raise Impossible(f"No active weapons to {direction}")
+            raise Impossible(f"No active weapons to {direction.name.lower().capitalize()}")
         ammo = self.entity.broadsides.get_active_weapon_ammo_types(direction)
         enough_ammo = True
         for ammo_type in ammo.keys():
@@ -356,16 +360,16 @@ class BroadsideAction(SplitDamageAction):
             elif self.entity.cargo.manifest[ammo_type] - ammo[ammo_type] < 0:
                 enough_ammo = False
         if not enough_ammo:
-            raise Impossible(f"Not enough ammo to fire {direction} broadsides")
+            raise Impossible(f"Not enough ammo to fire {direction.name.lower().capitalize()} Broadsides")
         targets = []
-        hexes = get_cone_target_hexes_at_location(entity, direction, distance)
+        hexes = get_cone_target_hexes_at_location(entity.x, entity.y, entity.facing, direction, distance)
         for x, y in hexes:
             if (x, y) in entity.view.fov:
                 targets.extend(self.engine.game_map.get_targets_at_location(x, y))
         if self.entity in targets:
             targets.remove(self.entity)
         if len(targets) < 1:
-            raise Impossible(f"No targets to {direction}")
+            raise Impossible(f"No targets to {direction.name.lower().capitalize()}")
         
         damage = damage // len(targets)
         super().__init__(entity, targets, damage, direction, ammo)
@@ -375,9 +379,9 @@ class BroadsideAction(SplitDamageAction):
 
 
 class ArrowAction(SplitDamageAction):
-    def __init__(self, entity: Actor, direction):
+    def __init__(self, entity: Actor, direction: Location):
         self.entity = entity
-        ammo = {'arrows': self.entity.crew.count // 3}
+        ammo = {'arrows': self.entity.crew.count // 4}
         enough_ammo = True
         for ammo_type in ammo.keys():
             if ammo_type not in self.entity.cargo.manifest.keys():
@@ -398,7 +402,7 @@ class ArrowAction(SplitDamageAction):
             targets.remove(self.entity)
         if len(targets) < 1:
             raise Impossible(f"No adjacent targets")
-        damage = (self.entity.crew.count // 3) // len(targets)
+        damage = (self.entity.crew.count // 4) // len(targets)
         super().__init__(entity, targets, damage, direction, ammo)
     
     def perform(self) -> bool:
@@ -593,7 +597,7 @@ class MeleeAction(Action):
                 destroy = weapon.hp - damage
                 if destroy <= 0:
                     self.engine.message_log.add_message(
-                        f"{location.capitalize()} {weapon.name.capitalize()} was destroyed!", colors['orange'])
+                        f"{location.name.capitalize()} {weapon.name.capitalize()} was destroyed!", colors['orange'])
                 weapon.hp -= damage
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])

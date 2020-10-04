@@ -1,6 +1,17 @@
+from enum import Enum, auto
+
 from pygame import image, font
 
 from tile import Elevation
+
+
+class Location(Enum):
+    FORE = auto()
+    STARBOARD = auto()
+    PORT = auto()
+    AFT = auto()
+    STORAGE = auto()
+
 
 font.init()
 

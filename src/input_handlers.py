@@ -8,7 +8,7 @@ import pygame.mouse as mouse
 from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
     ShipAction, AttackAction, PortAction, RepairAction, ExitMenuAction, ConfigureAction, \
     SelectedAction, ChangeSelectionAction
-from constants import colors
+from constants import colors, Location
 from custom_exceptions import Impossible
 from game_states import GameStates
 
@@ -29,24 +29,24 @@ AUTO_KEYS = {
 }
 
 ATTACK_KEYS = {
-    pygame.K_UP: "fore",
-    pygame.K_RIGHT: "starboard",
-    pygame.K_LEFT: "port",
-    pygame.K_DOWN: "aft",
+    pygame.K_UP: Location.FORE,
+    pygame.K_RIGHT: Location.STARBOARD,
+    pygame.K_LEFT: Location.PORT,
+    pygame.K_DOWN: Location.AFT,
 }
 
 PORT_KEYS = {
-    pygame.K_UP: "merchant",  # buy/sell cargo
-    pygame.K_RIGHT: "shipyard",  # ship upgrades
-    pygame.K_LEFT: "barracks",  # special crew
-    pygame.K_DOWN: "tavern",  # rumors
+    pygame.K_UP: "shipyard",  # ship upgrades (crew capacity, cargo weight/volume, sails
+    pygame.K_RIGHT: "merchant",  # buy/sell cargo
+    pygame.K_LEFT: "barracks",  # hire/release crew
+    pygame.K_DOWN: "tavern",  # buy/sell weapons
 }
 
 REPAIR_KEYS = {
     pygame.K_UP: "sails",
     pygame.K_RIGHT: "shipyard",
-    pygame.K_LEFT: "crew",
-    pygame.K_DOWN: "weapons",
+    pygame.K_LEFT: "crew",  # TODO: remove this once "hire crew" implemented in port_keys
+    pygame.K_DOWN: "engineer",
 }
 
 SHIP_KEYS = {
@@ -56,7 +56,7 @@ SHIP_KEYS = {
     pygame.K_DOWN: "weapons",
 }
 
-CONFIGURE_KEYS = {
+CONFIGURE_KEYS = {  # TODO: change arrow keys to enum??
     pygame.K_UP: "up",
     pygame.K_RIGHT: "right",
     pygame.K_LEFT: "left",
@@ -357,7 +357,7 @@ class GameOverEventHandler(EventHandler):
                 pass
             if self.engine.game_state != GameStates.CARGO_CONFIG:
                 get_handler(self.engine)
-
+    
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None

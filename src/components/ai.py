@@ -20,6 +20,9 @@ class NeutralEnemy(BaseAI):
         super().__init__(entity)
     
     def perform(self) -> bool:
+        """
+        Neutral Enemy will do nothing but wander randomly, even if attacked
+        """
         return WanderAction(self.entity).perform()
 
 
@@ -32,9 +35,10 @@ class HostileEnemy(BaseAI):
     def perform(self) -> bool:
         """
         Hostile entity will wander randomly until player is spotted, making that location its target
-        Hostile entity will update target each subsequent turn player is visible
-        Hostile will move or rotate toward target location
-        if target location is empty, Hostile will wander
+        Hostile entity will update target and path to target each subsequent turn player is visible
+        Hostile entity will attack if adjacent
+        Hostile will move or rotate toward target location if not adjacent
+        If target location is reached, Hostile will revert to wandering
         :return: action -> bool
         """
         # if player is in port, stop hunting
@@ -68,8 +72,11 @@ class HostileEnemy(BaseAI):
                 return MovementAction(self.entity).perform()  # and move to it
             # can't move forward, so lets rotate
             else:
-                return RotateAction(self.entity, closest_rotation(self.target, self.entity)).perform()
-        
+                return RotateAction(self.entity, closest_rotation(self.target,
+                                                                  self.entity.x,
+                                                                  self.entity.y,
+                                                                  self.entity.facing
+                                                                  )).perform()
         # no path left - reset our variables
         else:
             self.target = None
@@ -86,10 +93,10 @@ class HostileFlyingEnemy(BaseAI):
     
     def perform(self) -> bool:
         """
-        Hostile entity will wander randomly until player is spotted, making that location its target
-        Hostile entity will update target each subsequent turn player is visible
-        Hostile will move or rotate toward target location
-        if target location is empty, Hostile will wander
+        Hostile flyer will wander randomly until player is spotted, making that location its target
+        Hostile entity will update target distance map each subsequent turn player is visible
+        Hostile will move or rotate toward target location according to distance map
+        If target location is reached, Hostile will revert wandering randomly
         :return: action -> bool
         """
         # if player is in port, stop hunting
@@ -138,6 +145,9 @@ class HostileFlyingEnemy(BaseAI):
                 self.distance_map = {}
                 return WanderAction(self.entity).perform()
             else:
-                return RotateAction(self.entity, closest_rotation(target, self.entity)).perform()
-        
+                return RotateAction(self.entity, closest_rotation(target,
+                                                                  self.entity.x,
+                                                                  self.entity.y,
+                                                                  self.entity.facing
+                                                                  )).perform()
         return WanderAction(self.entity).perform()
