@@ -446,7 +446,7 @@ class RepairAction(Action):
             return RepairSailsAction(self.entity).perform()
         if self.event == "shipyard":
             return RepairHullAction(self.entity).perform()
-        if self.event == "weapons":
+        if self.event == "engineer":
             return RepairWeaponsAction(self.entity).perform()
 
 
