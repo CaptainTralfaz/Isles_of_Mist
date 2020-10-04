@@ -7,7 +7,7 @@ from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
 from camera import Camera
 from constants import colors, view_port, margin, game_font, images, sprites, \
-    tile_size, block_size, move_elevations, item_stats
+    tile_size, block_size, move_elevations, Location
 from control_panel import get_keys
 from game_map import GameMap
 from game_states import GameStates
@@ -134,18 +134,63 @@ def viewport_render(game_map: GameMap, main_display: display, ui_layout: Display
                               map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     if game_map.engine.key_mod and game_map.engine.game_state == GameStates.ACTION:
-        if game_map.engine.key_mod == "shift" \
-                and not (player.x, player.y) == game_map.port:
-            target_tiles = game_map.get_neighbors_at_elevations(player.x, player.y, elevations=move_elevations['all'])
-            target_tiles.append((player.x, player.y))
+        if game_map.engine.key_mod == "shift" and not (player.x, player.y) == game_map.port:
+            target_tiles = []
+            ammo = {'arrows': player.crew.count // 4}
+            enough_ammo = True
+            for ammo_type in ammo.keys():
+                if ammo_type not in player.cargo.manifest.keys():
+                    enough_ammo = False
+                elif player.cargo.manifest[ammo_type] - ammo[ammo_type] < 0:
+                    enough_ammo = False
+            if enough_ammo:
+                enough_targets = True
+                targets = []
+                neighbor_tiles = player.game_map.get_neighbors_at_elevations(player.x,
+                                                                             player.y,
+                                                                             elevations=move_elevations['all'])
+                neighbor_tiles.append((player.x, player.y))
+                for tile_x, tile_y in neighbor_tiles:
+                    targets.extend(player.game_map.get_targets_at_location(tile_x, tile_y))
+                if player in targets:
+                    targets.remove(player)
+                if len(targets) < 1:
+                    enough_targets = False
+                
+                if enough_targets:
+                    target_tiles.extend(neighbor_tiles)
             
-            distance = player.broadsides.get_active_range("port")
-            if distance:
-                target_tiles.extend(get_cone_target_hexes_at_location(player, "port", distance))
-            
-            distance = player.broadsides.get_active_range("starboard")
-            if distance:
-                target_tiles.extend(get_cone_target_hexes_at_location(player, "starboard", distance))
+            for side in [Location.PORT, Location.STARBOARD]:
+                guns_ready = True
+                distance = player.broadsides.get_active_range(side)
+                if distance is None or distance < 1:
+                    guns_ready = False
+                if guns_ready:
+                    enough_ammo = True
+                    ammo = player.broadsides.get_active_weapon_ammo_types(side)
+                    for ammo_type in ammo.keys():
+                        if ammo_type not in player.cargo.manifest.keys():
+                            enough_ammo = False
+                        elif player.cargo.manifest[ammo_type] - ammo[ammo_type] < 0:
+                            enough_ammo = False
+                    if enough_ammo:
+                        enough_targets = True
+                        targets = []
+                        hexes = get_cone_target_hexes_at_location(player.x, player.y, player.facing, side, distance)
+                        for x, y in hexes:
+                            if (x, y) in player.view.fov:
+                                targets.extend(player.game_map.get_targets_at_location(x, y))
+                        if player in targets:
+                            targets.remove(player)
+                        if len(targets) < 1:
+                            enough_targets = False
+                        if enough_targets:
+                            if side == Location.STARBOARD:
+                                target_tiles.extend(hexes)
+                            else:
+                                target_tiles.extend(hexes)
+            if player.cargo.item_type_in_manifest("mines"):
+                target_tiles.append((player.x, player.y))
             
             for (x, y) in target_tiles:
                 if game_map.in_bounds(x, y) and (x, y) in player.view.fov:
@@ -209,7 +254,7 @@ def map_to_surface_coords(x, y, left, top, overlap, player, camera, entity=None)
     if entity:
         new_x += margin
         new_y += 2 * margin
-    return (new_x, new_y)
+    return new_x, new_y
 
 
 def render_hp_bar(text: str,
@@ -468,7 +513,6 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
                                 i * game_font.get_height()))
             status_panel.blit(ammo_surf, (margin, status_panel.get_height() - ammo_surf.get_height() - margin))
     console.blit(status_panel, (0, ui_layout.mini_height))
-    # TODO cargo (money?)
 
 
 def control_panel_render(console: Surface, key_mod, game_state, player, ui_layout: DisplayInfo, sky):
@@ -685,7 +729,7 @@ def create_ship_icon(entity) -> Surface:
         #     # colorize it somehow ?
         #     icon.blit(emblem_sheet, (0, 0))  # emblem
         icon.blit(sheet.subsurface(emblem), (0, 0))  # emblem
-
+    
     return icon
 
 
@@ -714,7 +758,7 @@ def cargo_render(console: Surface,
     tint = time.get_sky_color
     tint_surf.fill(tint)
     cargo_surf.blit(tint_surf, (0, 0))
-
+    
     render_border(cargo_surf, sky)
     console.blit(cargo_surf, (ui_layout.mini_width, 0))
 
@@ -777,12 +821,12 @@ def weapon_render(console: Surface,
         weapon_surf.blit(item_surf, (margin + 100, height))
         hp_surf = render_hp_bar("", weapon.hp, weapon.max_hp, ui_layout.status_width - 2 * margin)
         weapon_surf.blit(hp_surf, (margin + 250, height))
-        if location in ["port", "starboard"]:
-            port_surf = game_font.render(f"{location.capitalize()}", True, colors['mountain'])
+        if location in [Location.PORT, Location.STARBOARD]:
+            port_surf = game_font.render(f"{location.name.lower().capitalize()}", True, colors['mountain'])
             weapon_surf.blit(port_surf, ((margin + 100 - port_surf.get_width()) // 2, height))
         height += game_font.get_height() + margin
         count += 1
-        
+    
     tint_surf = Surface((weapon_surf.get_width(), weapon_surf.get_height()))
     tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
     tint = time.get_sky_color

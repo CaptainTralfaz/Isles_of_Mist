@@ -1,5 +1,7 @@
 from random import randint, choice
-from typing import List, Tuple
+from typing import List, Tuple, Dict
+
+from constants import Location
 
 direction_angle = [0, 60, 120, 180, 240, 300]
 
@@ -30,7 +32,7 @@ cube_directions = [Cube(0, 1, -1),  # (0) Up
 
 
 class Hex:
-    def __init__(self, column: int, row: int):
+    def __init__(self, column: int, row: int) -> None:
         """
         Container to hold a tile (x, y) coordinate
         :param column: int x value of an (x, y) coordinate system
@@ -93,6 +95,13 @@ def cube_neighbor(cube: Cube, direction: int) -> Cube:
 
 
 def get_neighbor(x: int, y: int, direction: int) -> Tuple[int, int]:
+    """
+    convenience function to get the next hex in a direction
+    :param x: int x in map grid
+    :param y: int x in map grid
+    :param direction: direction to get next hex
+    :return: return new coordinates
+    """
     neighbor = cube_to_hex(cube_neighbor(hex_to_cube(Hex(x, y)), direction))
     return neighbor.col, neighbor.row
 
@@ -119,7 +128,7 @@ def get_distance(x1: int, y1: int, x2: int, y2: int) -> int:
     return cube_distance(hex_to_cube(Hex(x1, y1)), hex_to_cube(Hex(x2, y2)))
 
 
-def cube_rotate_clockwise(cube):
+def cube_rotate_clockwise(cube) -> Cube:
     """
     Returns cubic coordinates of a tile when rotated clockwise one direction
     :param cube: cube coords to rotate
@@ -180,7 +189,12 @@ def cube_lerp(a: Cube, b: Cube, t) -> Cube:
     return Cube(x=lerp(a.x, b.x, t), y=lerp(a.y, b.y, t), z=lerp(a.z, b.z, t))
 
 
-def choice_from_dict(dictionary: dict) -> str:
+def choice_from_dict(dictionary: Dict[str, int]) -> str:
+    """
+    chooses a key from a dictionary of weighted values
+    :param dictionary: dictionary of weighted values
+    :return: name of the key chosen
+    """
     count = randint(1, sum(dictionary.values()))
     for key in dictionary.keys():
         count -= dictionary[key]
@@ -188,7 +202,7 @@ def choice_from_dict(dictionary: dict) -> str:
             return key
 
 
-def reverse_direction(direction):
+def reverse_direction(direction: int) -> int:
     """
     Returns value of the opposite direction
     :param direction: int current direction
@@ -201,28 +215,34 @@ def reverse_direction(direction):
         return new_direction
 
 
-def get_cone_target_hexes_at_location(entity, side: str, max_range: int):
+def get_cone_target_hexes_at_location(entity_x: int,
+                                      entity_y: int,
+                                      facing: int,
+                                      location: Location,
+                                      max_range: int) -> List[Tuple[int, int]]:
     """
     Returns list of tile coordinates that can be targeted from a given facing the weapon list
-    :param entity: attacking entity
-    :param side: string name of the facing of the weapon
+    :param entity_x: int attacking entity x coordinate
+    :param entity_y: int attacking entity y coordinate
+    :param facing: int attacking entity facing
+    :param location: Enum port or Starboard
     :param max_range: int distance the weapon can shoot
     :return: list of tile coordinates
     """
     target_hexes = []
-    p_cube = hex_to_cube(hexagon=Hex(column=entity.x, row=entity.y))
-    if side == "port":
+    p_cube = hex_to_cube(hexagon=Hex(column=entity_x, row=entity_y))
+    if location == Location.PORT:
         target_hexes.extend(get_cone_target_cubes(max_range=max_range,
                                                   p_cube=p_cube,
-                                                  p_direction=entity.facing))
-    if side == "starboard":
+                                                  p_direction=facing))
+    if location == Location.STARBOARD:
         target_hexes.extend(get_cone_target_cubes(max_range=max_range,
                                                   p_cube=p_cube,
-                                                  p_direction=reverse_direction(direction=entity.facing)))
+                                                  p_direction=reverse_direction(direction=facing)))
     return target_hexes
 
 
-def get_cone_target_cubes(max_range, p_cube, p_direction):
+def get_cone_target_cubes(max_range: int, p_cube: Cube, p_direction: int) -> List[Tuple[int, int]]:
     """
     Returns a list of tile coordinates between a given direction's two axes
     :param max_range: int maximum distance a weapon can shoot
@@ -247,13 +267,21 @@ def get_cone_target_cubes(max_range, p_cube, p_direction):
     return target_hexes
 
 
-def closest_rotation(target: Tuple[int, int], entity) -> int:
-    facing_left = entity.facing
+def closest_rotation(target: Tuple[int, int], entity_x: int, entity_y: int, direction: int) -> int:
+    """
+    Chooses shortest rotation distance of two adjacent hexes depending on entity direction
+    :param target: x, y coordinates of hex
+    :param entity_x: int x value of entity location
+    :param entity_y: int y value of entity location
+    :param direction: int direction entity is facing
+    :return: direction to rotate
+    """
+    facing_left = direction
     for turns in range(0, 5):
         facing_left -= 1
         if facing_left < 0:
             facing_left = 5
-        left_hex = get_neighbor(entity.x, entity.y, facing_left)
+        left_hex = get_neighbor(entity_x, entity_y, facing_left)
         if left_hex == target:
             if turns in [0, 1]:  # left is shorter
                 return -1
