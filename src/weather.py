@@ -3,20 +3,9 @@ from random import randint, choice
 
 from pygame import draw, Surface
 
-from constants import colors, margin
+from constants import colors, margin, Conditions
 from game_map import GameMap
 from utilities import direction_angle, get_neighbor
-
-
-class Conditions(Enum):
-    """
-    Enum of possible weather values
-    """
-    CLEAR = auto()
-    HAZY = auto()
-    CLOUDY = auto()
-    RAINY = auto()
-    STORMY = auto()
 
 
 weather_effects = {

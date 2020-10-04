@@ -6,11 +6,26 @@ from tile import Elevation
 
 
 class Location(Enum):
+    """
+    Enum of attack directions
+    """
     FORE = auto()
     STARBOARD = auto()
     PORT = auto()
     AFT = auto()
     STORAGE = auto()
+
+
+class Conditions(Enum):
+    """
+    Enum of possible weather values
+    """
+    CLEAR = auto()
+    HAZY = auto()
+    CLOUDY = auto()
+    RAINY = auto()
+    STORMY = auto()
+
 
 
 font.init()

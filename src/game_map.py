@@ -4,7 +4,7 @@ from queue import Queue
 from random import randint
 from typing import Iterable, List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 
-from constants import colors
+from constants import colors, Conditions
 from tile import Elevation, Terrain
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
     hex_to_cube, cube_neighbor, cube_line_draw, get_distance
@@ -12,7 +12,6 @@ from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
 if TYPE_CHECKING:
     from entity import Entity, Actor
     from engine import Engine
-    from weather import Conditions
 
 
 class GameMap:
