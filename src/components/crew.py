@@ -1,11 +1,11 @@
-from typing import List, Dict
 from random import choice
+from typing import List, Dict
+
 from components.base import BaseComponent
 from constants import colors, move_elevations
 from entity import Actor
-from game_states import GameStates
+from enums import GameStates, RenderOrder
 from input_handlers import GameOverEventHandler
-from render_functions import RenderOrder
 from utilities import choice_from_dict
 
 
@@ -35,7 +35,7 @@ class Crew(BaseComponent):
                                 }
         else:
             self.assignments = assignments
-
+    
     @property
     def weight(self):
         """
@@ -43,7 +43,7 @@ class Crew(BaseComponent):
         :return: total weight of crew
         """
         return self.count * 75
-
+    
     @property
     def volume(self):
         """
@@ -51,7 +51,7 @@ class Crew(BaseComponent):
         :return: total volume of crew
         """
         return self.count * 75
-
+    
     @property
     def count(self) -> int:
         return self._count
@@ -112,7 +112,7 @@ class Crew(BaseComponent):
                 # kill crewman
                 self.roster.remove(pick)
         self.count -= amount
-
+    
     def generate_roster(self):
         for count in range(self.count):
             self.roster.append(Crewman())

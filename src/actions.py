@@ -3,9 +3,9 @@ from __future__ import annotations
 from random import randint, choice
 from typing import TYPE_CHECKING, Optional, List, Tuple, Dict
 
-from constants import colors, move_elevations, Location
+from constants import colors, move_elevations
 from custom_exceptions import Impossible
-from game_states import GameStates
+from enums import GameStates, Location
 from utilities import choice_from_dict, get_cone_target_hexes_at_location
 
 if TYPE_CHECKING:

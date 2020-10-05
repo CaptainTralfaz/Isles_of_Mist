@@ -1,44 +1,7 @@
-from enum import Enum, auto
+from pygame import image, font
 
-from pygame import image, font, quit
-import yaml
-
+from enums import ItemType
 from tile import Elevation
-
-
-class Location(Enum):
-    """
-    Enum of attack directions
-    """
-    FORE = auto()
-    STARBOARD = auto()
-    PORT = auto()
-    AFT = auto()
-    STORAGE = auto()
-
-
-class Conditions(Enum):
-    """
-    Enum of possible weather values
-    """
-    CLEAR = auto()
-    HAZY = auto()
-    CLOUDY = auto()
-    RAINY = auto()
-    STORMY = auto()
-
-
-class ItemType(Enum):
-    """
-    Enum of possible weather values
-    """
-    MONEY = auto()
-    AMMO = auto()
-    SUPPLIES = auto()
-    GOODS = auto()
-    MATERIALS = auto()
-    EXOTICS = auto()
-
 
 font.init()
 
@@ -365,7 +328,7 @@ item_stats = {
         'volume': 3,
         'category': ItemType.EXOTICS,
     },
-   'arrows': {
+    'arrows': {
         'weight': .1,
         'volume': .1,
         'category': ItemType.AMMO,
@@ -388,10 +351,10 @@ item_stats = {
 }
 
 weapon_stats = {'ballista': {
-        'weight': 20,
-        'volume': 25,
-        'category': 'weapon',
-    },
+    'weight': 20,
+    'volume': 25,
+    'category': 'weapon',
+},
     'heavy ballista': {
         'weight': 30,
         'volume': 30,

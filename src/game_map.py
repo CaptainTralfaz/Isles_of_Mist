@@ -4,7 +4,8 @@ from queue import Queue
 from random import randint
 from typing import Iterable, List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 
-from constants import colors, Conditions
+from constants import colors
+from enums import Conditions
 from tile import Elevation, Terrain
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
     hex_to_cube, cube_neighbor, cube_line_draw, get_distance

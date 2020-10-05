@@ -2,8 +2,7 @@ from typing import List, Reversible, Tuple
 
 from pygame import Surface
 
-from constants import colors, game_font
-from constants import margin
+from constants import colors, game_font, margin
 from render_functions import render_border
 from ui import DisplayInfo
 
@@ -13,7 +12,7 @@ class Message:
         self.plain_text = text
         self.color = color
         self.count = 1
-    
+
 
 class MessageLog:
     def __init__(self, parent) -> None:
@@ -44,7 +43,7 @@ class MessageLog:
                              height=(ui_layout.messages_height - 2 * margin) // game_font.get_height(),
                              messages=self.messages)
         console.blit(message_surf, (ui_layout.status_width, ui_layout.viewport_height))
-
+    
     def render_max(self, console: Surface, ui_layout: DisplayInfo) -> None:
         """Render this log over the given area.
         `x`, `y`, `width`, `height` is the rectangular region to render onto
@@ -56,7 +55,7 @@ class MessageLog:
                              height=(ui_layout.display_height - 2 * margin) // game_font.get_height(),
                              messages=self.messages)
         console.blit(message_surf, (ui_layout.status_width, 0))
-
+    
     @classmethod
     def render_messages(
             cls,

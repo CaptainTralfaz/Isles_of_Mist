@@ -1,9 +1,8 @@
 from components.base import BaseComponent
 from constants import colors, move_elevations
 from entity import Actor
-from game_states import GameStates
+from enums import GameStates, RenderOrder
 from input_handlers import GameOverEventHandler
-from render_functions import RenderOrder
 
 
 class Fighter(BaseComponent):

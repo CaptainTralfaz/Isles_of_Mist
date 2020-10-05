@@ -8,7 +8,7 @@ from actions import MovementAction
 from camera import Camera
 from constants import time_tick
 from custom_exceptions import Impossible
-from game_states import GameStates
+from enums import GameStates
 from input_handlers import MainEventHandler
 from message_log import MessageLog
 from render_functions import render_entity_info, status_panel_render, control_panel_render, viewport_render, \
