@@ -3,10 +3,10 @@ from random import randint, choice
 
 from pygame import draw, Surface
 
-from constants import colors, margin, Conditions
+from constants import colors, margin
+from enums import Conditions
 from game_map import GameMap
 from utilities import direction_angle, get_neighbor
-
 
 weather_effects = {
     Conditions.CLEAR: {'name': 'clear', 'view': 1, 'mist': 0},
@@ -303,7 +303,7 @@ class Time:
         tint = self.get_sky_color
         tint_surf.fill(tint)
         panel.blit(tint_surf, (0, 0))
-
+    
     @property
     def get_sky_color(self):
         day = 1440  # minutes in a day

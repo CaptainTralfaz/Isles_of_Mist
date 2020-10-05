@@ -8,9 +8,9 @@ import pygame.mouse as mouse
 from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
     ShipAction, AttackAction, PortAction, RepairAction, ExitMenuAction, ConfigureAction, \
     SelectedAction, ChangeSelectionAction
-from constants import colors, Location
+from constants import colors
 from custom_exceptions import Impossible
-from game_states import GameStates
+from enums import GameStates, Location
 
 if TYPE_CHECKING:
     from engine import Engine

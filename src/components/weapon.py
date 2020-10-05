@@ -34,7 +34,7 @@ class Weapon(BaseComponent):
         self._hp = max(0, min(value, self.max_hp))
         if self._hp == 0:
             self.parent.destroy(self)
-        
+    
     def repair(self, amount: int) -> int:
         new_hull_value = self.hp + amount
         if new_hull_value > self.max_hp:

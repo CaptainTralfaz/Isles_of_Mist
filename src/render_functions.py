@@ -1,4 +1,3 @@
-from enum import auto, Enum
 from math import floor
 from typing import Tuple
 
@@ -7,21 +6,13 @@ from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
 from camera import Camera
 from constants import colors, view_port, margin, game_font, images, sprites, cargo_icons, \
-    tile_size, block_size, move_elevations, Location, item_stats
+    tile_size, block_size, move_elevations, item_stats
 from control_panel import get_keys
+from enums import GameStates, Location
 from game_map import GameMap
-from game_states import GameStates
 from ui import DisplayInfo
 from utilities import direction_angle, get_cone_target_hexes_at_location
 from weather import Weather
-
-
-class RenderOrder(Enum):
-    CORPSE = auto()
-    FLOATER = auto()
-    SWIMMER = auto()
-    PLAYER = auto()
-    FLYER = auto()
 
 
 def get_rotated_image(image: Surface, facing: int) -> Surface:
@@ -790,7 +781,7 @@ def cargo_render(console: Surface,
     cargo_surf.blit(surf, (spacer + 6 * column - surf.get_width(), height))
     surf = game_font.render(f"{int(total_volume)}", True, colors['mountain'])
     cargo_surf.blit(surf, (spacer + 7 * column - surf.get_width(), height))
-
+    
     time.tint_render(cargo_surf)
     render_border(cargo_surf, sky)
     console.blit(cargo_surf, (ui_layout.mini_width, 0))
@@ -822,7 +813,7 @@ def crew_render(console: Surface,
                 crew_surf.blit(assign_surf, (margin + 100, height))
         height += game_font.get_height()
         count += 1
-
+    
     time.tint_render(crew_surf)
     render_border(crew_surf, sky)
     console.blit(crew_surf, (ui_layout.mini_width, 0))

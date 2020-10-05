@@ -1,48 +1,4 @@
-from enum import auto, Enum
-
-
-class Elevation(Enum):
-    """
-    Enum to track elevation
-    """
-    OCEAN = auto()
-    WATER = auto()
-    SHALLOWS = auto()
-    BEACH = auto()
-    GRASS = auto()
-    JUNGLE = auto()
-    MOUNTAIN = auto()
-    VOLCANO = auto()
-    
-    def __lt__(self, other):
-        if self.__class__ is other.__class__:
-            return self.value < other.value
-        return NotImplemented
-    
-    def __le__(self, other):
-        if self.__class__ is other.__class__:
-            return self.value <= other.value
-        return NotImplemented
-    
-    def __gt__(self, other):
-        if self.__class__ is other.__class__:
-            return self.value > other.value
-        return NotImplemented
-    
-    def __ge__(self, other):
-        if self.__class__ is other.__class__:
-            return self.value >= other.value
-        return NotImplemented
-    
-    def __eq__(self, other):
-        if self.__class__ is other.__class__:
-            return self.value == other.value
-        return NotImplemented
-    
-    def __ne__(self, other):
-        if self.__class__ is other.__class__:
-            return self.value != other.value
-        return NotImplemented
+from enums import Elevation
 
 
 class Terrain:

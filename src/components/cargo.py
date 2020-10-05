@@ -110,4 +110,4 @@ class Cargo(BaseComponent):
                 raise Impossible(f"No such item {key} in manifest")
         if len(remove_key) > 0:
             for key in remove_key:
-                del(self.manifest[key])
+                del (self.manifest[key])

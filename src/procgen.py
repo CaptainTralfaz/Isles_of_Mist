@@ -11,8 +11,9 @@ from opensimplex import OpenSimplex
 import entity_factory
 from components.cargo import Cargo
 from constants import move_elevations
+from enums import Elevation
 from game_map import GameMap
-from tile import Elevation, Terrain
+from tile import Terrain
 
 if TYPE_CHECKING:
     from engine import Engine
