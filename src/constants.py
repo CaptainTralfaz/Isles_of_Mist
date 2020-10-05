@@ -1,6 +1,7 @@
 from enum import Enum, auto
 
-from pygame import image, font
+from pygame import image, font, quit
+import yaml
 
 from tile import Elevation
 
@@ -27,6 +28,17 @@ class Conditions(Enum):
     STORMY = auto()
 
 
+class ItemType(Enum):
+    """
+    Enum of possible weather values
+    """
+    MONEY = auto()
+    AMMO = auto()
+    SUPPLIES = auto()
+    GOODS = auto()
+    MATERIALS = auto()
+    EXOTICS = auto()
+
 
 font.init()
 
@@ -37,8 +49,21 @@ map_width = 48
 map_height = 48
 caption = "Isles of Mist"
 
+# TODO YAML
+# images = {}
+# with open(file="data/images.yaml", mode="r") as file:
+#     data = yaml.safe_load(file)
+#     for icon_type in data.keys():
+#         for icon in icon_type:
+#             images[icon] = image.load(f"assets/{icon_type}/{icon_type[icon]}]")
+# print(images)
 # TODO Variable later ??
-game_font = font.Font('freesansbold.ttf', 16)
+# game_font = font.Font('freesansbold.ttf', 16)  # Original
+# game_font = font.SysFont('chalkboardttc', 14)
+game_font = font.SysFont('georgiabolditalicttf', 14)  # VERY nice
+# game_font = font.SysFont('verdanabolditalicttf', 12)  # BEST
+
+
 view_port = 8
 message_count = 10
 
@@ -60,10 +85,6 @@ rain = image.load("assets/misc/rain.png")
 sky = image.load("assets/misc/sky.png")
 storm = image.load("assets/misc/storm.png")
 sun = image.load("assets/misc/sun.png")
-arrows = image.load("assets/misc/arrows.png")
-bolts = image.load("assets/misc/bolts.png")
-cannonballs = image.load("assets/misc/cannonballs.png")
-mines = image.load("assets/misc/mines.png")
 
 player_image = image.load("assets/entities/ship_icon.png")
 turtle_image = image.load("assets/entities/turtle.png")
@@ -74,8 +95,6 @@ shipwreck = image.load("assets/entities/shipwreck.png")
 chest = image.load("assets/entities/chest.png")
 bottle = image.load("assets/entities/bottle.png")
 mermaid_image = image.load("assets/entities/mermaid.png")
-
-sprite_sheet = image.load("assets/entities/sprite_sheet.png")
 
 ocean = image.load("assets/terrain/ocean.png")
 water = image.load("assets/terrain/water.png")
@@ -101,22 +120,6 @@ mast_1 = image.load("assets/entities/mast_1.png")
 mast_2 = image.load("assets/entities/mast_2.png")
 mast_3 = image.load("assets/entities/mast_3.png")
 mast_4 = image.load("assets/entities/mast_4.png")
-
-bat_sprite = []
-serpent_sprite = []
-turtle_sprite = []
-mermaid_sprite = []
-for i in range(sprite_count):
-    bat_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 0, tile_size, tile_size))
-    serpent_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 1, tile_size, tile_size))
-    turtle_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 2, tile_size, tile_size))
-    mermaid_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 3, tile_size, tile_size))
-sprites = {
-    'turtle_sprite': turtle_sprite,
-    'serpent_sprite': serpent_sprite,
-    'bat_sprite': bat_sprite,
-    'mermaid_sprite': mermaid_sprite,
-}
 
 images = {
     'mast_0': mast_0,
@@ -148,7 +151,6 @@ images = {
     'seaweed': seaweed,
     'port': port,
     'highlight': highlight,
-    'mines': mines,
     'minefield': minefield,
     'arrow_key': arrow_key,
     'compass': compass,
@@ -161,9 +163,82 @@ images = {
     'rainy': rain,
     'clear': sky,
     'stormy': storm,
+}
+
+sprite_sheet = image.load("assets/entities/sprite_sheet.png")
+
+bat_sprite = []
+serpent_sprite = []
+turtle_sprite = []
+mermaid_sprite = []
+for i in range(sprite_count):
+    bat_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 0, tile_size, tile_size))
+    serpent_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 1, tile_size, tile_size))
+    turtle_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 2, tile_size, tile_size))
+    mermaid_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 3, tile_size, tile_size))
+sprites = {
+    'turtle_sprite': turtle_sprite,
+    'serpent_sprite': serpent_sprite,
+    'bat_sprite': bat_sprite,
+    'mermaid_sprite': mermaid_sprite,
+}
+
+arrows = image.load("assets/cargo/arrows.png")
+bat_wing = image.load("assets/cargo/bat wing.png")
+bolts = image.load("assets/cargo/bolts.png")
+bread = image.load("assets/cargo/bread.png")
+brick = image.load("assets/cargo/brick.png")
+cannonballs = image.load("assets/cargo/cannonballs.png")
+canvas = image.load("assets/cargo/canvas.png")
+fish = image.load("assets/cargo/fish.png")
+fruit = image.load("assets/cargo/fruit.png")
+grain = image.load("assets/cargo/grain.png")
+leather = image.load("assets/cargo/leather.png")
+log = image.load("assets/cargo/log.png")
+map_image = image.load("assets/cargo/map.png")
+meat = image.load("assets/cargo/meat.png")
+message = image.load("assets/cargo/message.png")
+mines = image.load("assets/cargo/mines.png")
+pearl = image.load("assets/cargo/pearl.png")
+rope = image.load("assets/cargo/rope.png")
+rum = image.load("assets/cargo/rum.png")
+salt = image.load("assets/cargo/salt.png")
+scale = image.load("assets/cargo/scale.png")
+shell = image.load("assets/cargo/shell.png")
+skins = image.load("assets/cargo/skins.png")
+stone = image.load("assets/cargo/stone.png")
+tar = image.load("assets/cargo/tar.png")
+water = image.load("assets/cargo/water.png")
+wood = image.load("assets/cargo/wood.png")
+
+cargo_icons = {
     'arrows': arrows,
+    'bat wing': bat_wing,
     'bolts': bolts,
+    'bread': bread,
+    'brick': brick,
     'cannonballs': cannonballs,
+    'canvas': canvas,
+    'fish': fish,
+    'fruit': fruit,
+    'grain': grain,
+    'leather': leather,
+    'log': log,
+    'map': map_image,
+    'meat': meat,
+    'message': message,
+    'mines': mines,
+    'pearl': pearl,
+    'rope': rope,
+    'rum': rum,
+    'salt': rum,
+    'scale': scale,
+    'shell': shell,
+    'skins': skins,
+    'stone': stone,
+    'tar': tar,
+    'water': water,
+    'wood': wood,
 }
 
 colors = {
@@ -217,99 +292,102 @@ item_stats = {
     'canvas': {
         'weight': 2,
         'volume': 4,
-        'category': 'goods',
+        'category': ItemType.GOODS,
     },
     'rope': {
         'weight': 1,
         'volume': 1,
-        'category': 'goods',
+        'category': ItemType.GOODS,
     },
     'tar': {
         'weight': 3,
         'volume': 3,
-        'category': 'goods',
+        'category': ItemType.GOODS,
     },
     'wood': {
         'weight': 2,
         'volume': 4,
-        'category': 'goods',
+        'category': ItemType.GOODS,
     },
     'meat': {
         'weight': 1,
         'volume': 1,
-        'category': 'supplies',
+        'category': ItemType.SUPPLIES,
     },
     'rum': {
         'weight': 1,
         'volume': 1,
-        'category': 'supplies',
+        'category': ItemType.SUPPLIES,
     },
     'fish': {
         'weight': 1,
         'volume': 1,
-        'category': 'supplies',
+        'category': ItemType.SUPPLIES,
     },
     'fruit': {
         'weight': 1,
         'volume': 1,
-        'category': 'supplies',
+        'category': ItemType.SUPPLIES,
     },
     'water': {
         'weight': 2,
         'volume': 3,
-        'category': 'supplies',
+        'category': ItemType.SUPPLIES,
     },
     'pearl': {
         'weight': 0,
         'volume': 0,
-        'category': 'exotics',
-    },
-    'map': {
-        'weight': 1,
-        'volume': 1,
-        'category': 'exotics',
-    },
-    'message': {
-        'weight': 0,
-        'volume': 0,
-        'category': 'exotics',
-    },
-    'shell': {
-        'weight': 5,
-        'volume': 5,
-        'category': 'exotics',
-    },
-    'scale': {
-        'weight': 2,
-        'volume': 3,
-        'category': 'exotics',
+        'category': ItemType.MONEY,
     },
     'bat wing': {
         'weight': 1,
         'volume': 3,
-        'category': 'exotics',
+        'category': ItemType.EXOTICS,
     },
-    'cannonballs': {
-        'weight': 2,
+    
+    'map': {
+        'weight': 1,
         'volume': 1,
-        'category': 'ammo',
+        'category': ItemType.EXOTICS,
+    },
+    'message': {
+        'weight': 0,
+        'volume': 0,
+        'category': ItemType.EXOTICS,
+    },
+    'shell': {
+        'weight': 5,
+        'volume': 5,
+        'category': ItemType.EXOTICS,
+    },
+    'scale': {
+        'weight': 2,
+        'volume': 3,
+        'category': ItemType.EXOTICS,
+    },
+   'arrows': {
+        'weight': .1,
+        'volume': .1,
+        'category': ItemType.AMMO,
     },
     'bolts': {
         'weight': 1,
         'volume': 2,
-        'category': 'ammo',
+        'category': ItemType.AMMO,
+    },
+    'cannonballs': {
+        'weight': 2,
+        'volume': 1,
+        'category': ItemType.AMMO,
     },
     'mines': {
         'weight': 2,
         'volume': 2,
-        'category': 'ammo',
+        'category': ItemType.AMMO,
     },
-    'arrows': {
-        'weight': .1,
-        'volume': .1,
-        'category': 'ammo',
-    },
-    'ballista': {
+}
+
+weapon_stats = {'ballista': {
         'weight': 20,
         'volume': 25,
         'category': 'weapon',

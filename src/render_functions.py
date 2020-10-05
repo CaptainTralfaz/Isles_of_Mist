@@ -6,8 +6,8 @@ import pygame.transform as transform
 from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
 from camera import Camera
-from constants import colors, view_port, margin, game_font, images, sprites, \
-    tile_size, block_size, move_elevations, Location
+from constants import colors, view_port, margin, game_font, images, sprites, cargo_icons, \
+    tile_size, block_size, move_elevations, Location, item_stats
 from control_panel import get_keys
 from game_map import GameMap
 from game_states import GameStates
@@ -237,17 +237,11 @@ def viewport_render(game_map: GameMap,
     if weather.rain:
         weather.rain.render(console=map_surf, conditions=weather.conditions)
     
-    tint_surf = Surface((map_surf.get_width(), map_surf.get_height()))
-    tint_surf.set_alpha(abs(game_map.engine.time.hrs * 60 + game_map.engine.time.mins - 720) // 8)
-    tint = game_map.engine.time.get_sky_color
-    tint_surf.fill(tint)
-    map_surf.blit(tint_surf, (0, 0))
-    
+    game_map.engine.time.tint_render(map_surf)
     view_surf = map_surf.subsurface((0,
                                      player.x % 2 * tile_size // 2),
                                     (ui_layout.viewport_width - 2 * margin,
                                      ui_layout.viewport_height - 2 * margin))
-    
     border_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
     render_border(border_surf, game_map.engine.time.get_sky_color)
     border_surf.blit(view_surf, (margin, margin))
@@ -375,8 +369,9 @@ def render_entity_info(console, game_map, player, mouse_x, mouse_y, ui):
     if len(entity_list) > 0:
         info_surf = Surface((max(widths) + margin * 2,
                              len(entity_list) * game_font.get_height()  # font heights
-                             + margin  # borders
-                             + (len(entity_list)) * 2))  # spacers between fonts
+                             + margin * 2  # borders
+                             + (len(entity_list) - 1) * 2))  # spacers between fonts
+        info_surf.fill(colors['black'])
         height = 0
         for name, hp, max_hp in entity_list:
             if hp is not None and hp > 0:
@@ -506,7 +501,7 @@ def status_panel_render(console: Surface, entity, weather, time, ui_layout: Disp
         for ammo in sorted(ammo_list):
             if entity.cargo.item_type_in_manifest(ammo):
                 names.append(game_font.render(f"{ammo.capitalize()}", True, colors['mountain']))
-                icons.append(images[ammo])
+                icons.append(cargo_icons[ammo])
                 counts.append(game_font.render(f"{entity.cargo.manifest[ammo]}", True, colors['mountain']))
         height = len(names)
         if height > 0:
@@ -696,8 +691,8 @@ def render_weather(time, weather, display_surf: Surface):
 
 def colorize(image, new_color):
     """
-    Create a "colorized" copy of a surface (replaces RGB values with the given color, preserving the per-pixel alphas of
-    original).
+    Create a "colorized" copy of a surface (replaces RGB values with the given color,
+        preserving the per-pixel alphas of the original).
     :param image: Surface to create a colorized copy of
     :param new_color: RGB color to use (original alpha values are preserved)
     :return: New colorized Surface instance
@@ -747,26 +742,56 @@ def cargo_render(console: Surface,
                  ui_layout: DisplayInfo,
                  sky: Tuple[int, int, int]) -> None:
     cargo_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
-    
     count = 0
-    height = margin
-    for key in cargo.manifest.keys():
+    height = margin * 2
+    column = 50
+    total_weight = 0
+    total_volume = 0
+    
+    manifest_keys = sorted([key for key in cargo.manifest.keys()], key=lambda i: item_stats[i]['category'].value)
+    game_font.set_underline(True)
+    spacer = 35
+    surf = game_font.render(f"Item Name", True, colors['mountain'])
+    cargo_surf.blit(surf, (spacer, height))
+    c = 3
+    for header in ["Qty", "Wt", "Vol", "T Wt", "T Vol"]:
+        surf = game_font.render(f"{header}", True, colors['mountain'])
+        cargo_surf.blit(surf, (spacer + c * column - surf.get_width(), height))
+        c += 1
+    game_font.set_underline(False)
+    height += game_font.get_height() + margin
+    for item in manifest_keys:
         if count == cargo.selected:
             text_color = colors['black']
             background = colors['mountain']
         else:
             text_color = colors['mountain']
             background = colors['black']
-        item_surf = game_font.render(f"{key}:  {cargo.manifest[key]}", True, text_color, background)
-        cargo_surf.blit(item_surf, (margin, height))
-        height += game_font.get_height()
+        cargo_surf.blit(cargo_icons[item], (margin * 2, height))
+        surf = game_font.render(f"{item.capitalize()}", True, text_color, background)
+        cargo_surf.blit(surf, (spacer, height))
+        surf = game_font.render(f"{cargo.manifest[item]}", True, colors['mountain'])
+        cargo_surf.blit(surf, (spacer + 3 * column - surf.get_width(), height))
+        surf = game_font.render(f"{int(item_stats[item]['weight'])}", True, colors['mountain'])
+        cargo_surf.blit(surf, (spacer + 4 * column - surf.get_width(), height))
+        surf = game_font.render(f"{int(item_stats[item]['volume'])}", True, colors['mountain'])
+        cargo_surf.blit(surf, (spacer + 5 * column - surf.get_width(), height))
+        surf = game_font.render(f"{int(item_stats[item]['weight'] * cargo.manifest[item])}", True, colors['mountain'])
+        cargo_surf.blit(surf, (spacer + 6 * column - surf.get_width(), height))
+        total_weight += item_stats[item]['weight'] * cargo.manifest[item]
+        surf = game_font.render(f"{int(item_stats[item]['volume'] * cargo.manifest[item])}", True, colors['mountain'])
+        cargo_surf.blit(surf, (spacer + 7 * column - surf.get_width(), height))
+        total_volume += item_stats[item]['volume'] * cargo.manifest[item]
+        height += game_font.get_height() + margin
         count += 1
-    tint_surf = Surface((cargo_surf.get_width(), cargo_surf.get_height()))
-    tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
-    tint = time.get_sky_color
-    tint_surf.fill(tint)
-    cargo_surf.blit(tint_surf, (0, 0))
-    
+    surf = game_font.render(f"Totals", True, colors['mountain'])
+    cargo_surf.blit(surf, (spacer + 5 * column - surf.get_width(), height))
+    surf = game_font.render(f"{int(total_weight)}", True, colors['mountain'])
+    cargo_surf.blit(surf, (spacer + 6 * column - surf.get_width(), height))
+    surf = game_font.render(f"{int(total_volume)}", True, colors['mountain'])
+    cargo_surf.blit(surf, (spacer + 7 * column - surf.get_width(), height))
+
+    time.tint_render(cargo_surf)
     render_border(cargo_surf, sky)
     console.blit(cargo_surf, (ui_layout.mini_width, 0))
 
@@ -797,12 +822,8 @@ def crew_render(console: Surface,
                 crew_surf.blit(assign_surf, (margin + 100, height))
         height += game_font.get_height()
         count += 1
-    tint_surf = Surface((crew_surf.get_width(), crew_surf.get_height()))
-    tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
-    tint = time.get_sky_color
-    tint_surf.fill(tint)
-    crew_surf.blit(tint_surf, (0, 0))
-    
+
+    time.tint_render(crew_surf)
     render_border(crew_surf, sky)
     console.blit(crew_surf, (ui_layout.mini_width, 0))
 
@@ -835,11 +856,6 @@ def weapon_render(console: Surface,
         height += game_font.get_height() + margin
         count += 1
     
-    tint_surf = Surface((weapon_surf.get_width(), weapon_surf.get_height()))
-    tint_surf.set_alpha(abs(time.hrs * 60 + time.mins - 720) // 8)
-    tint = time.get_sky_color
-    tint_surf.fill(tint)
-    weapon_surf.blit(tint_surf, (0, 0))
-    
+    time.tint_render(weapon_surf)
     render_border(weapon_surf, sky)
     console.blit(weapon_surf, (ui_layout.mini_width, 0))

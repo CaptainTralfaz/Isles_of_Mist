@@ -287,7 +287,7 @@ class GameMap:
                             f"{entity.name} takes {damage} hull damage from bumping sandbar", color)
                         entity.fighter.take_damage(damage)
                 crew_loss = 1 if conditions == Conditions.STORMY else 0
-                if entity.crew and crew_loss:
+                if decoration in ['rocks', 'coral', 'sandbar'] and entity.crew and crew_loss:
                     self.engine.message_log.add_message(
                         f"Man Overboard!", color)
                     entity.crew.take_damage(crew_loss)
