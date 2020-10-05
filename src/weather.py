@@ -297,6 +297,13 @@ class Time:
         if total > 1111:
             print("out of turns!")
     
+    def tint_render(self, panel):
+        tint_surf = Surface((panel.get_width(), panel.get_height()))
+        tint_surf.set_alpha(abs(self.hrs * 60 + self.mins - 720) // 8)
+        tint = self.get_sky_color
+        tint_surf.fill(tint)
+        panel.blit(tint_surf, (0, 0))
+
     @property
     def get_sky_color(self):
         day = 1440  # minutes in a day

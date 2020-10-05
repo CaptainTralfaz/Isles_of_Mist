@@ -90,13 +90,24 @@ class Cargo(BaseComponent):
         :param item_dict: dict of (items: quantity) to be added
         :return: None - modifies manifest directly
         """
+        remove_key = []
         for key in item_dict.keys():
             if key in self.manifest.keys():
-                self.manifest[key] -= item_dict[key]
-                if not item_stats[key]['category'] == 'ammo':
-                    self.game_map.engine.message_log.add_message(f"Removed {item_dict[key]} {key} from cargo",
-                                                                 colors['beach'])
-                    self.game_map.engine.message_log.add_message(f"{self.manifest[key]} {key} left in cargo",
-                                                                 colors['beach'])
+                for qty in range(item_dict[key]):
+                    self.manifest[key] -= 1
+                    if self.manifest[key] < 1:
+                        self.game_map.engine.message_log.add_message(f"Removed all {key} from cargo",
+                                                                     colors['beach'])
+                        remove_key.append(key)
+                        break
+                
+                # if not item_stats[key]['category'] == 'ammo':
+                #     self.game_map.engine.message_log.add_message(f"Removed {item_dict[key]} {key} from cargo",
+                #                                                  colors['beach'])
+                #     self.game_map.engine.message_log.add_message(f"{self.manifest[key]} {key} left in cargo",
+                #                                                  colors['beach'])
             else:
                 raise Impossible(f"No such item {key} in manifest")
+        if len(remove_key) > 0:
+            for key in remove_key:
+                del(self.manifest[key])
