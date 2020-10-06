@@ -1,5 +1,6 @@
 from pygame import image, font
 from yaml import load, Loader
+
 from enums import ItemType, Elevation
 
 font.init()
@@ -137,11 +138,12 @@ move_elevations = {
     'deep_water': [Elevation.OCEAN, Elevation.WATER],
     'ocean': [Elevation.OCEAN],
     'land': [Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO],
-    'fly': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE],
+    'fly': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS,
+            Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE],
     'shore': [Elevation.SHALLOWS, Elevation.BEACH],
     'shallows': [Elevation.SHALLOWS],
-    'all': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS,
-            Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO]
+    'all': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH,
+            Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO]
 }
 
 weapon_stats = {'ballista': {

@@ -11,8 +11,14 @@ from custom_exceptions import Impossible
 from enums import GameStates
 from input_handlers import MainEventHandler
 from message_log import MessageLog
-from render_functions import render_entity_info, status_panel_render, control_panel_render, viewport_render, \
-    mini_map_render, cargo_render, crew_render, weapon_render
+from render.cargo import cargo_render
+from render.controls import control_panel_render
+from render.crew import crew_render
+from render.entity_info import render_entity_info
+from render.mini_map import mini_map_render
+from render.status_panel import status_panel_render
+from render.viewport import viewport_render
+from render.weapons import weapon_render
 from ui import DisplayInfo
 from weather import Weather, Time
 
@@ -85,10 +91,10 @@ class Engine:
                                        ui=self.ui_layout)
             elif self.game_state == GameStates.CARGO_CONFIG:
                 cargo_render(console=main_surface, cargo=self.player.cargo, time=self.time,
-                             ui_layout=self.ui_layout, sky=self.time.get_sky_color)
+                             ui_layout=self.ui_layout)
             elif self.game_state == GameStates.CREW_CONFIG:
                 crew_render(console=main_surface, crew=self.player.crew, time=self.time,
-                            ui_layout=self.ui_layout, sky=self.time.get_sky_color)
+                            ui_layout=self.ui_layout)
             elif self.game_state == GameStates.WEAPON_CONFIG:
                 weapon_render(console=main_surface, broadsides=self.player.broadsides, time=self.time,
-                              ui_layout=self.ui_layout, sky=self.time.get_sky_color)
+                              ui_layout=self.ui_layout)
