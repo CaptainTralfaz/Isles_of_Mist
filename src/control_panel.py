@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from constants import move_elevations
-from enums import Location, GameStates
+from enums import Location, GameStates, KeyMod
 from utilities import get_cone_target_hexes_at_location
 
+if TYPE_CHECKING:
+    from entity import Actor
 
-def get_keys(key_mod, game_state, player):
+
+def get_keys(key_mod: KeyMod, game_state: GameStates, player: Actor):
     arrow_keys = []
     text_keys = []
     
@@ -11,7 +18,7 @@ def get_keys(key_mod, game_state, player):
     port = (player.x, player.y) == player.parent.game_map.port
     
     if game_state == GameStates.ACTION:
-        if key_mod == "command":  # sails, etc.
+        if key_mod == KeyMod.COMMAND:  # sails, etc.
             if player.sails:
                 if player.sails.raised:
                     arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
@@ -23,7 +30,7 @@ def get_keys(key_mod, game_state, player):
         
         elif not port:
             # TODO logic below mirrors rendering targeting hexes and attacking... combine this somehow?
-            if key_mod == "shift":
+            if key_mod == KeyMod.SHIFT:
                 ammo = {'arrows': player.crew.count // 4}
                 enough_ammo = True
                 for ammo_type in ammo.keys():
@@ -81,7 +88,7 @@ def get_keys(key_mod, game_state, player):
                                     arrow_keys.append({'rotation': 270, 'text': 'Port Guns'})
                 if player.cargo.item_type_in_manifest("mines"):
                     arrow_keys.append({'rotation': 180, 'text': 'Drop Mines'})
-            elif key_mod == "option":  # crew actions
+            elif key_mod == KeyMod.OPTION:  # crew actions
                 up = player.crew.assignments.get('up')
                 right = player.crew.assignments.get('right')
                 left = player.crew.assignments.get('left')
@@ -117,17 +124,17 @@ def get_keys(key_mod, game_state, player):
                 text_keys.append({'name': 'Esc', 'text': 'Main Menu'})
         
         else:  # Player is in port
-            if key_mod == "shift":
+            if key_mod == KeyMod.SHIFT:
                 arrow_keys = [{'rotation': 0, 'text': 'Repair Sails'},
                               {'rotation': 90, 'text': 'Repair Hull'},
                               {'rotation': 270, 'text': 'Hire Crew'},
                               {'rotation': 180, 'text': 'Fix Weapons'}]
-            elif key_mod == "command":
+            elif key_mod == KeyMod.COMMAND:
                 if player.sails.raised:
                     arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})
                 elif player.sails.hp > 0:
                     arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
-            elif key_mod == "option":
+            elif key_mod == KeyMod.OPTION:
                 pass
             else:
                 arrow_keys = [{'rotation': 0, 'text': 'Row'},
@@ -141,11 +148,11 @@ def get_keys(key_mod, game_state, player):
                 text_keys.append({'name': 'Esc', 'text': 'Main Menu'})
     
     elif game_state == GameStates.WEAPON_CONFIG:
-        if key_mod == "command":
+        if key_mod == KeyMod.COMMAND:
             arrow_keys = [{'rotation': 90, 'text': 'Cargo Config'},
                           {'rotation': 270, 'text': 'Crew Config'},
                           {'rotation': 180, 'text': 'Exit Config'}]
-        elif key_mod == "shift":
+        elif key_mod == KeyMod.SHIFT:
             selected = player.broadsides.selected
             location, weapon = player.broadsides.all_weapons[selected]
             arrow_keys.append({'rotation': 0, 'text': 'Move Up'})
@@ -169,11 +176,11 @@ def get_keys(key_mod, game_state, player):
                               {'name': 'Esc', 'text': 'Exit Config'}])
     
     elif game_state == GameStates.CREW_CONFIG:
-        if key_mod == "command":
+        if key_mod == KeyMod.COMMAND:
             arrow_keys = [{'rotation': 90, 'text': 'Cargo Config'},
                           {'rotation': 270, 'text': 'Exit Config'},
                           {'rotation': 180, 'text': 'Weapon Config'}]
-        elif key_mod == "shift" and player.is_alive:
+        elif key_mod == KeyMod.SHIFT and player.is_alive:
             arrow_keys = [{'rotation': 0, 'text': 'Assign Crew Up'},
                           {'rotation': 90, 'text': 'Assign Crew Right'},
                           {'rotation': 270, 'text': 'Assign Crew Left'},
@@ -187,10 +194,10 @@ def get_keys(key_mod, game_state, player):
                               {'name': 'Esc', 'text': 'Exit Config'}])
     
     elif game_state == GameStates.CARGO_CONFIG:
-        if key_mod == "shift" and player.is_alive:
+        if key_mod == KeyMod.SHIFT and player.is_alive:
             arrow_keys = [{'rotation': 90, 'text': 'Increase Count'},
                           {'rotation': 270, 'text': 'Decrease Count'}]
-        elif key_mod == "command":
+        elif key_mod == KeyMod.COMMAND:
             arrow_keys = [{'rotation': 90, 'text': 'Exit Config'},
                           {'rotation': 270, 'text': 'Crew Config'},
                           {'rotation': 180, 'text': 'Weapon Config'}]
@@ -203,7 +210,7 @@ def get_keys(key_mod, game_state, player):
                               {'name': 'Esc', 'text': 'Exit Config'}])
     
     elif game_state == GameStates.PLAYER_DEAD:
-        if key_mod == "command":
+        if key_mod == KeyMod.COMMAND:
             arrow_keys = [{'rotation': 90, 'text': 'Cargo Config'},
                           {'rotation': 270, 'text': 'Crew Config'},
                           {'rotation': 180, 'text': 'Weapon Config'}]

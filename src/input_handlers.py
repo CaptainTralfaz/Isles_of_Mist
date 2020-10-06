@@ -10,7 +10,7 @@ from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction
     SelectedAction, ChangeSelectionAction
 from constants import colors
 from custom_exceptions import Impossible
-from enums import GameStates, Location
+from enums import GameStates, Location, KeyMod
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -64,12 +64,12 @@ CONFIGURE_KEYS = {  # TODO: change arrow keys to enum??
 }
 
 MODIFIERS = {
-    1: "shift",
-    2: "shift",
-    256: "option",
-    512: "option",
-    1024: "command",
-    2048: "command",
+    1: KeyMod.SHIFT,
+    2: KeyMod.SHIFT,
+    256: KeyMod.OPTION,
+    512: KeyMod.OPTION,
+    1024: KeyMod.COMMAND,
+    2048: KeyMod.COMMAND,
 }
 
 
@@ -126,14 +126,14 @@ class MainEventHandler(EventHandler):
         if event.type == pygame.KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == "shift" and (event.key in ATTACK_KEYS or event.key in REPAIR_KEYS):
+            if self.engine.key_mod == KeyMod.SHIFT and (event.key in ATTACK_KEYS or event.key in REPAIR_KEYS):
                 if port:
                     response = RepairAction(player, REPAIR_KEYS[event.key])
                 else:
                     response = AttackAction(player, ATTACK_KEYS[event.key])
-            elif self.engine.key_mod == "command" and event.key in SHIP_KEYS:
+            elif self.engine.key_mod == KeyMod.COMMAND and event.key in SHIP_KEYS:
                 response = ShipAction(player, SHIP_KEYS[event.key], self.engine.game_state)
-            elif port and self.engine.key_mod == "option" and event.key in PORT_KEYS:
+            elif port and self.engine.key_mod == KeyMod.OPTION and event.key in PORT_KEYS:
                 response = PortAction(player, PORT_KEYS[event.key])
             if self.engine.key_mod is None:
                 if event.key in ROTATE_KEYS:
@@ -196,9 +196,9 @@ class WeaponConfigurationHandler(EventHandler):
         if event.type == pygame.KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == "shift" and event.key in CONFIGURE_KEYS:
+            if self.engine.key_mod == KeyMod.SHIFT and event.key in CONFIGURE_KEYS:
                 response = SelectedAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
-            elif self.engine.key_mod == "command" and event.key in CONFIGURE_KEYS:
+            elif self.engine.key_mod == KeyMod.COMMAND and event.key in CONFIGURE_KEYS:
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
                 if event.key in CONFIGURE_KEYS:
@@ -257,9 +257,9 @@ class CrewConfigurationHandler(EventHandler):
         if event.type == pygame.KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == "shift" and event.key in CONFIGURE_KEYS:
+            if self.engine.key_mod == KeyMod.SHIFT and event.key in CONFIGURE_KEYS:
                 response = SelectedAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
-            elif self.engine.key_mod == "command" and event.key in CONFIGURE_KEYS:
+            elif self.engine.key_mod == KeyMod.COMMAND and event.key in CONFIGURE_KEYS:
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
                 if event.key in CONFIGURE_KEYS:
@@ -317,9 +317,9 @@ class CargoConfigurationHandler(EventHandler):
         if event.type == pygame.KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == "shift" and event.key in CONFIGURE_KEYS:
+            if self.engine.key_mod == KeyMod.SHIFT and event.key in CONFIGURE_KEYS:
                 response = SelectedAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
-            elif self.engine.key_mod == "command" and event.key in CONFIGURE_KEYS:
+            elif self.engine.key_mod == KeyMod.COMMAND and event.key in CONFIGURE_KEYS:
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
                 if event.key in CONFIGURE_KEYS:
@@ -369,7 +369,7 @@ class GameOverEventHandler(EventHandler):
         if event.type == pygame.KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == "command" and event.key in CONFIGURE_KEYS:
+            if self.engine.key_mod == KeyMod.COMMAND and event.key in CONFIGURE_KEYS:
                 response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:

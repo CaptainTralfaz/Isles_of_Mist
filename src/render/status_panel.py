@@ -136,7 +136,7 @@ def status_panel_render(console: Surface,
         height = len(names)
         if height > 0:
             ammo_surf = Surface((ui_layout.status_width - 2 * margin,
-                                 height * game_font.get_height()))  # + (height - 1) * tile_size // 2
+                                 height * game_font.get_height()))
             for i in range(0, height):
                 ammo_surf.blit(names[i], (0, i * game_font.get_height()))
                 ammo_surf.blit(icons[i], (ammo_surf.get_width() - icons[i].get_width(),

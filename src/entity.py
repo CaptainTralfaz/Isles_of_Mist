@@ -16,7 +16,8 @@ if TYPE_CHECKING:
     from components.sails import Sails
     from components.view import View
     from sprite import Sprite
-
+    
+# noinspection
 T = TypeVar("T", bound="Entity")
 
 
