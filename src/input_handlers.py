@@ -5,9 +5,20 @@ from typing import Optional, TYPE_CHECKING
 import pygame.event
 import pygame.mouse as mouse
 
-from actions import Action, AutoAction, ActionQuit, MovementAction, RotateAction, MouseMoveAction, \
-    ShipAction, AttackAction, PortAction, RepairAction, ExitMenuAction, ConfigureAction, \
-    SelectedAction, ChangeSelectionAction
+from action.attack.attack_choice import AttackAction
+from action.auto.auto import AutoAction
+from action.base import Action
+from action.mouse import MouseMoveAction
+from action.move.movement import MovementAction
+from action.move.rotate import RotateAction
+from action.port.port_choice import PortAction
+from action.quit import ActionQuit
+from action.repair.repair_choice import RepairAction
+from action.ship_config.change_select import ChangeSelectionAction
+from action.ship_config.configure import ConfigureAction
+from action.ship_config.exit import ExitMenuAction
+from action.ship_config.selected import SelectedAction
+from action.ship_config.ship import ShipAction
 from constants import colors
 from custom_exceptions import Impossible
 from enums import GameStates, Location, KeyMod

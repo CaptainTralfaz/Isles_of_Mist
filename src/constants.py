@@ -32,7 +32,6 @@ def get_images():
         }
         for key in data['assets'].keys():
             for sprite in data['assets'][key]:
-                # print(f"assets/{key}/{sprite}.png")
                 icon = image.load(f"assets/{key}/{sprite}.png")
                 image_dicts[key][sprite] = icon
         _entity_icons = image_dicts['entities']
@@ -55,7 +54,6 @@ def get_items():
             print(f"loading error on {stream}")
         for item in data['item_stats'].keys():
             data['item_stats'][item]['category'] = ItemType(data['item_stats'][item]['category'])
-        print(data['item_stats'])
     
     return data['item_stats']
 

@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from actions import Action, MeleeAction, RotateAction, MovementAction, WanderAction
+from action.attack.melee import MeleeAction
+from action.base import Action
+from action.move.movement import MovementAction
+from action.move.rotate import RotateAction
+from action.move.wander import WanderAction
 from utilities import get_distance, closest_rotation, get_neighbor
 
 if TYPE_CHECKING:
