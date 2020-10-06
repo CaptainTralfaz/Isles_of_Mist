@@ -10,12 +10,12 @@ from render.utilities import make_text_button, make_arrow_button, render_border
 
 if TYPE_CHECKING:
     from entity import Actor
-    from enums import GameStates
+    from enums import GameStates, KeyMod
     from ui import DisplayInfo
 
 
 def control_panel_render(console: Surface,
-                         key_mod: str,
+                         key_mod: KeyMod,
                          game_state: GameStates,
                          player: Actor,
                          ui_layout: DisplayInfo,

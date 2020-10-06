@@ -23,7 +23,6 @@ def crew_render(console: Surface,
     :param crew: player's Crew component
     :param time: current game Time
     :param ui_layout: DisplayInfo
-    :param sky: current sky color
     :return: None
     """
     crew_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))

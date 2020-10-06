@@ -44,6 +44,15 @@ class GameStates(Enum):
     PLAYER_DEAD = auto()
 
 
+class KeyMod(Enum):
+    """
+    Enum of possible weather values
+    """
+    SHIFT = auto()
+    COMMAND = auto()
+    OPTION = auto()
+
+
 class ItemType(Enum):
     """
     Enum of possible Item Types

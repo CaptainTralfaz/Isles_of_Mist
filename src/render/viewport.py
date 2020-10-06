@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from pygame import display, Surface
 
 from constants import view_port, tile_size, terrain_icons, move_elevations, sprites, margin, entity_icons
-from enums import GameStates, Location
+from enums import GameStates, Location, KeyMod
 from render.utilities import map_to_surface_coords, get_rotated_image, render_border, create_ship_icon
 from utilities import get_cone_target_hexes_at_location
 
@@ -54,7 +54,7 @@ def viewport_render(game_map: GameMap,
                               map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     if game_map.engine.key_mod and game_map.engine.game_state == GameStates.ACTION:
-        if game_map.engine.key_mod == "shift" and not (player.x, player.y) == game_map.port:
+        if game_map.engine.key_mod == KeyMod.SHIFT and not (player.x, player.y) == game_map.port:
             target_tiles = []
             ammo = {'arrows': player.crew.count // 4}
             enough_ammo = True
