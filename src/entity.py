@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 from typing import Optional, Type, TypeVar, TYPE_CHECKING
 
-from enums import RenderOrder
+from constants.enums import RenderOrder
 from utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
 
 if TYPE_CHECKING:

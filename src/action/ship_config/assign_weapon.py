@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from action.base import Action
 from action.ship_config.change_select import ChangeSelectionAction
 from custom_exceptions import Impossible
-from enums import Location, GameStates
+from constants.enums import Location, GameStates
 
 if TYPE_CHECKING:
     from entity import Actor

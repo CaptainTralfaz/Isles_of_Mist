@@ -1,5 +1,5 @@
 from pygame import K_UP, K_DOWN, K_LEFT, K_RIGHT
-from enums import KeyMod, Location
+from constants.enums import KeyMod, Location
 
 
 MODIFIERS = {

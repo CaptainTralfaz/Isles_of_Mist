@@ -2,8 +2,9 @@ from random import randint, choice
 
 from pygame import draw, Surface
 
-from constants import colors, margin
-from enums import Conditions, TimeOfDay
+from constants.constants import margin
+from constants.colors import colors
+from constants.enums import Conditions, TimeOfDay
 from game_map import GameMap
 from utilities import direction_angle, get_neighbor
 

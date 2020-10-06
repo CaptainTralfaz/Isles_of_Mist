@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from action.base import Action
-from enums import GameStates
+from constants.enums import GameStates
 
 if TYPE_CHECKING:
     from entity import Actor

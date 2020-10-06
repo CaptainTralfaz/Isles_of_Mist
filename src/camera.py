@@ -1,4 +1,4 @@
-from constants import tile_size
+from constants.constants import tile_size
 
 
 class Camera:

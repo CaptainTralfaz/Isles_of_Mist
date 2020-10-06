@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from constants import move_elevations
-from enums import Location, GameStates, KeyMod
+from constants.constants import move_elevations
+from constants.enums import Location, GameStates, KeyMod
 from utilities import get_cone_target_hexes_at_location
 
 if TYPE_CHECKING:

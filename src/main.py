@@ -5,7 +5,9 @@ import random
 import pygame
 
 import entity_factory
-from constants import colors, map_width, map_height, caption, misc_icons, FPS
+from constants.constants import map_width, map_height, caption, FPS
+from constants.colors import colors
+from constants.images import misc_icons
 from engine import Engine
 from procgen import generate_map
 from ui import DisplayInfo

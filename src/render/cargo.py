@@ -4,7 +4,10 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants import game_font, margin, colors, item_stats, cargo_icons
+from constants.constants import game_font, margin
+from constants.colors import colors
+from constants.stats import item_stats
+from constants.images import cargo_icons
 from render.utilities import render_border
 
 if TYPE_CHECKING:

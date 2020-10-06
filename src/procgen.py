@@ -10,8 +10,8 @@ from opensimplex import OpenSimplex
 
 import entity_factory
 from components.cargo import Cargo
-from constants import move_elevations
-from enums import Elevation
+from constants.constants import move_elevations
+from constants.enums import Elevation
 from game_map import GameMap
 from tile import Terrain
 

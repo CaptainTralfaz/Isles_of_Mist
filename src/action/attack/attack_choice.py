@@ -6,7 +6,7 @@ from action.attack.arrow import ArrowAction
 from action.attack.broadsides import BroadsideAction
 from action.attack.mine import MineAction
 from action.base import Action
-from enums import Location
+from constants.enums import Location
 
 if TYPE_CHECKING:
     from entity import Actor

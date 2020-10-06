@@ -1,5 +1,5 @@
 from components.base import BaseComponent
-from constants import colors
+from constants.colors import colors
 from entity import Actor
 
 

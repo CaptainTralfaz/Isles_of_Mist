@@ -6,7 +6,9 @@ from typing import List, Tuple, TYPE_CHECKING
 import pygame.transform as transform
 from pygame import Surface, draw, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
-from constants import colors, margin, tile_size, view_port, game_font, entity_icons
+from constants.constants import margin, tile_size, view_port, game_font
+from constants.colors import colors
+from constants.images import entity_icons
 from utilities import direction_angle
 
 if TYPE_CHECKING:

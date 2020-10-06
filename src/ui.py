@@ -1,4 +1,4 @@
-from constants import message_count, block_size, view_port, tile_size, game_font, margin
+from constants.constants import message_count, block_size, view_port, tile_size, game_font, margin
 
 
 class DisplayInfo:

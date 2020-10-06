@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants import view_port, game_font, colors, margin
+from constants.constants import view_port, game_font, margin
+from constants.colors import colors
 from render.utilities import surface_to_map_coords, render_border, render_simple_bar
 
 if TYPE_CHECKING:

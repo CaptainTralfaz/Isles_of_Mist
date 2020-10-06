@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from action.base import Action
 from action.ship_config.assign_crew import AssignCrewAction
 from action.ship_config.assign_weapon import AssignWeaponAction
-from enums import GameStates
+from constants.enums import GameStates
 
 if TYPE_CHECKING:
     from entity import Actor

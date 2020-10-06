@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 from action.base import Action
-from constants import colors
+from constants.colors import colors
 from utilities import choice_from_dict
 
 if TYPE_CHECKING:
