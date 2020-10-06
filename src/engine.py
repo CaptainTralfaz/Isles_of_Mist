@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface, time
 
-from actions import MovementAction
+from action.move.movement import MovementAction
 from camera import Camera
 from constants import time_tick
 from custom_exceptions import Impossible
