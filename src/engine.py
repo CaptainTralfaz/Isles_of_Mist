@@ -9,7 +9,11 @@ from camera import Camera
 from constants import time_tick
 from custom_exceptions import Impossible
 from enums import GameStates
-from input_handlers import MainEventHandler
+from event_handlers.cargo_config import CargoConfigurationHandler
+from event_handlers.crew_config import CrewConfigurationHandler
+from event_handlers.main_game import MainEventHandler
+from event_handlers.player_dead import GameOverEventHandler
+from event_handlers.weapon_config import WeaponConfigurationHandler
 from message_log import MessageLog
 from render.cargo import cargo_render
 from render.controls import control_panel_render
@@ -42,7 +46,19 @@ class Engine:
         self.key_mod = None
         self.camera = Camera()
         self.game_state = GameStates.ACTION
-    
+
+    def get_handler(self):
+        if self.game_state == GameStates.ACTION:
+            self.event_handler = MainEventHandler(self)
+        elif self.game_state == GameStates.WEAPON_CONFIG:
+            self.event_handler = WeaponConfigurationHandler(self)
+        elif self.game_state == GameStates.CREW_CONFIG:
+            self.event_handler = CrewConfigurationHandler(self)
+        elif self.game_state == GameStates.CARGO_CONFIG:
+            self.event_handler = CargoConfigurationHandler(self)
+        elif self.game_state == GameStates.PLAYER_DEAD:
+            self.event_handler = GameOverEventHandler(self)
+
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             if entity.is_alive and entity.ai:

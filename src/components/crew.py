@@ -5,7 +5,7 @@ from components.base import BaseComponent
 from constants import colors, move_elevations
 from entity import Actor
 from enums import GameStates, RenderOrder
-from input_handlers import GameOverEventHandler
+from event_handlers.player_dead import GameOverEventHandler
 from utilities import choice_from_dict
 
 
