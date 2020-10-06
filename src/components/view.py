@@ -1,6 +1,6 @@
 from components.base import BaseComponent
 from entity import Actor
-from tile import Elevation
+from enums import Elevation
 
 
 class View(BaseComponent):

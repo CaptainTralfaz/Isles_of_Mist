@@ -1,7 +1,6 @@
 from pygame import image, font
-
-from enums import ItemType
-from tile import Elevation
+from yaml import load, Loader
+from enums import ItemType, Elevation
 
 font.init()
 
@@ -12,14 +11,56 @@ map_width = 48
 map_height = 48
 caption = "Isles of Mist"
 
-# TODO YAML
-# images = {}
-# with open(file="data/images.yaml", mode="r") as file:
-#     data = yaml.safe_load(file)
-#     for icon_type in data.keys():
-#         for icon in icon_type:
-#             images[icon] = image.load(f"assets/{icon_type}/{icon_type[icon]}]")
-# print(images)
+
+def get_images():
+    data = None
+    with open(file="data/images.yaml", mode="r") as stream:
+        try:
+            data = load(stream, Loader=Loader)
+        except FileNotFoundError:
+            print(f"loading error on {stream}")
+        entities = {}
+        terrain = {}
+        cargo = {}
+        misc = {}
+        image_dicts = {
+            'entities': entities,
+            'terrain': terrain,
+            'cargo': cargo,
+            'misc': misc,
+        }
+        for key in data['assets'].keys():
+            for sprite in data['assets'][key]:
+                # print(f"assets/{key}/{sprite}.png")
+                icon = image.load(f"assets/{key}/{sprite}.png")
+                image_dicts[key][sprite] = icon
+        _entity_icons = image_dicts['entities']
+        _terrain_icons = image_dicts['terrain']
+        _cargo_icons = image_dicts['cargo']
+        _misc_icons = image_dicts['misc']
+    
+    return _entity_icons, _terrain_icons, _cargo_icons, _misc_icons
+
+
+entity_icons, terrain_icons, cargo_icons, misc_icons = get_images()
+
+
+def get_items():
+    data = None
+    with open(file="data/items.yaml", mode="r") as stream:
+        try:
+            data = load(stream, Loader=Loader)
+        except FileNotFoundError:
+            print(f"loading error on {stream}")
+        for item in data['item_stats'].keys():
+            data['item_stats'][item]['category'] = ItemType(data['item_stats'][item]['category'])
+        print(data['item_stats'])
+    
+    return data['item_stats']
+
+
+item_stats = get_items()
+
 # TODO Variable later ??
 # game_font = font.Font('freesansbold.ttf', 16)  # Original
 # game_font = font.SysFont('chalkboardttc', 14)
@@ -37,97 +78,6 @@ animation_speed = 2.0
 flicker_timer = 0.0
 sprite_image = 0
 
-compass = image.load("assets/misc/compass.png")
-pointer = image.load("assets/misc/pointer.png")
-arrow_key = image.load("assets/misc/arrow_key.png")
-cloud = image.load("assets/misc/cloud.png")
-haze = image.load("assets/misc/haze.png")
-moon = image.load("assets/misc/moon.png")
-moon_shadow = image.load("assets/misc/moon_shadow.png")
-rain = image.load("assets/misc/rain.png")
-sky = image.load("assets/misc/sky.png")
-storm = image.load("assets/misc/storm.png")
-sun = image.load("assets/misc/sun.png")
-
-player_image = image.load("assets/entities/ship_icon.png")
-turtle_image = image.load("assets/entities/turtle.png")
-serpent_image = image.load("assets/entities/serpent.png")
-bat_image = image.load("assets/entities/bat.png")
-carcass = image.load("assets/entities/carcass.png")
-shipwreck = image.load("assets/entities/shipwreck.png")
-chest = image.load("assets/entities/chest.png")
-bottle = image.load("assets/entities/bottle.png")
-mermaid_image = image.load("assets/entities/mermaid.png")
-
-ocean = image.load("assets/terrain/ocean.png")
-water = image.load("assets/terrain/water.png")
-shallows = image.load("assets/terrain/shallows.png")
-beach = image.load("assets/terrain/beach.png")
-grass = image.load("assets/terrain/grass.png")
-jungle = image.load("assets/terrain/jungle.png")
-mountain = image.load("assets/terrain/mountain.png")
-volcano = image.load("assets/terrain/volcano.png")
-fog_of_war = image.load("assets/terrain/fog_of_war.png")
-mist = image.load("assets/terrain/mist.png")
-highlight = image.load("assets/terrain/highlight.png")
-minefield = image.load("assets/terrain/minefield.png")
-
-port = image.load("assets/terrain/port.png")
-coral = image.load("assets/terrain/coral.png")
-rocks = image.load("assets/terrain/rocks.png")
-sandbar = image.load("assets/terrain/sandbar.png")
-seaweed = image.load("assets/terrain/seaweed.png")
-
-mast_0 = image.load("assets/entities/mast_0.png")
-mast_1 = image.load("assets/entities/mast_1.png")
-mast_2 = image.load("assets/entities/mast_2.png")
-mast_3 = image.load("assets/entities/mast_3.png")
-mast_4 = image.load("assets/entities/mast_4.png")
-
-images = {
-    'mast_0': mast_0,
-    'mast_1': mast_1,
-    'mast_2': mast_2,
-    'mast_3': mast_3,
-    'mast_4': mast_4,
-    'turtle_image': turtle_image,
-    'serpent_image': serpent_image,
-    'bat_image': bat_image,
-    'mermaid_image': mermaid_image,
-    'carcass': carcass,
-    'shipwreck': shipwreck,
-    'chest': chest,
-    'bottle': bottle,
-    'ocean': ocean,
-    'water': water,
-    'shallows': shallows,
-    'beach': beach,
-    'grass': grass,
-    'jungle': jungle,
-    'mountain': mountain,
-    'volcano': volcano,
-    'fog_of_war': fog_of_war,
-    'mist': mist,
-    'coral': coral,
-    'rocks': rocks,
-    'sandbar': sandbar,
-    'seaweed': seaweed,
-    'port': port,
-    'highlight': highlight,
-    'minefield': minefield,
-    'arrow_key': arrow_key,
-    'compass': compass,
-    'pointer': pointer,
-    'cloudy': cloud,
-    'hazy': haze,
-    'sun': sun,
-    'moon': moon,
-    'moon_shadow': moon_shadow,
-    'rainy': rain,
-    'clear': sky,
-    'stormy': storm,
-}
-
 sprite_sheet = image.load("assets/entities/sprite_sheet.png")
 
 bat_sprite = []
@@ -139,69 +89,12 @@ for i in range(sprite_count):
     serpent_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 1, tile_size, tile_size))
     turtle_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 2, tile_size, tile_size))
     mermaid_sprite.append(sprite_sheet.subsurface(i * tile_size, tile_size * 3, tile_size, tile_size))
+
 sprites = {
     'turtle_sprite': turtle_sprite,
     'serpent_sprite': serpent_sprite,
     'bat_sprite': bat_sprite,
     'mermaid_sprite': mermaid_sprite,
-}
-
-arrows = image.load("assets/cargo/arrows.png")
-bat_wing = image.load("assets/cargo/bat wing.png")
-bolts = image.load("assets/cargo/bolts.png")
-bread = image.load("assets/cargo/bread.png")
-brick = image.load("assets/cargo/brick.png")
-cannonballs = image.load("assets/cargo/cannonballs.png")
-canvas = image.load("assets/cargo/canvas.png")
-fish = image.load("assets/cargo/fish.png")
-fruit = image.load("assets/cargo/fruit.png")
-grain = image.load("assets/cargo/grain.png")
-leather = image.load("assets/cargo/leather.png")
-log = image.load("assets/cargo/log.png")
-map_image = image.load("assets/cargo/map.png")
-meat = image.load("assets/cargo/meat.png")
-message = image.load("assets/cargo/message.png")
-mines = image.load("assets/cargo/mines.png")
-pearl = image.load("assets/cargo/pearl.png")
-rope = image.load("assets/cargo/rope.png")
-rum = image.load("assets/cargo/rum.png")
-salt = image.load("assets/cargo/salt.png")
-scale = image.load("assets/cargo/scale.png")
-shell = image.load("assets/cargo/shell.png")
-skins = image.load("assets/cargo/skins.png")
-stone = image.load("assets/cargo/stone.png")
-tar = image.load("assets/cargo/tar.png")
-water = image.load("assets/cargo/water.png")
-wood = image.load("assets/cargo/wood.png")
-
-cargo_icons = {
-    'arrows': arrows,
-    'bat wing': bat_wing,
-    'bolts': bolts,
-    'bread': bread,
-    'brick': brick,
-    'cannonballs': cannonballs,
-    'canvas': canvas,
-    'fish': fish,
-    'fruit': fruit,
-    'grain': grain,
-    'leather': leather,
-    'log': log,
-    'map': map_image,
-    'meat': meat,
-    'message': message,
-    'mines': mines,
-    'pearl': pearl,
-    'rope': rope,
-    'rum': rum,
-    'salt': rum,
-    'scale': scale,
-    'shell': shell,
-    'skins': skins,
-    'stone': stone,
-    'tar': tar,
-    'water': water,
-    'wood': wood,
 }
 
 colors = {
@@ -249,105 +142,6 @@ move_elevations = {
     'shallows': [Elevation.SHALLOWS],
     'all': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS,
             Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO]
-}
-
-item_stats = {
-    'canvas': {
-        'weight': 2,
-        'volume': 4,
-        'category': ItemType.GOODS,
-    },
-    'rope': {
-        'weight': 1,
-        'volume': 1,
-        'category': ItemType.GOODS,
-    },
-    'tar': {
-        'weight': 3,
-        'volume': 3,
-        'category': ItemType.GOODS,
-    },
-    'wood': {
-        'weight': 2,
-        'volume': 4,
-        'category': ItemType.GOODS,
-    },
-    'meat': {
-        'weight': 1,
-        'volume': 1,
-        'category': ItemType.SUPPLIES,
-    },
-    'rum': {
-        'weight': 1,
-        'volume': 1,
-        'category': ItemType.SUPPLIES,
-    },
-    'fish': {
-        'weight': 1,
-        'volume': 1,
-        'category': ItemType.SUPPLIES,
-    },
-    'fruit': {
-        'weight': 1,
-        'volume': 1,
-        'category': ItemType.SUPPLIES,
-    },
-    'water': {
-        'weight': 2,
-        'volume': 3,
-        'category': ItemType.SUPPLIES,
-    },
-    'pearl': {
-        'weight': 0,
-        'volume': 0,
-        'category': ItemType.MONEY,
-    },
-    'bat wing': {
-        'weight': 1,
-        'volume': 3,
-        'category': ItemType.EXOTICS,
-    },
-    
-    'map': {
-        'weight': 1,
-        'volume': 1,
-        'category': ItemType.EXOTICS,
-    },
-    'message': {
-        'weight': 0,
-        'volume': 0,
-        'category': ItemType.EXOTICS,
-    },
-    'shell': {
-        'weight': 5,
-        'volume': 5,
-        'category': ItemType.EXOTICS,
-    },
-    'scale': {
-        'weight': 2,
-        'volume': 3,
-        'category': ItemType.EXOTICS,
-    },
-    'arrows': {
-        'weight': .1,
-        'volume': .1,
-        'category': ItemType.AMMO,
-    },
-    'bolts': {
-        'weight': 1,
-        'volume': 2,
-        'category': ItemType.AMMO,
-    },
-    'cannonballs': {
-        'weight': 2,
-        'volume': 1,
-        'category': ItemType.AMMO,
-    },
-    'mines': {
-        'weight': 2,
-        'volume': 2,
-        'category': ItemType.AMMO,
-    },
 }
 
 weapon_stats = {'ballista': {

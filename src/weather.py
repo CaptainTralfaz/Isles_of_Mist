@@ -1,10 +1,9 @@
-from enum import Enum, auto
 from random import randint, choice
 
 from pygame import draw, Surface
 
 from constants import colors, margin
-from enums import Conditions
+from enums import Conditions, TimeOfDay
 from game_map import GameMap
 from utilities import direction_angle, get_neighbor
 
@@ -209,7 +208,7 @@ class Rain:
         new_loc = []
         for x, y, s in self.locations:
             # Draw the line
-            draw.line(rain_surf, colors['mountain'], (x, y), (x, y - s), 1)
+            draw.line(rain_surf, colors['white'], (x, y), (x, y - s), 1)
             # reset if past bottom of viewport
             if y + s > self.height:
                 x = randint(0, self.width - 1)
@@ -351,24 +350,6 @@ class Time:
             return time_of_day_info[TimeOfDay.MIDNIGHT]
         else:
             return KeyError
-
-
-class TimeOfDay(Enum):
-    """
-    Time of Day Enum, mainly used as key for information dictionary
-    """
-    DAWN = auto()
-    MORNING = auto()
-    FORENOON = auto()
-    NOON = auto()
-    AFTERNOON = auto()
-    LATE_DAY = auto()
-    EVENING = auto()
-    TWILIGHT = auto()
-    NIGHT = auto()
-    MIDNIGHT = auto()
-    DEEP_NIGHT = auto()
-    WEE_HOURS = auto()
 
 
 time_of_day_info = {TimeOfDay.DAWN: {'name': 'Dawn', 'begin': 5, 'view': 0, 'mist': 10},
