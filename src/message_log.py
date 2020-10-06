@@ -3,7 +3,7 @@ from typing import List, Reversible, Tuple
 from pygame import Surface
 
 from constants import colors, game_font, margin
-from render_functions import render_border
+from render.utilities import render_border
 from ui import DisplayInfo
 
 
