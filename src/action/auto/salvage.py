@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, TYPE_CHECKING
 
 from action.base import Action
-from constants import colors
+from constants.colors import colors
 
 if TYPE_CHECKING:
     from entity import Actor, Entity

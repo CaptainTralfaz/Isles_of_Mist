@@ -4,7 +4,7 @@ from typing import Dict, List, TYPE_CHECKING
 
 from action.base import Action
 from constants import colors
-from enums import Location
+from constants.enums import Location
 
 if TYPE_CHECKING:
     from entity import Actor

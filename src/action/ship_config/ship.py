@@ -8,7 +8,7 @@ from action.ship_config.sail import SailAction
 
 if TYPE_CHECKING:
     from entity import Actor
-    from enums import GameStates
+    from constants.enums import GameStates
 
 
 class ShipAction(Action):

@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING
 
 from pygame import display, Surface
 
-from constants import view_port, tile_size, terrain_icons, move_elevations, sprites, margin, entity_icons
-from enums import GameStates, Location, KeyMod
+from constants.constants import view_port, tile_size, move_elevations, margin
+from constants.images import entity_icons, terrain_icons
+from constants.sprites import sprites
+from constants.enums import GameStates, Location, KeyMod
 from render.utilities import map_to_surface_coords, get_rotated_image, render_border, create_ship_icon
 from utilities import get_cone_target_hexes_at_location
 

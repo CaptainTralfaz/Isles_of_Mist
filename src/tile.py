@@ -1,4 +1,4 @@
-from enums import Elevation
+from constants.enums import Elevation
 
 
 class Terrain:

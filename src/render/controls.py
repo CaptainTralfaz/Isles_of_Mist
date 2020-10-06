@@ -4,13 +4,15 @@ from typing import Tuple, TYPE_CHECKING
 
 from pygame import Surface
 
-from constants import margin, misc_icons, game_font, colors
+from constants.constants import margin, game_font
+from constants.colors import colors
+from constants.images import misc_icons
 from control_panel import get_keys
 from render.utilities import make_text_button, make_arrow_button, render_border
 
 if TYPE_CHECKING:
     from entity import Actor
-    from enums import GameStates, KeyMod
+    from constants.enums import GameStates, KeyMod
     from ui import DisplayInfo
 
 

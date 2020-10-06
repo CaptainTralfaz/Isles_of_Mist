@@ -11,11 +11,11 @@ from action.ship_config.change_select import ChangeSelectionAction
 from action.ship_config.configure import ConfigureAction
 from action.ship_config.exit import ExitMenuAction
 from action.ship_config.selected import SelectedAction
-from constants import colors
+from constants.colors import colors
 from custom_exceptions import Impossible
-from enums import GameStates, KeyMod
+from constants.enums import GameStates, KeyMod
 from event_handlers.base import EventHandler
-from keys import MODIFIERS, CONFIGURE_KEYS
+from constants.keys import MODIFIERS, CONFIGURE_KEYS
 
 if TYPE_CHECKING:
     from engine import Engine

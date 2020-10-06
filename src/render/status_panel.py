@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants import game_font, margin, colors, cargo_icons, misc_icons, tile_size
+from constants.constants import game_font, margin, tile_size
+from constants.colors import colors
+from constants.images import cargo_icons, misc_icons
 from render.utilities import render_border, render_hp_bar, rot_center, colorize
 from utilities import direction_angle
 

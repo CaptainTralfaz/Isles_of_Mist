@@ -2,7 +2,8 @@ from typing import List, Reversible, Tuple
 
 from pygame import Surface
 
-from constants import colors, game_font, margin
+from constants.constants import game_font, margin
+from constants.colors import colors
 from render.utilities import render_border
 from ui import DisplayInfo
 

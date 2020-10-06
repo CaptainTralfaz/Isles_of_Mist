@@ -1,7 +1,8 @@
 from typing import Dict
 
 from components.base import BaseComponent
-from constants import colors, item_stats
+from constants.colors import colors
+from constants.stats import item_stats
 from custom_exceptions import Impossible
 from entity import Entity
 

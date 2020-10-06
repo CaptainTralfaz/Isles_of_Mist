@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants import margin, colors, game_font
+from constants.constants import margin, game_font
+from constants.colors import colors
 from render.utilities import render_border
 
 if TYPE_CHECKING:
@@ -39,11 +40,11 @@ def crew_render(console: Surface,
         occupation_surf = game_font.render(f"{crewman.occupation.capitalize()}", True, colors['mountain'])
         crew_surf.blit(occupation_surf, (margin, height))
         name_surf = game_font.render(f"{crewman.name}", True, text_color, background)
-        crew_surf.blit(name_surf, (margin + 160, height))
+        crew_surf.blit(name_surf, (margin + 200, height))
         for key in crew.assignments.keys():
             if crew.assignments[key] == crewman:
                 assign_surf = game_font.render(f"{str(key).capitalize()}", True, colors['mountain'])
-                crew_surf.blit(assign_surf, (margin + 100, height))
+                crew_surf.blit(assign_surf, (margin + 120, height))
         height += game_font.get_height()
         count += 1
     

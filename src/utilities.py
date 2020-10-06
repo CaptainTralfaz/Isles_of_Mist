@@ -1,7 +1,7 @@
 from random import randint, choice
 from typing import List, Tuple, Dict
 
-from enums import Location
+from constants.enums import Location
 
 direction_angle = [0, 60, 120, 180, 240, 300]
 

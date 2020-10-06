@@ -6,9 +6,9 @@ from pygame import Surface, time
 
 from action.move.movement import MovementAction
 from camera import Camera
-from constants import time_tick
+from constants.constants import time_tick
 from custom_exceptions import Impossible
-from enums import GameStates
+from constants.enums import GameStates
 from event_handlers.cargo_config import CargoConfigurationHandler
 from event_handlers.crew_config import CrewConfigurationHandler
 from event_handlers.main_game import MainEventHandler

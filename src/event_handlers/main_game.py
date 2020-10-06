@@ -14,11 +14,11 @@ from action.port.port_choice import PortAction
 from action.quit import ActionQuit
 from action.repair.repair_choice import RepairAction
 from action.ship_config.ship import ShipAction
-from constants import colors
+from constants.colors import colors
 from custom_exceptions import Impossible
-from enums import GameStates, KeyMod
+from constants.enums import GameStates, KeyMod
 from event_handlers.base import EventHandler
-from keys import MODIFIERS, ATTACK_KEYS, REPAIR_KEYS, PORT_KEYS, SHIP_KEYS, AUTO_KEYS, MOVEMENT_KEYS, ROTATE_KEYS
+from constants.keys import MODIFIERS, ATTACK_KEYS, REPAIR_KEYS, PORT_KEYS, SHIP_KEYS, AUTO_KEYS, MOVEMENT_KEYS, ROTATE_KEYS
 
 if TYPE_CHECKING:
     from engine import Engine

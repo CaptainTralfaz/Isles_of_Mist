@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from action.attack.split_damage import SplitDamageAction
 from custom_exceptions import Impossible
-from enums import Location
+from constants.enums import Location
 from utilities import get_cone_target_hexes_at_location
 
 if TYPE_CHECKING:

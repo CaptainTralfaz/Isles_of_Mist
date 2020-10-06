@@ -3,10 +3,12 @@ from typing import List, Tuple, Dict, Optional
 
 from components.base import BaseComponent
 from components.weapon import Weapon
-from constants import colors, weapons, item_stats
+from constants.colors import colors
+from constants.weapons import weapons
+from constants.stats import item_stats
 from custom_exceptions import Impossible
 from entity import Actor
-from enums import Location
+from constants.enums import Location
 
 max_slots = 4
 

@@ -2,9 +2,10 @@ from random import choice
 from typing import List, Dict
 
 from components.base import BaseComponent
-from constants import colors, move_elevations
+from constants.constants import move_elevations
+from constants.colors import colors
 from entity import Actor
-from enums import GameStates, RenderOrder
+from constants.enums import GameStates, RenderOrder
 from event_handlers.player_dead import GameOverEventHandler
 from utilities import choice_from_dict
 

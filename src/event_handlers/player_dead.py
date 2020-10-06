@@ -8,11 +8,11 @@ from pygame import event as pygame_event
 from action.mouse import MouseMoveAction
 from action.quit import ActionQuit
 from action.ship_config.configure import ConfigureAction
-from constants import colors
+from constants.colors import colors
 from custom_exceptions import Impossible
-from enums import GameStates, KeyMod
+from constants.enums import GameStates, KeyMod
 from event_handlers.base import EventHandler
-from keys import MODIFIERS, CONFIGURE_KEYS
+from constants.keys import MODIFIERS, CONFIGURE_KEYS
 
 if TYPE_CHECKING:
     from engine import Engine
