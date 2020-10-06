@@ -5,7 +5,7 @@ import random
 import pygame
 
 import entity_factory
-from constants import colors, map_width, map_height, caption, compass, FPS
+from constants import colors, map_width, map_height, caption, misc_icons, FPS
 from engine import Engine
 from procgen import generate_map
 from ui import DisplayInfo
@@ -33,7 +33,7 @@ def main() -> None:
                                            flags=pygame.SCALED | pygame.RESIZABLE)
     game_display.fill(colors['black'])
     pygame.display.set_caption(caption)
-    pygame.display.set_icon(compass)
+    pygame.display.set_icon(misc_icons['compass'])
     pygame.display.flip()
     
     should_quit = False

@@ -1,0 +1,78 @@
+item_stats:
+  canvas:
+    weight: 2
+    volume: 4
+    category: 4
+  rope:
+    weight: 1
+    volume: 1
+    category: 4
+  tar:
+    weight: 3
+    volume: 3
+    category: 4
+  wood:
+    weight: 2
+    volume: 4
+    category: 4
+  meat:
+    weight: 1
+    volume: 1
+    category: 3
+  rum:
+    weight: 1
+    volume: 1
+    category: 3
+  fish:
+    weight: 1
+    volume: 1
+    category: 3
+  fruit:
+    weight: 1
+    volume: 1
+    category: 3
+  water:
+    weight: 2
+    volume: 3
+    category: 3
+  pearl:
+    weight: 0
+    volume: 0
+    category: 1
+  bat wing:
+    weight: 1
+    volume: 3
+    category: 6
+  map:
+    weight: 1
+    volume: 1
+    category: 6
+  message:
+    weight: 0
+    volume: 0
+    category: 6
+  shell:
+    weight: 5
+    volume: 5
+    category: 6
+  scale:
+    weight: 2
+    volume: 3
+    category: 6
+  arrows:
+    weight: .1
+    volume: .1
+    category: 2
+  bolts:
+    weight: 1
+    volume: 2
+    category: 2
+  cannonballs:
+    weight: 2
+    volume: 1
+    category: 2
+  mines:
+    weight: 2
+    volume: 2
+    category: 2
+

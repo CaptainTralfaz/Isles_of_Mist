@@ -12,6 +12,24 @@ class Conditions(Enum):
     STORMY = auto()
 
 
+class TimeOfDay(Enum):
+    """
+    Time of Day Enum, mainly used as key for information dictionary
+    """
+    DAWN = auto()
+    MORNING = auto()
+    FORENOON = auto()
+    NOON = auto()
+    AFTERNOON = auto()
+    LATE_DAY = auto()
+    EVENING = auto()
+    TWILIGHT = auto()
+    NIGHT = auto()
+    MIDNIGHT = auto()
+    DEEP_NIGHT = auto()
+    WEE_HOURS = auto()
+
+
 class GameStates(Enum):
     """
     Enum of possible game states

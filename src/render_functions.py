@@ -5,7 +5,8 @@ import pygame.transform as transform
 from pygame import Surface, draw, display, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
 from camera import Camera
-from constants import colors, view_port, margin, game_font, images, sprites, cargo_icons, \
+from constants import colors, view_port, margin, game_font, sprites, \
+    entity_icons, terrain_icons, cargo_icons, misc_icons, \
     tile_size, block_size, move_elevations, item_stats
 from control_panel import get_keys
 from enums import GameStates, Location
@@ -113,10 +114,10 @@ def viewport_render(game_map: GameMap,
     for x in range(left, right):
         for y in range(top, bottom):
             if game_map.in_bounds(x, y) and game_map.terrain[x][y].explored:
-                map_surf.blit(images[game_map.terrain[x][y].elevation.name.lower()],
+                map_surf.blit(terrain_icons[game_map.terrain[x][y].elevation.name.lower()],
                               map_to_surface_coords(x, y, left, top, overlap, player, camera))
                 if game_map.terrain[x][y].decoration:
-                    map_surf.blit(images[game_map.terrain[x][y].decoration],
+                    map_surf.blit(terrain_icons[game_map.terrain[x][y].decoration],
                                   map_to_surface_coords(x, y, left, top, overlap, player, camera, entity=True))
                 # coord_text = game_font.render(f"{x}:{y}", False, (0, 0, 0))
                 # map_surf.blit(coord_text,
@@ -126,7 +127,7 @@ def viewport_render(game_map: GameMap,
     for x in range(left, right):
         for y in range(top, bottom):
             if (x, y) not in player.view.fov:
-                map_surf.blit(images["fog_of_war"],
+                map_surf.blit(terrain_icons["fog_of_war"],
                               map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     if game_map.engine.key_mod and game_map.engine.game_state == GameStates.ACTION:
@@ -190,7 +191,7 @@ def viewport_render(game_map: GameMap,
             
             for (x, y) in target_tiles:
                 if game_map.in_bounds(x, y) and (x, y) in player.view.fov:
-                    map_surf.blit(images["highlight"],
+                    map_surf.blit(terrain_icons["highlight"],
                                   map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     entities_sorted_for_rendering = sorted(
@@ -212,17 +213,17 @@ def viewport_render(game_map: GameMap,
         elif (entity.x, entity.y) in player.view.fov \
                 and entity.icon is not None \
                 and entity.is_alive:
-            map_surf.blit(get_rotated_image(images[entity.icon], entity.facing),
+            map_surf.blit(get_rotated_image(entity_icons[entity.icon], entity.facing),
                           map_to_surface_coords(entity.x, entity.y, left, top,
                                                 overlap, player, camera, entity=True))
         elif (entity.x, entity.y) in game_map.engine.player.view.fov \
                 and entity.icon is not None:
-            map_surf.blit(images[entity.icon],
+            map_surf.blit(entity_icons[entity.icon],
                           map_to_surface_coords(entity.x, entity.y, left, top, overlap, player, camera, entity=True))
     
     for x, y in player.view.fov:
         if game_map.in_bounds(x, y) and game_map.terrain[x][y].mist:
-            map_surf.blit(images["mist"],
+            map_surf.blit(terrain_icons["mist"],
                           map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     if weather.rain:
@@ -524,7 +525,7 @@ def control_panel_render(console: Surface, key_mod, game_state, player, ui_layou
                                          spacer=spacer,
                                          rotation=key['rotation'],
                                          text=key['text'],
-                                         icon=images['arrow_key'],
+                                         icon=misc_icons['arrow_key'],
                                          font=game_font,
                                          color=colors['mountain'],
                                          vertical=vertical)
@@ -618,10 +619,10 @@ def render_wind(direction: int, display_surf: Surface, ui: DisplayInfo) -> int:
     :param ui: display info
     :return: None
     """
-    compass = images['compass']
+    compass = misc_icons['compass']
     display_surf.blit(compass, (ui.status_width - compass.get_width() - 3 * margin, margin * 2))
     if direction is not None:
-        display_surf.blit(rot_center(image=images['pointer'], angle=direction_angle[direction]),
+        display_surf.blit(rot_center(image=misc_icons['pointer'], angle=direction_angle[direction]),
                           (ui.status_width - compass.get_width() - 3 * margin, margin * 2))
     return compass.get_height() + margin
 
@@ -637,9 +638,9 @@ def render_weather(time, weather, display_surf: Surface):
     weather_dict = weather.get_weather_info
     
     if 6 <= time.hrs < 18:
-        icon = images['sun']
+        icon = misc_icons['sun']
     else:
-        icon = images['moon']
+        icon = misc_icons['moon']
     
     numeric_time = 100 * time.hrs + 100 * time.mins // 60  # Example: 6:45 = 675, 21:30 = 2150
     if numeric_time < 600:
@@ -664,7 +665,7 @@ def render_weather(time, weather, display_surf: Surface):
     sky_surf.blit(icon, (icon_x - 8, icon_y))
     
     if not (600 <= numeric_time < 1800):
-        moon_shadow_icon = images['moon_shadow']
+        moon_shadow_icon = misc_icons['moon_shadow']
         moon_shadow_icon = colorize(image=moon_shadow_icon, new_color=time.get_sky_color)
         
         if numeric_time >= 1800:  # account for day change in middle of night
@@ -673,7 +674,7 @@ def render_weather(time, weather, display_surf: Surface):
             offset = 1
         sky_surf.blit(moon_shadow_icon, (icon_x - abs(time.day - 15 - offset) - 8, icon_y))
     
-    icon = images[weather_dict['name'].lower()]
+    icon = misc_icons[weather_dict['name'].lower()]
     for x in range(sky_surf.get_width() // icon.get_width()):
         sky_surf.blit(icon, (x * icon.get_width(), (x + 1) % 2))
     
@@ -711,7 +712,7 @@ def create_ship_icon(entity) -> Surface:
     icon = Surface((tile_size, tile_size))
     icon.set_colorkey(colors['black'])
     
-    sheet = images[entity.icon]
+    sheet = entity_icons[entity.icon]
     # if moving blit wake, but for now, if sail raised
     if entity.sails.raised:
         icon.blit(sheet.subsurface(wake), (0, 0))  # wake
