@@ -19,7 +19,7 @@ class View(BaseComponent):
                    self.engine.weather.get_weather_info['view']
         if distance < 1:
             distance = 1
-        if self.parent.flying or (self.parent.x, self.parent.y) == self.parent.game_map.port:
+        if self.parent.flying or (self.parent.x, self.parent.y) == self.parent.game_map.port.location:
             elevation = Elevation.JUNGLE
         else:
             elevation = Elevation.SHALLOWS
@@ -27,8 +27,8 @@ class View(BaseComponent):
                                                      self.parent.x,
                                                      self.parent.y,
                                                      elevation=elevation)
-        if self.parent.name != "Player" and self.parent.game_map.port in visible_tiles:
-            visible_tiles.remove(self.parent.game_map.port)
+        if self.parent.name != "Player" and self.parent.game_map.port.location in visible_tiles:
+            visible_tiles.remove(self.parent.game_map.port.location)
         for (x, y) in visible_tiles:
             if self.parent.name == "Player" \
                     and self.parent.game_map.in_bounds(x, y) \

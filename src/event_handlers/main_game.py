@@ -5,15 +5,15 @@ from typing import Optional, TYPE_CHECKING
 from pygame import QUIT, KEYUP, KEYDOWN, KMOD_NONE, K_ESCAPE, MOUSEMOTION, mouse
 from pygame import event as pygame_event
 
-from action.attack.attack_choice import AttackAction
-from action.auto.auto import AutoAction
-from action.mouse import MouseMoveAction
-from action.move.movement import MovementAction
-from action.move.rotate import RotateAction
-from action.port.port_choice import PortAction
-from action.quit import ActionQuit
-from action.repair.repair_choice import RepairAction
-from action.ship_config.ship import ShipAction
+from actions.attack.attack_choice import AttackAction
+from actions.auto.auto import AutoAction
+from actions.mouse import MouseMoveAction
+from actions.move.movement import MovementAction
+from actions.move.rotate import RotateAction
+from actions.port.port_choice import PortAction
+from actions.quit import ActionQuit
+from actions.repair.repair_choice import RepairAction
+from actions.ship_config.ship import ShipAction
 from constants.colors import colors
 from custom_exceptions import Impossible
 from constants.enums import GameStates, KeyMod
@@ -22,7 +22,7 @@ from constants.keys import MODIFIERS, ATTACK_KEYS, REPAIR_KEYS, PORT_KEYS, SHIP_
 
 if TYPE_CHECKING:
     from engine import Engine
-    from action.base import Action
+    from actions.base import Action
 
 
 class MainEventHandler(EventHandler):
@@ -64,7 +64,7 @@ class MainEventHandler(EventHandler):
     
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
-        port = (player.x, player.y) == self.engine.game_map.port
+        port = (player.x, player.y) == self.engine.game_map.port.location
         response = None
         if event.type == QUIT:
             response = ActionQuit(player)

@@ -195,7 +195,7 @@ def place_port(island_map: GameMap, island, ocean):
             coastline.append((x, y))
     (x, y) = choice(coastline)
     island_map.terrain[x][y].decoration = "port"
-    island_map.port = (x, y)
+    island_map.port.location = (x, y)
     print((x, y))
 
 

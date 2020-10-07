@@ -56,7 +56,7 @@ def viewport_render(game_map: GameMap,
                               map_to_surface_coords(x, y, left, top, overlap, player, camera))
     
     if game_map.engine.key_mod and game_map.engine.game_state == GameStates.ACTION:
-        if game_map.engine.key_mod == KeyMod.SHIFT and not (player.x, player.y) == game_map.port:
+        if game_map.engine.key_mod == KeyMod.SHIFT and not (player.x, player.y) == game_map.port.location:
             target_tiles = []
             ammo = {'arrows': player.crew.count // 4}
             enough_ammo = True

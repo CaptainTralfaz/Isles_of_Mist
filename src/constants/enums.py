@@ -44,6 +44,26 @@ class GameStates(Enum):
     PLAYER_DEAD = auto()
 
 
+class MenuKeys(Enum):
+    """
+    Enum of possible menu keys
+    """
+    UP = auto()
+    RIGHT = auto()
+    LEFT = auto()
+    DOWN = auto()
+ 
+
+class ShipConfig(Enum):
+    """
+    Enum of possible menu keys
+    """
+    SAILS = auto()
+    CARGO = auto()
+    CREW = auto()
+    WEAPONS = auto()
+
+    
 class KeyMod(Enum):
     """
     Enum of possible weather values
@@ -74,6 +94,16 @@ class Location(Enum):
     PORT = auto()
     AFT = auto()
     STORAGE = auto()
+    
+    
+class PortVisit(Enum):
+    """
+    Enum of attack directions
+    """
+    SHIPYARD = auto()
+    MERCHANT = auto()
+    TAVERN = auto()
+    SMITHY = auto()
 
 
 class RenderOrder(Enum):

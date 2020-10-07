@@ -5,18 +5,18 @@ from typing import Optional, TYPE_CHECKING
 from pygame import QUIT, KEYUP, KEYDOWN, KMOD_NONE, K_ESCAPE, MOUSEMOTION, mouse
 from pygame import event as pygame_event
 
-from action.mouse import MouseMoveAction
-from action.quit import ActionQuit
-from action.ship_config.configure import ConfigureAction
+from actions.mouse import MouseMoveAction
+from actions.quit import ActionQuit
+from actions.ship_config.configure import ConfigureAction
 from constants.colors import colors
 from custom_exceptions import Impossible
 from constants.enums import GameStates, KeyMod
 from event_handlers.base import EventHandler
-from constants.keys import MODIFIERS, CONFIGURE_KEYS
+from constants.keys import MODIFIERS, MENU_KEYS
 
 if TYPE_CHECKING:
     from engine import Engine
-    from action.base import Action
+    from actions.base import Action
 
 
 class GameOverEventHandler(EventHandler):
@@ -58,8 +58,8 @@ class GameOverEventHandler(EventHandler):
         if event.type == KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == KeyMod.COMMAND and event.key in CONFIGURE_KEYS:
-                response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
+            if self.engine.key_mod == KeyMod.COMMAND and event.key in MENU_KEYS:
+                response = ConfigureAction(player, MENU_KEYS[event.key], self.engine.game_state)
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     response = ActionQuit(player)
