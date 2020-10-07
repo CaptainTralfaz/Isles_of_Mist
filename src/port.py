@@ -1,5 +1,5 @@
-from typing import Dict, Tuple
 from random import choice, randint
+from typing import Dict, Tuple
 
 
 class Port:
@@ -12,24 +12,48 @@ class Port:
         self.name = name if name is name is not None else gen_port_name()
         self.merchant = merchant if merchant is not None else gen_merchant()
         self.smithy = smithy if smithy is not None else gen_smithy()
-        
+
 
 def gen_port_name() -> str:
     first = randint(0, 1)
-    if first == 1:
-        prefix = choice(["Port ", "Cape ", "St. ", "Grand ", "Little ", "Poor"])
+    if first:
+        adjective = choice([
+            "Odd ", "Grand ", "Little ", "Poor ", "Tiny ", "Perfect ", "Stinky ", "Old ", "Fierce ", "Ole ", "Sad ",
+            "Red ", "Black ", "Blue ", "Green ", "Yellow ", "Ugly ", "Rich ", "Happy ", "Royal ", "White ", "Drunken ",
+            "Sandy ", "One ", "Sloppy ", "Tidy ", "Lonely ", "Deadly ", "Foggy ", "Windy ", "Dry ", "Big ", "Double ",
+            "Shifty ", "Slippery ", "Hungry ", "Sliced ", "Oiled ", "Twisted ", "Long ", "Short ", "Hazy ", "Crusty ",
+            "Hairy ", "New ", "Jolly ", "Half ", "Dirty ", "Salty ", "Tired ", "Lumpy ", "Leaning ", "Round ", "Bad ",
+            "Angry ", "Ancient ", "Zero ", "Lame ", "Fancy ", "Priceless ", "Worthless ", "Lazy ", "Sunny ", "Rocky "
+        ])
     else:
-        prefix = ""
-    name = choice(["Parrot", "Sugar", "Rum", "Sand", "Coral", "Booty", "Doom", "Happy", "Drunken", "Voodoo", "Pirate"])
-    if first == 1:
+        adjective = ""
+    name = choice([
+        "Parrot", "Sugar", "Rum", "Sand", "Coral", "Booty", "Danger", "Bad", "Jungle", "Shark", "Rat", "Hag", "Gold",
+        "Bone", "Skull", "Finger", "Knuckle", "Dragon", "Serpent", "Turtle", "Mermaid", "Wyvern", "Corpse", "Gallows",
+        "Jester", "Pearl", "Rock", "Sailor", "Captain", "Spice", "Uncle", "Fish", "Orphan", "Ogre", "Brick", "Copper",
+        "Spider", "Coconut", "Gull", "Coin", "Cannon", "Anchor", "Tar", "Cutlass", "Monkey", "Boy", "Golem", "Silver",
+        "Blood", "Bottle", "Jug", "Tankard", "Storm", "Cloud", "Spray", "Tide", "Witch", "Beggar", "Maiden", "Iron",
+        "Banana", "Doom", "Voodoo", "Pirate", "Fever", "Stone", "Wood", "Raider", "Boar", "Heart", "Salt", "Obsidian"
+    ])
+    if first:
         second = randint(0, 1)
     else:
         second = 1
-    if first == 0 or second == 1:
-        postfix = choice([" Harbor", " Hook", " Bay", " Town", "ville", "town"])
+    if second or not first:
+        postfix = choice([
+            " Harbor", " Hook", " Bay", " Town", " Hole", " Inlet", " Twist", " Jetty", " Wharf", " Quay", " Narrows",
+            " Fort", " Cape", " Shire", " Cabin", " Hut", " Place", " Fork", " Pier", " Village", " Camp", " Island",
+            " Beach", " Coast", " Cavern", " Copse", " Cave", " Slip", " Landing", " Clearing", " Shoals", " Shakes",
+            " Shore", " Bar", " Straight", " Dock", " Boom", " Tip", " Leg", " Horn", " Haven", " Marina", " Mooring",
+            "ville", "town", " Spot", " Dock", " Isle", " Ferry", " Dream", " Home", " Point", " Pit"
+        ])
     else:
         postfix = ""
-    return f"{prefix}{name}{postfix}"
+    possessive = ""
+    if len(postfix) > 0:
+        if postfix.startswith(" ") and not randint(0, 3):
+            possessive = "'s"
+    return f"Port {adjective}{name}{possessive}{postfix}"
 
 
 def gen_merchant() -> Dict[str, int]:
