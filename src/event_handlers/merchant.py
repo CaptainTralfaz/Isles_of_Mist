@@ -22,10 +22,10 @@ if TYPE_CHECKING:
     from actions.base import Action
 
 
-class WeaponConfigurationHandler(EventHandler):
+class MerchantHandler(EventHandler):
     def __init__(self, engine: Engine):
         """
-        handles keys and dispatches events for weapon configuration screen
+        handles keys and dispatches events for cargo configuration screen
         :param engine: the game Engine
         """
         super().__init__(engine)
@@ -41,7 +41,6 @@ class WeaponConfigurationHandler(EventHandler):
                     continue
                 try:
                     something_happened = action.perform()
-                
                 except Impossible as e:
                     self.engine.message_log.add_message(e.args[0], colors['gray'])
                     return False
@@ -56,7 +55,7 @@ class WeaponConfigurationHandler(EventHandler):
                 for entity in self.engine.game_map.entities:
                     if entity.is_alive:
                         entity.view.set_fov()
-            if self.engine.game_state != GameStates.WEAPON_CONFIG:
+            if self.engine.game_state != GameStates.CARGO_CONFIG:
                 self.engine.get_handler()
     
     def process_event(self, event) -> Optional[Action]:
@@ -64,21 +63,22 @@ class WeaponConfigurationHandler(EventHandler):
         response = None
         if event.type == QUIT:
             response = ActionQuit(player)
-        if event.type == KEYUP:
-            if event.mod == KMOD_NONE:
-                self.engine.key_mod = None
+        self.engine.key_mod = None
+        # if event.type == KEYUP:
+        #     if event.mod == KMOD_NONE:
+        #         self.engine.key_mod = None
         if event.type == KEYDOWN:
-            if event.mod in MODIFIERS:
-                self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == KeyMod.SHIFT and event.key in MENU_KEYS:
-                response = SelectedAction(player, MENU_KEYS[event.key], self.engine.game_state)
-            elif self.engine.key_mod == KeyMod.COMMAND and event.key in MENU_KEYS:
-                response = ConfigureAction(player, MENU_KEYS[event.key], self.engine.game_state)
-            elif self.engine.key_mod is None:
-                if event.key in MENU_KEYS:
-                    response = ChangeSelectionAction(player, MENU_KEYS[event.key], self.engine.game_state)
-                elif event.key == K_ESCAPE:
-                    response = ExitConfigAction(player)
+            # if event.mod in MODIFIERS:
+            #     self.engine.key_mod = MODIFIERS[event.mod]
+            # if self.engine.key_mod == KeyMod.SHIFT and event.key in MENU_KEYS:
+            #     response = SelectedAction(player, MENU_KEYS[event.key], self.engine.game_state)
+            # elif self.engine.key_mod == KeyMod.COMMAND and event.key in MENU_KEYS:
+            #     response = ConfigureAction(player, MENU_KEYS[event.key], self.engine.game_state)
+            # elif self.engine.key_mod is None:
+            if event.key in MENU_KEYS:
+                response = ChangeSelectionAction(player, MENU_KEYS[event.key], self.engine.game_state)
+            elif event.key == K_ESCAPE:
+                response = ExitConfigAction(player)
         
         if event.type == MOUSEMOTION:
             response = MouseMoveAction(player, mouse.get_pos())

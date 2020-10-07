@@ -5,21 +5,21 @@ from typing import Optional, TYPE_CHECKING
 from pygame import QUIT, KEYUP, KEYDOWN, KMOD_NONE, K_ESCAPE, MOUSEMOTION, mouse
 from pygame import event as pygame_event
 
-from action.mouse import MouseMoveAction
-from action.quit import ActionQuit
-from action.ship_config.change_select import ChangeSelectionAction
-from action.ship_config.configure import ConfigureAction
-from action.ship_config.exit import ExitMenuAction
-from action.ship_config.selected import SelectedAction
+from actions.mouse import MouseMoveAction
+from actions.quit import ActionQuit
+from actions.ship_config.change_select import ChangeSelectionAction
+from actions.ship_config.configure import ConfigureAction
+from actions.ship_config.exit_config import ExitConfigAction
+from actions.ship_config.selected import SelectedAction
 from constants.colors import colors
 from custom_exceptions import Impossible
 from constants.enums import GameStates, KeyMod
 from event_handlers.base import EventHandler
-from constants.keys import MODIFIERS, CONFIGURE_KEYS
+from constants.keys import MODIFIERS, MENU_KEYS
 
 if TYPE_CHECKING:
     from engine import Engine
-    from action.base import Action
+    from actions.base import Action
 
 
 class CargoConfigurationHandler(EventHandler):
@@ -69,15 +69,15 @@ class CargoConfigurationHandler(EventHandler):
         if event.type == KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == KeyMod.SHIFT and event.key in CONFIGURE_KEYS:
-                response = SelectedAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
-            elif self.engine.key_mod == KeyMod.COMMAND and event.key in CONFIGURE_KEYS:
-                response = ConfigureAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
+            if self.engine.key_mod == KeyMod.SHIFT and event.key in MENU_KEYS:
+                response = SelectedAction(player, MENU_KEYS[event.key], self.engine.game_state)
+            elif self.engine.key_mod == KeyMod.COMMAND and event.key in MENU_KEYS:
+                response = ConfigureAction(player, MENU_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
-                if event.key in CONFIGURE_KEYS:
-                    response = ChangeSelectionAction(player, CONFIGURE_KEYS[event.key], self.engine.game_state)
+                if event.key in MENU_KEYS:
+                    response = ChangeSelectionAction(player, MENU_KEYS[event.key], self.engine.game_state)
                 elif event.key == K_ESCAPE:
-                    response = ExitMenuAction(player)
+                    response = ExitConfigAction(player)
         
         if event.type == MOUSEMOTION:
             response = MouseMoveAction(player, mouse.get_pos())

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface, time
 
-from action.move.movement import MovementAction
+from actions.move.movement import MovementAction
 from camera import Camera
 from constants.constants import time_tick
 from custom_exceptions import Impossible
@@ -12,6 +12,7 @@ from constants.enums import GameStates
 from event_handlers.cargo_config import CargoConfigurationHandler
 from event_handlers.crew_config import CrewConfigurationHandler
 from event_handlers.main_game import MainEventHandler
+from event_handlers.merchant import MerchantHandler
 from event_handlers.player_dead import GameOverEventHandler
 from event_handlers.weapon_config import WeaponConfigurationHandler
 from message_log import MessageLog
@@ -58,6 +59,8 @@ class Engine:
             self.event_handler = CargoConfigurationHandler(self)
         elif self.game_state == GameStates.PLAYER_DEAD:
             self.event_handler = GameOverEventHandler(self)
+        elif self.game_state == GameStates.MERCHANT:
+            self.event_handler = MerchantHandler(self)
 
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:

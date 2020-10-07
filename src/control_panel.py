@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from constants.constants import move_elevations
-from constants.enums import Location, GameStates, KeyMod
+from constants.enums import Location, GameStates, KeyMod, MenuKeys
 from utilities import get_cone_target_hexes_at_location
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Actor):
     text_keys = []
     
     items = player.game_map.get_items_at_location(player.x, player.y)
-    port = (player.x, player.y) == player.parent.game_map.port
+    port = (player.x, player.y) == player.parent.game_map.port.location
     
     if game_state == GameStates.ACTION:
         if key_mod == KeyMod.COMMAND:  # sails, etc.
@@ -89,10 +89,10 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Actor):
                 if player.cargo.item_type_in_manifest("mines"):
                     arrow_keys.append({'rotation': 180, 'text': 'Drop Mines'})
             elif key_mod == KeyMod.OPTION:  # crew actions
-                up = player.crew.assignments.get('up')
-                right = player.crew.assignments.get('right')
-                left = player.crew.assignments.get('left')
-                down = player.crew.assignments.get('down')
+                up = player.crew.assignments.get(MenuKeys.UP)
+                right = player.crew.assignments.get(MenuKeys.RIGHT)
+                left = player.crew.assignments.get(MenuKeys.LEFT)
+                down = player.crew.assignments.get(MenuKeys.DOWN)
                 if up:
                     arrow_keys.append({'rotation': 0, 'text': f"{up.occupation.capitalize()}"})
                 if right:
@@ -135,7 +135,10 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Actor):
                 elif player.sails.hp > 0:
                     arrow_keys.append({'rotation': 0, 'text': 'Raise Sails'})
             elif key_mod == KeyMod.OPTION:
-                pass
+                arrow_keys = [{'rotation': 0, 'text': 'Shipyard'},
+                              {'rotation': 90, 'text': 'Merchant'},
+                              {'rotation': 270, 'text': 'Tavern'},
+                              {'rotation': 180, 'text': 'Smithy'}]
             else:
                 arrow_keys = [{'rotation': 0, 'text': 'Row'},
                               {'rotation': 90, 'text': 'Turn Port'},

@@ -6,6 +6,7 @@ from typing import Iterable, List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 
 from constants.colors import colors
 from constants.enums import Conditions, Elevation
+from port import Port
 from tile import Terrain
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
     hex_to_cube, cube_neighbor, cube_line_draw, get_distance
@@ -35,7 +36,7 @@ class GameMap:
         else:
             self.terrain = [[Terrain(elevation=Elevation.OCEAN, explored=False) for y in range(height)]
                             for x in range(width)]
-        self.port = None
+        self.port = Port()
     
     @property
     def game_map(self) -> GameMap:
@@ -45,7 +46,7 @@ class GameMap:
                 distance: int,
                 x: int,
                 y: int,
-                elevation: List[Elevation],
+                elevation: Elevation,
                 mist_view: int = 1
                 ) -> Set[Tuple[int, int]]:
         """

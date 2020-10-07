@@ -1,5 +1,5 @@
 from pygame import K_UP, K_DOWN, K_LEFT, K_RIGHT
-from constants.enums import KeyMod, Location
+from constants.enums import KeyMod, Location, MenuKeys, ShipConfig, PortVisit
 
 
 MODIFIERS = {
@@ -11,18 +11,18 @@ MODIFIERS = {
     2048: KeyMod.COMMAND,
 }
 
-CONFIGURE_KEYS = {  # TODO: change arrow keys to enum??
-    K_UP: "up",
-    K_RIGHT: "right",
-    K_LEFT: "left",
-    K_DOWN: "down",
+MENU_KEYS = {
+    K_UP: MenuKeys.UP,
+    K_RIGHT: MenuKeys.RIGHT,
+    K_LEFT: MenuKeys.LEFT,
+    K_DOWN: MenuKeys.DOWN,
 }
 
 SHIP_KEYS = {
-    K_UP: "sails",
-    K_RIGHT: "cargo",
-    K_LEFT: "crew",
-    K_DOWN: "weapons",
+    K_UP: ShipConfig.SAILS,
+    K_RIGHT: ShipConfig.CARGO,
+    K_LEFT: ShipConfig.CREW,
+    K_DOWN: ShipConfig.WEAPONS,
 }
 
 ROTATE_KEYS = {
@@ -46,15 +46,15 @@ ATTACK_KEYS = {
 }
 
 PORT_KEYS = {
-    K_UP: "shipyard",  # ship upgrades (crew capacity, cargo weight/volume, sails
-    K_RIGHT: "merchant",  # buy/sell cargo
-    K_LEFT: "barracks",  # hire/release crew
-    K_DOWN: "tavern",  # buy/sell weapons
+    K_UP: PortVisit.SHIPYARD,  # ship upgrades (crew capacity, cargo weight/volume, sails
+    K_RIGHT: PortVisit.MERCHANT,  # buy/sell cargo
+    K_LEFT: PortVisit.TAVERN,  # hire/release crew
+    K_DOWN: PortVisit.SMITHY,  # buy/sell weapons
 }
 
 REPAIR_KEYS = {
     K_UP: "sails",
     K_RIGHT: "shipyard",
-    K_LEFT: "crew",  # TODO: remove this once "hire crew" implemented in port_keys
+    K_LEFT: "crew",  # TODO: remove this once "hire crew" implemented in port_keys - this becomes tavern (for rumors)
     K_DOWN: "engineer",
 }

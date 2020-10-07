@@ -5,7 +5,7 @@ from components.base import BaseComponent
 from constants.constants import move_elevations
 from constants.colors import colors
 from entity import Actor
-from constants.enums import GameStates, RenderOrder
+from constants.enums import GameStates, RenderOrder, MenuKeys
 from event_handlers.player_dead import GameOverEventHandler
 from utilities import choice_from_dict
 
@@ -25,14 +25,14 @@ class Crew(BaseComponent):
         self.name = name
         self.roster = roster
         if self.roster is None:
-            self.roster = []
-            self.generate_roster()
+            self.roster = generate_roster(max_count)
+            
         self.selected = 0
         if assignments is None:
-            self.assignments = {'up': None,
-                                'right': None,
-                                'left': None,
-                                'down': None
+            self.assignments = {MenuKeys.UP: None,
+                                MenuKeys.RIGHT: None,
+                                MenuKeys.LEFT: None,
+                                MenuKeys.DOWN: None
                                 }
         else:
             self.assignments = assignments
@@ -65,7 +65,7 @@ class Crew(BaseComponent):
     
     def die(self) -> None:
         if self.engine.player is self.parent:
-            death_message = "All your crew are dead! Game Over!"
+            death_message = "All your crew belong to the sea! Game Over!"
             self.parent.icon = "shipwreck"
             self.engine.event_handler = GameOverEventHandler(self.engine)
             self.engine.game_state = GameStates.PLAYER_DEAD
@@ -114,9 +114,12 @@ class Crew(BaseComponent):
                 self.roster.remove(pick)
         self.count -= amount
     
-    def generate_roster(self):
-        for count in range(self.count):
-            self.roster.append(Crewman())
+    
+def generate_roster(count: int):
+    roster = []
+    for crewman in range(count):
+        roster.append(Crewman())
+    return roster
 
 
 class Crewman:
