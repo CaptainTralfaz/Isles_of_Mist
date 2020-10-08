@@ -5,6 +5,7 @@ from random import randint
 from typing import Iterable, List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 
 from constants.colors import colors
+from constants.constants import move_elevations
 from constants.enums import Conditions, Elevation
 from port import Port
 from tile import Terrain
@@ -44,6 +45,16 @@ class GameMap:
     @property
     def game_map(self) -> GameMap:
         return self
+    
+    def to_json(self) -> Dict:
+        return {
+            'width': self.width,
+            'height': self.height,
+            'entities': [entity.to_json() for entity in self.entities if entity is not self.engine.player],
+            'weather': self.weather.to_json(),
+            'terrain': [[terrain.to_json() for terrain in tile_rows] for tile_rows in self.terrain],
+            'port': self.port.to_json(),
+        }
     
     def get_fov(self,
                 distance: int,
@@ -116,7 +127,7 @@ class GameMap:
         """
         return 0 <= x < self.width and 0 <= y < self.height
     
-    def can_move_to(self, x: int, y: int, elevations: List[Elevation]) -> bool:
+    def can_move_to(self, x: int, y: int, elevations: str) -> bool:
         """
         return comparison if elevation of (x, y) location on map is in the given Elevation Enum list
         :param x: x int coordinate of game map
@@ -124,14 +135,14 @@ class GameMap:
         :param elevations: list of Elevation enums
         :return: bool
         """
-        return self.terrain[x][y].elevation in elevations
+        return self.terrain[x][y].elevation in move_elevations[elevations]
     
     def get_path(self,
                  entity_x: int,
                  entity_y: int,
                  target_x: int,
                  target_y: int,
-                 elevations: List[Elevation]
+                 elevations: str
                  ) -> List[Tuple[int, int]]:
         """
         Create a grid of (x, y) coordinates mapping to the (x, y) they came from
@@ -139,7 +150,7 @@ class GameMap:
         :param entity_y: y int coordinate of this entity on game map
         :param target_x: x int coordinate of target on game map
         :param target_y: y int coordinate of target on game map
-        :param elevations: list of Elevation enums
+        :param elevations: str of Elevation lookup
         :return: dict of tuple (x, y) coordinates -> tuple (x, y) coordinates
         """
         frontier = Queue()
@@ -178,7 +189,7 @@ class GameMap:
                          entity_y: int,
                          target_x: int,
                          target_y: int,
-                         elevations: List[Elevation]
+                         elevations: str
                          ) -> Dict[Tuple[int, int]:int]:
         """
         Create a grid of (x, y) coordinates mapping to the (x, y) they came from
@@ -186,7 +197,7 @@ class GameMap:
         :param entity_y: y int coordinate of this entity on game map
         :param target_x: x int coordinate of target on game map
         :param target_y: y int coordinate of target on game map
-        :param elevations: list of Elevation enums
+        :param elevations: str of Elevation lookup
         :return: dict of tuple (x, y) coordinates -> tuple (x, y) coordinates
         """
         frontier = Queue()
@@ -217,13 +228,13 @@ class GameMap:
         
         return distance_map
     
-    def get_neighbors_at_elevations(self, x, y, elevations: List[Elevation]) -> List[Tuple[int, int]]:
+    def get_neighbors_at_elevations(self, x, y, elevations: str) -> List[Tuple[int, int]]:
         """
         Returns a list of Tuple (x, y) coordinates that are adjacent to given (x, y) coordinates
             if they are contained in the list of valid Elevations
         :param x: x int coordinate of game map
         :param y: y int coordinate of game map
-        :param elevations: list of Elevation enums
+        :param elevations: str of Elevation lookup
         :return: list of tuple (x, y) coordinates
         """
         neighbors = []
@@ -231,7 +242,7 @@ class GameMap:
             start_cube = hex_to_cube(hexagon=Hex(column=x, row=y))
             neighbor_hex = cube_to_hex(cube=cube_add(cube1=start_cube, cube2=direction))
             if self.in_bounds(neighbor_hex.col, neighbor_hex.row) \
-                    and self.terrain[neighbor_hex.col][neighbor_hex.row].elevation in elevations:
+                    and self.terrain[neighbor_hex.col][neighbor_hex.row].elevation in move_elevations[elevations]:
                 neighbors.append((neighbor_hex.col, neighbor_hex.row))
         return neighbors
     

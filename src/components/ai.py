@@ -11,10 +11,14 @@ from utilities import get_distance, closest_rotation, get_neighbor
 
 if TYPE_CHECKING:
     from entity import Actor
+    from typing import Dict
 
 
 class BaseAI(Action):
     
+    def to_json(self) -> None:
+        raise NotImplementedError()
+
     def perform(self) -> None:
         raise NotImplementedError()
 
@@ -23,6 +27,11 @@ class NeutralEnemy(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)
     
+    def to_json(self) -> Dict:
+        return {
+            'ai_cls': self.__class__.__name__
+        }
+
     def perform(self) -> bool:
         """
         Neutral Enemy will do nothing but wander randomly, even if attacked
@@ -31,10 +40,20 @@ class NeutralEnemy(BaseAI):
 
 
 class HostileEnemy(BaseAI):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Actor, target=None, path=None):
         super().__init__(entity)
-        self.target = None
-        self.path = []
+        self.target = target
+        if path is None:
+            self.path = []
+        else:
+            self.path = path
+    
+    def to_json(self) -> Dict:
+        return {
+            'ai_cls': self.__class__.__name__,
+            'target': self.target,
+            'path': self.path
+        }
     
     def perform(self) -> bool:
         """
@@ -90,10 +109,40 @@ class HostileEnemy(BaseAI):
 
 
 class HostileFlyingEnemy(BaseAI):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Actor, target=None, distance_map=None):
         super().__init__(entity)
-        self.target = None
-        self.distance_map = {}
+        self.target = target
+        if distance_map is None:
+            self.distance_map = {}
+        else:
+            self.distance_map = distance_map.distance_map_from_json(distance_map)
+
+    def to_json(self) -> Dict:
+        return {
+            'ai_cls': self.__class__.__name__,
+            'target': self.target,
+            'distance_map': self.dist_map_to_json()
+        }
+    
+    def dist_map_to_json(self):
+        keys = []
+        values = []
+        for key in self.distance_map.keys():
+            keys.append(key)
+            values.append(self.distance_map[key])
+        return {
+            'keys': keys,
+            'values': values
+        }
+    
+    @staticmethod
+    def distance_map_from_json(json_dist_map):
+        distance_map = {}
+        keys = json_dist_map['keys']
+        values = json_dist_map['values']
+        for i in range(len(keys)):
+            distance_map[keys[i]] = values[i]
+        return distance_map
     
     def perform(self) -> bool:
         """

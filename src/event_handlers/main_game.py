@@ -33,7 +33,7 @@ class MainEventHandler(EventHandler):
         """
         super().__init__(engine)
     
-    def handle_events(self):
+    def handle_events(self) -> bool:
         something_happened = False
         # noinspection PyArgumentList
         events = pygame_event.get(pump=True)
@@ -61,7 +61,8 @@ class MainEventHandler(EventHandler):
                         entity.view.set_fov()
             if self.engine.game_state != GameStates.ACTION:
                 self.engine.get_handler()
-    
+        return something_happened
+        
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         port = (player.x, player.y) == self.engine.game_map.port.location

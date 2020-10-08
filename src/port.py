@@ -13,6 +13,14 @@ class Port:
         self.merchant = merchant if merchant is not None else gen_merchant()
         self.smithy = smithy if smithy is not None else gen_smithy()
 
+    def to_json(self) -> Dict:
+        return {
+            'location': self.location,
+            'name': self.name,
+            'merchant': self.merchant,
+            'smithy': self.smithy
+        }
+    
 
 def gen_port_name() -> str:
     first = randint(0, 1)

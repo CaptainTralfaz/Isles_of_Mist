@@ -20,6 +20,11 @@ class View(BaseComponent):
         self.distance = distance
         self.fov = {}
     
+    def to_json(self):
+        return {
+            'distance': self.distance
+        }
+    
     def set_fov(self) -> None:
         distance = self.distance + self.engine.time.get_time_of_day_info['view'] + \
                    self.game_map.weather.get_weather_info['view']

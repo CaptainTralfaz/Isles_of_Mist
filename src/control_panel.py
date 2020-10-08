@@ -42,7 +42,7 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Actor):
                 targets = []
                 neighbor_tiles = player.game_map.get_neighbors_at_elevations(player.x,
                                                                              player.y,
-                                                                             elevations=move_elevations['all'])
+                                                                             elevations='all')
                 neighbor_tiles.append((player.x, player.y))
                 for tile_x, tile_y in neighbor_tiles:
                     targets.extend(player.game_map.get_targets_at_location(tile_x, tile_y))
@@ -89,18 +89,18 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Actor):
                 if player.cargo.item_type_in_manifest("mines"):
                     arrow_keys.append({'rotation': 180, 'text': 'Drop Mines'})
             elif key_mod == KeyMod.OPTION:  # crew actions
-                up = player.crew.assignments.get(MenuKeys.UP)
-                right = player.crew.assignments.get(MenuKeys.RIGHT)
-                left = player.crew.assignments.get(MenuKeys.LEFT)
-                down = player.crew.assignments.get(MenuKeys.DOWN)
-                if up:
-                    arrow_keys.append({'rotation': 0, 'text': f"{up.occupation.capitalize()}"})
-                if right:
-                    arrow_keys.append({'rotation': 90, 'text': f"{right.occupation.capitalize()}"})
-                if left:
-                    arrow_keys.append({'rotation': 270, 'text': f"{left.occupation.capitalize()}"})
-                if down:
-                    arrow_keys.append({'rotation': 180, 'text': f"{down.occupation.capitalize()}"})
+                up = [crewman for crewman in player.crew.roster if crewman.assignment == MenuKeys.UP]
+                right = [crewman for crewman in player.crew.roster if crewman.assignment == MenuKeys.RIGHT]
+                left = [crewman for crewman in player.crew.roster if crewman.assignment == MenuKeys.LEFT]
+                down = [crewman for crewman in player.crew.roster if crewman.assignment == MenuKeys.DOWN]
+                if len(up) > 0:
+                    arrow_keys.append({'rotation': 0, 'text': f"{up[0].occupation.capitalize()}"})
+                if len(right) > 0:
+                    arrow_keys.append({'rotation': 90, 'text': f"{right[0].occupation.capitalize()}"})
+                if len(left) > 0:
+                    arrow_keys.append({'rotation': 270, 'text': f"{left[0].occupation.capitalize()}"})
+                if len(down) > 0:
+                    arrow_keys.append({'rotation': 180, 'text': f"{down[0].occupation.capitalize()}"})
             
             elif player.is_alive:  # standard actions
                 arrow_keys = [{'rotation': 0, 'text': 'Row'},
@@ -117,8 +117,8 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Actor):
                     down_text = 'Salvage'
                 arrow_keys.append({'rotation': 180, 'text': down_text})
                 
-                assignments = [key for key in player.crew.assignments.keys()
-                               if player.crew.assignments[key] is not None]
+                assignments = [crewman.assignment for crewman in player.crew.roster
+                               if crewman.assignment is not None]
                 if len(assignments) > 0:
                     text_keys.append({'name': 'Opt', 'text': 'Crew Actions'})
                 text_keys.append({'name': 'Esc', 'text': 'Main Menu'})

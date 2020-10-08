@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from pygame import draw, Surface
 
 from constants.colors import colors
-from constants.constants import margin
+from constants.constants import margin, wind_min_count, conditions_min_count
 from constants.enums import Conditions
 from utilities import direction_angle, get_neighbor
 
@@ -37,16 +37,18 @@ class Weather:
                  width: int,
                  height: int,
                  wind_direction: int = None,
-                 conditions: Conditions = None):
+                 conditions: Conditions = None,
+                 wind_count: int = 0,
+                 conditions_count: int = 0):
         self.wind_direction = randint(0, 5) if wind_direction is None else wind_direction
         self.conditions = Conditions(randint(2, 3)) if conditions is None else conditions
-        self.wind_count = 0
-        self.wind_min_count = 25
-        self.conditions_count = 0
-        self.conditions_min_count = 50
+        self.wind_count = wind_count
+        self.wind_min_count = wind_min_count
+        self.conditions_count = conditions_count
+        self.conditions_min_count = conditions_min_count
         self.game_map = parent
         self.rain = Rain(width, height)
-    
+        
     @property
     def get_weather_info(self):
         """
@@ -63,6 +65,14 @@ class Weather:
             return weather_effects[Conditions.RAINY]
         elif self.conditions == Conditions.STORMY:
             return weather_effects[Conditions.STORMY]
+    
+    def to_json(self):
+        return {
+            'wind_direction': self.wind_direction,
+            'wind_count': self.wind_count,
+            'conditions': self.conditions.value,
+            'conditions_count': self.conditions_count,
+        }
     
     def roll_wind(self):
         self.wind_count += 1

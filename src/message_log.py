@@ -1,4 +1,4 @@
-from typing import List, Reversible, Tuple
+from typing import Dict, List, Reversible, Tuple
 
 from pygame import Surface
 
@@ -13,12 +13,24 @@ class Message:
         self.plain_text = text
         self.color = color
         self.count = 1
+    
+    def to_json(self) -> Dict:
+        return {
+            'plain_text': self.plain_text,
+            'color': self.color,
+            'count': self.count,
+        }
 
 
 class MessageLog:
     def __init__(self, parent) -> None:
         self.messages: List[Message] = []
         self.parent = parent
+    
+    def to_json(self) -> Dict:
+        return {
+            'messages': [message.to_json() for message in self.messages]
+        }
     
     def add_message(
             self, text: str, text_color: Tuple[int, int, int] = colors['mountain'], *, stack: bool = True,
