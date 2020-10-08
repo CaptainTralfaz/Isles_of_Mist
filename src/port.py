@@ -20,10 +20,11 @@ def gen_port_name() -> str:
         adjective = choice([
             "Odd ", "Grand ", "Little ", "Poor ", "Tiny ", "Perfect ", "Stinky ", "Old ", "Fierce ", "Ole ", "Sad ",
             "Red ", "Black ", "Blue ", "Green ", "Yellow ", "Ugly ", "Rich ", "Happy ", "Royal ", "White ", "Drunken ",
-            "Sandy ", "One ", "Sloppy ", "Tidy ", "Lonely ", "Deadly ", "Foggy ", "Windy ", "Dry ", "Big ", "Double ",
-            "Shifty ", "Slippery ", "Hungry ", "Sliced ", "Oiled ", "Twisted ", "Long ", "Short ", "Hazy ", "Crusty ",
+            "Sandy ", "One ", "Sloppy ", "Tidy ", "Lonely ", "Deadly ", "Foggy ", "Big ", "Double ",
+            "Shifty ", "Slippery ", "Hungry ", "Sliced ", "Oiled ", "Twisted ", "Long ", "Short ", "Crusty ",
             "Hairy ", "New ", "Jolly ", "Half ", "Dirty ", "Salty ", "Tired ", "Lumpy ", "Leaning ", "Round ", "Bad ",
-            "Angry ", "Ancient ", "Zero ", "Lame ", "Fancy ", "Priceless ", "Worthless ", "Lazy ", "Sunny ", "Rocky "
+            "Angry ", "Ancient ", "Zero ", "Lame ", "Fancy ", "Priceless ", "Worthless ", "Lazy ", "Rocky ",
+            "Windy ", "Dry ", "Sunny ", "Hazy ", "Shady "
         ])
     else:
         adjective = ""
@@ -44,8 +45,8 @@ def gen_port_name() -> str:
             " Harbor", " Hook", " Bay", " Town", " Hole", " Inlet", " Twist", " Jetty", " Wharf", " Quay", " Narrows",
             " Fort", " Cape", " Shire", " Cabin", " Hut", " Place", " Fork", " Pier", " Village", " Camp", " Island",
             " Beach", " Coast", " Cavern", " Copse", " Cave", " Slip", " Landing", " Clearing", " Shoals", " Shakes",
-            " Shore", " Bar", " Straight", " Dock", " Boom", " Tip", " Leg", " Horn", " Haven", " Marina", " Mooring",
-            "ville", "town", " Spot", " Dock", " Isle", " Ferry", " Dream", " Home", " Point", " Pit"
+            " Shore", " Bar", " Straight", " Dock", " Boom", " Tip", " Leg", " Haven", " Marina", " Mooring", " Dunes",
+            "ville", "town", " Spot", " Dock", " Isle", " Ferry", " Dream", " Home", " Point", " Pit", " Post", " Horn"
         ])
     else:
         postfix = ""

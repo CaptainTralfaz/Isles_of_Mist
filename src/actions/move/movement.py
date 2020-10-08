@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from actions.base import Action
+from actions.base.base import Action
 from constants.colors import colors
 from custom_exceptions import Impossible
 

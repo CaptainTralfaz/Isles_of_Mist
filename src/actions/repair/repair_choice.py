@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from actions.base import Action
+from actions.base.base import Action
 from actions.repair.hire_crew import HireCrewAction
 from actions.repair.hull import RepairHullAction
 from actions.repair.sails import RepairSailsAction

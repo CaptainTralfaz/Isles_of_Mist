@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from actions.auto.salvage import SalvageAction
 from actions.auto.wait import WaitAction
-from actions.base import Action
+from actions.base.base import Action
 
 if TYPE_CHECKING:
     from entity import Actor

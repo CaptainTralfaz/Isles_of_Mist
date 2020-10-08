@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from actions.attack.arrow import ArrowAction
 from actions.attack.broadsides import BroadsideAction
 from actions.attack.mine import MineAction
-from actions.base import Action
+from actions.base.base import Action
 from constants.enums import Location
 
 if TYPE_CHECKING:

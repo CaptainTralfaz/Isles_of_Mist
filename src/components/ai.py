@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.attack.melee import MeleeAction
-from actions.base import Action
+from actions.base.base import Action
 from actions.move.movement import MovementAction
 from actions.move.rotate import RotateAction
 from actions.move.wander import WanderAction

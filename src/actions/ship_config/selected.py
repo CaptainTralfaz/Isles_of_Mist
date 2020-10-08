@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from actions.base import Action
+from actions.base.base import Action
 from actions.ship_config.assign_crew import AssignCrewAction
 from actions.ship_config.assign_weapon import AssignWeaponAction
 from constants.enums import GameStates

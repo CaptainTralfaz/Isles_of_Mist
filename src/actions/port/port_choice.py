@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from actions.base import Action
+from actions.base.base import Action
 from custom_exceptions import Impossible
-from constants.enums import GameStates, PortVisit
+from constants.enums import PortVisit
 
 if TYPE_CHECKING:
     from entity import Actor

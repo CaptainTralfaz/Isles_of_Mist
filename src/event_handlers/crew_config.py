@@ -5,8 +5,8 @@ from typing import Optional, TYPE_CHECKING
 from pygame import QUIT, KEYUP, KEYDOWN, KMOD_NONE, K_ESCAPE, MOUSEMOTION, mouse
 from pygame import event as pygame_event
 
-from actions.mouse import MouseMoveAction
-from actions.quit import ActionQuit
+from actions.base.mouse import MouseMoveAction
+from actions.base.quit import ActionQuit
 from actions.ship_config.change_select import ChangeSelectionAction
 from actions.ship_config.configure import ConfigureAction
 from actions.ship_config.exit_config import ExitConfigAction
@@ -19,7 +19,7 @@ from constants.keys import MODIFIERS, MENU_KEYS
 
 if TYPE_CHECKING:
     from engine import Engine
-    from actions.base import Action
+    from actions.base.base import Action
 
 
 class CrewConfigurationHandler(EventHandler):
