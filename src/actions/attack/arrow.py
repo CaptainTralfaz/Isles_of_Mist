@@ -33,7 +33,7 @@ class ArrowAction(SplitDamageAction):
         targets = []
         neighbor_tiles = self.engine.game_map.get_neighbors_at_elevations(self.entity.x,
                                                                           self.entity.y,
-                                                                          elevations=move_elevations['all'])
+                                                                          elevations='all')
         neighbor_tiles.append((entity.x, entity.y))
         for tile_x, tile_y in neighbor_tiles:
             targets.extend(self.engine.game_map.get_targets_at_location(tile_x, tile_y))

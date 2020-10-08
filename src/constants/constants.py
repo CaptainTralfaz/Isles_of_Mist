@@ -17,6 +17,8 @@ message_count = 10
 time_tick = 2
 FPS = 30
 
+wind_min_count = 25
+conditions_min_count = 50
 
 # TODO Variable later ??
 # game_font = font.Font('freesansbold.ttf', 16)  # Original

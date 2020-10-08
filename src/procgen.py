@@ -189,7 +189,7 @@ def big_island(island_list: List[List[Tuple[int, int]]]) -> List[Tuple[int, int]
 def place_port(island_map: GameMap, island, ocean):
     coastline = []
     for (x, y) in island:
-        neighbors = island_map.get_neighbors_at_elevations(x, y, elevations=entity_factory.move_elevations['water'])
+        neighbors = island_map.get_neighbors_at_elevations(x, y, elevations='water')
         coast = False
         for neighbor in neighbors:
             if neighbor in ocean:
@@ -354,7 +354,7 @@ def explore_water_iterative(game_map: GameMap) -> List[Tuple[int, int]]:
     while not frontier.empty():
         current = frontier.get()
         x, y = current
-        for neighbor in game_map.get_neighbors_at_elevations(x=x, y=y, elevations=move_elevations['water']):
+        for neighbor in game_map.get_neighbors_at_elevations(x=x, y=y, elevations='water'):
             if neighbor not in visited:
                 frontier.put(neighbor)
                 visited.append(neighbor)
@@ -376,7 +376,7 @@ def explore_land_iterative(game_map: GameMap, x: int, y: int) -> List[Tuple[int,
     while not frontier.empty():
         current = frontier.get()
         x, y = current
-        for neighbor in game_map.get_neighbors_at_elevations(x=x, y=y, elevations=move_elevations['land']):
+        for neighbor in game_map.get_neighbors_at_elevations(x=x, y=y, elevations='land'):
             if neighbor not in visited:
                 frontier.put(neighbor)
                 visited.append(neighbor)

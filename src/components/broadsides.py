@@ -22,24 +22,55 @@ class Broadsides(BaseComponent):
     parent: Actor
     
     def __init__(self, slot_count: int,
-                 port: List[str] = None,
-                 starboard: List[str] = None,
-                 storage: List[str] = None) -> None:
+                 port: List = None,
+                 starboard: List = None,
+                 storage: List = None) -> None:
         self.slot_count = slot_count
         self.port = []
         self.starboard = []
         self.storage = []
-        if port is not None:
-            for weapon in port:
-                self.attach(location=Location.PORT, weapon=self.make_weapon(weapon), new_game=True)
-        if starboard is not None:
-            for weapon in starboard:
-                self.attach(location=Location.STARBOARD, weapon=self.make_weapon(weapon), new_game=True)
         self.selected = 0
-        if storage is not None:
-            for weapon in storage:
-                self.storage.append(self.make_weapon(name=weapon))
-    
+        if port is not None and len(port) > 0:
+            if isinstance(port[0], str):
+                for weapon in port:
+                    self.attach(location=Location.PORT, weapon=self.make_weapon(weapon), new_game=True)
+            elif isinstance(port[0], Weapon):
+                for weapon in port:
+                    self.attach(location=Location.PORT, weapon=weapon)
+        if starboard is not None and len(starboard) > 0:
+            if isinstance(starboard[0], str):
+                for weapon in starboard:
+                    self.attach(location=Location.STARBOARD, weapon=self.make_weapon(weapon), new_game=True)
+            elif isinstance(starboard[0], Weapon):
+                for weapon in port:
+                    weapon.parent = self
+                    self.attach(location=Location.STARBOARD, weapon=weapon)
+        if storage is not None and len(storage) > 0:
+            if isinstance(storage[0], str):
+                for weapon in storage:
+                    weapon.parent = self
+                    self.storage.append(self.make_weapon(name=weapon))
+            elif isinstance(storage[0], Weapon):
+                for weapon in storage:
+                    weapon.parent = self
+                    self.storage.append(weapon)
+
+    def to_json(self) -> Dict:
+        return {
+            'slot_count': self.slot_count,
+            'port': [weapon.to_json() for weapon in self.port],
+            'starboard': [weapon.to_json() for weapon in self.starboard],
+            'storage': [weapon.to_json() for weapon in self.storage]
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        slot_count = json_data.get('slot_count')
+        port = json_data.get('port')
+        starboard = json_data.get('starboard')
+        storage = json_data.get('storage')
+        return Broadsides(slot_count=slot_count, port=port, starboard=starboard, storage=storage)
+
     @property
     def weight(self) -> int:
         """

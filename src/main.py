@@ -41,7 +41,7 @@ def main() -> None:
                     Game(game_display, engine).play_game()
                 elif event.key == pygame.K_ESCAPE:
                     should_quit = True
-    
+
     pygame.quit()
 
 

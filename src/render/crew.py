@@ -41,10 +41,9 @@ def crew_render(console: Surface,
         crew_surf.blit(occupation_surf, (margin, height))
         name_surf = game_font.render(f"{crewman.name}", True, text_color, background)
         crew_surf.blit(name_surf, (margin + 200, height))
-        for key in crew.assignments.keys():
-            if crew.assignments[key] == crewman:
-                assign_surf = game_font.render(f"{key.name.lower().capitalize()}", True, colors['mountain'])
-                crew_surf.blit(assign_surf, (margin + 120, height))
+        if crewman.assignment:
+            assign_surf = game_font.render(f"{crewman.assignment.name.lower().capitalize()}", True, colors['mountain'])
+            crew_surf.blit(assign_surf, (margin + 120, height))
         height += game_font.get_height()
         count += 1
 

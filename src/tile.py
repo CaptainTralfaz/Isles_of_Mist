@@ -1,3 +1,4 @@
+from typing import Dict
 from constants.enums import Elevation
 
 
@@ -13,3 +14,11 @@ class Terrain:
         self.explored = explored
         self.decoration = decoration
         self.mist = mist
+
+    def to_json(self) -> Dict:
+        return {
+            'elevation': self.elevation.value,
+            'explored': self.explored,
+            'decoration': self.decoration,
+            'mist': self.mist
+        }

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Optional, Type, TypeVar, TYPE_CHECKING
+from typing import Optional, Dict, Type, TypeVar, TYPE_CHECKING
 
 from constants.enums import RenderOrder
 from utilities import Hex, hex_to_cube, cube_to_hex, cube_neighbor, direction_angle
@@ -30,7 +30,7 @@ class Entity:
     def __init__(self, x: int,
                  y: int,
                  icon: str,
-                 elevations: list,
+                 elevations: str,
                  sprite: Optional[Sprite] = None,
                  parent: Optional[GameMap] = None,
                  cargo: Optional[Cargo] = None,
@@ -59,6 +59,18 @@ class Entity:
     @property
     def game_map(self) -> GameMap:
         return self.parent.game_map
+
+    def to_json(self) -> Dict:
+        return {
+            'x': self.x,
+            'y': self.y,
+            'icon': self.icon if self.icon is not None else None,
+            'sprite': self.sprite.sprite_name if self.sprite is not None else None,
+            'name': self.name,
+            'render_order': self.render_order.value,
+            'elevations': self.elevations,
+            'cargo': self.cargo.to_json() if self.cargo is not None else None
+        }
     
     def spawn(self: T, game_map: GameMap, x: int, y: int, facing: int = None) -> T:
         """Spawn a copy of this instance at the given location."""
@@ -93,7 +105,7 @@ class Actor(Entity):
                  view: View,
                  x: int = 0,
                  y: int = 0,
-                 elevations: list,
+                 elevations: str,
                  facing: int = 0,
                  icon: str = "",
                  sprite: Optional[Sprite] = None,
@@ -111,17 +123,17 @@ class Actor(Entity):
             render_order=render_order)
         
         self.ai: Optional[BaseAI] = ai_cls(self)
+        self.fighter = fighter
         if fighter:
-            self.fighter = fighter
             self.fighter.parent = self
+        self.sails = sails
         if sails:
-            self.sails = sails
             self.sails.parent = self
+        self.crew = crew
         if crew:
-            self.crew = crew
             self.crew.parent = self
+        self.broadsides = broadsides
         if broadsides:
-            self.broadsides = broadsides
             self.broadsides.parent = self
         self.view = view
         self.view.parent = self
@@ -139,6 +151,26 @@ class Actor(Entity):
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
     
+    def to_json(self) -> Dict:
+        return {
+            'name': self.name,
+            'x': self.x,
+            'y': self.y,
+            'icon': self.icon if self.icon is not None else None,
+            'sprite': self.sprite.sprite_name if self.sprite is not None else None,
+            'render_order': self.render_order.value,
+            'elevations': self.elevations,
+            'cargo': self.cargo.to_json() if self.cargo is not None else None,
+            'ai': self.ai.to_json() if self.ai is not None else None,
+            'fighter': self.fighter.to_json() if self.fighter is not None else None,
+            'sails': self.sails.to_json() if self.sails is not None else None,
+            'crew': self.crew.to_json() if self.crew is not None else None,
+            'broadsides': self.broadsides.to_json() if self.broadsides is not None else None,
+            'view': self.view.to_json() if self.view is not None else None,
+            'facing': self.facing,
+            'flying': self.cargo.to_json(),
+        }
+
     def move(self) -> None:
         old_cube = hex_to_cube(Hex(self.x, self.y))
         new_hex = cube_to_hex(cube_neighbor(old_cube, self.facing))

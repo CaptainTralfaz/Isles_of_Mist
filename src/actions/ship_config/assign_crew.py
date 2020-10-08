@@ -24,13 +24,20 @@ class AssignCrewAction(Action):
     def perform(self) -> bool:
         if not self.entity.is_alive:
             raise Impossible("Can't assign crew when dead")
-        if self.entity.crew.assignments[self.event] == self.entity.crew.roster[self.entity.crew.selected]:
-            self.entity.crew.assignments[self.event] = None
+        
+        crewman = self.entity.crew.roster[self.entity.crew.selected]
+        
+        # if crewman already has this assignment, then un-assign him
+        if crewman.assignment == self.event:
+            crewman.assignment = None
             self.engine.message_log.add_message(f"assigning nobody to '{self.event}' key")
             return False
         else:
-            self.entity.crew.assignments[self.event] = self.entity.crew.roster[self.entity.crew.selected]
-            self.engine.message_log.add_message(f"assigning {self.entity.crew.roster[self.entity.crew.selected].name}"
+            for person in self.entity.crew.roster:
+                if person.assignment == self.event:
+                    person.assignment = None
+            crewman.assignment = self.event
+            self.engine.message_log.add_message(f"assigning {crewman.name} the {crewman.occupation}"
                                                 f" to '{self.event}' key")
             self.engine.game_state = GameStates.ACTION
             return True

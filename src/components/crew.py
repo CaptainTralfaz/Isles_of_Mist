@@ -30,17 +30,32 @@ class Crew(BaseComponent):
         self.roster = roster
         if self.roster is None:
             self.roster = generate_roster(max_count)
-        
         self.selected = 0
-        if assignments is None:
-            self.assignments = {MenuKeys.UP: None,
-                                MenuKeys.RIGHT: None,
-                                MenuKeys.LEFT: None,
-                                MenuKeys.DOWN: None
-                                }
-        else:
-            self.assignments = assignments
-    
+
+    def to_json(self) -> Dict:
+        """
+        Serialize Crew object to json
+        :return: json representation of Crew object
+        """
+        return {
+            'max_count': self.max_count,
+            'defense': self.defense,
+            'roster': [crewman.to_json() for crewman in self.roster],
+        }
+
+    def from_json(self, json_data) -> Crew:
+        """
+        Convert json representation Crew object to Crew Object
+        :param json_data: json representation of Crew object
+        :return: Crew Object
+        """
+        max_crew = json_data.get('max_crew')
+        defense = json_data.get('defense')
+        roster_list = json_data.get('roster')
+        count = len(roster_list)
+        roster = [crewman.from_json() for crewman in roster_list]
+        return Crew(count=count, max_count=max_crew, defense=defense, roster=roster)
+
     @property
     def weight(self):
         """
@@ -110,10 +125,6 @@ class Crew(BaseComponent):
                 pick = choice(self.roster)
                 self.engine.message_log.add_message(f"{pick.name} the {pick.occupation} has perished!",
                                                     colors['orange'])
-                # un-assign picked crewman
-                for key in self.assignments.keys():
-                    if self.assignments[key] == pick:
-                        self.assignments[key] = None
                 # kill crewman
                 self.roster.remove(pick)
         self.count -= amount
@@ -127,11 +138,24 @@ def generate_roster(count: int):
 
 
 class Crewman:
-    def __init__(self, occupation: str = None):
-        self.name = self.generate_name()
-        self.occupation = occupation
-        if self.occupation is None:
-            self.occupation = self.generate_occupation()
+    def __init__(self, name: str = None, occupation: str = None, assignment: MenuKeys = None):
+        self.name = self.generate_name() if name is None else name
+        self.occupation = self.generate_occupation() if occupation is None else occupation
+        self.assignment = assignment
+    
+    def to_json(self) -> Dict:
+        return {
+            'name': self.name,
+            'occupation': self.occupation,
+            'assignment': self.assignment.value if self.assignment is not None else None
+        }
+    
+    @staticmethod
+    def from_json(json_data) -> Crewman:
+        name = json_data.get('name')
+        occupation = json_data.get('occupation')
+        assignment = json_data.get('assignment')
+        return Crewman(name=name, occupation=occupation, assignment=assignment)
     
     @staticmethod
     def generate_name():

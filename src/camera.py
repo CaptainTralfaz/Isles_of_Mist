@@ -1,4 +1,5 @@
 from constants.constants import tile_size
+from typing import Dict
 
 
 class Camera:
@@ -6,6 +7,12 @@ class Camera:
         self.x = 0
         self.y = 0
         
+    def to_json(self) -> Dict:
+        return {
+            'x': self.x,
+            'y': self.y
+        }
+    
     def update(self, player):
         target_x = player.x * tile_size
         target_y = player.y * tile_size + ((player.x % 2) * tile_size // 2)

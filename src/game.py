@@ -1,5 +1,6 @@
 import copy
 import random
+from json import dump, load
 
 from pygame import display
 
@@ -20,15 +21,16 @@ class Game:
         
         while not should_quit:
             try:
-                self.engine.event_handler.handle_events()
-            
+                something_happened = self.engine.event_handler.handle_events()
+                if something_happened:
+                    save_game(self.engine, self.engine.game_map, self.engine.player)
             except SystemExit:
                 should_quit = True
             
             self.engine.render_all(main_surface=self.display)
             display.flip()
             self.engine.clock.tick(FPS)
-
+        
 
 def new_game(ui_layout):
     seed = random.randint(0, 10000)  # 8617
@@ -62,3 +64,23 @@ def load_game(ui_layout):
     )
     
     return player, engine
+
+
+def save_game(engine, game_map, player):
+    data = {
+        'engine': engine.to_json()
+    }
+    with open('data/saved_engine.json', 'w') as save_file:
+        dump(data, save_file, indent=4)
+        
+    data = {
+        'game_map': game_map.to_json()
+    }
+    with open('data/saved_game_map.json', 'w') as save_file:
+        dump(data, save_file, indent=4)
+
+    data = {
+        'player': player.to_json()
+    }
+    with open('data/saved_player.json', 'w') as save_file:
+        dump(data, save_file, indent=4)

@@ -28,20 +28,19 @@ class Cargo(BaseComponent):
         self.manifest = manifest
         self.selected = selected
     
-    # def to_json(self):
-    #     return {
-    #         'max_volume': self.max_volume,
-    #         'max_weight': self.max_weight,
-    #         'manifest': [item.to_json() for item in self.manifest]
-    #     }
+    def to_json(self):
+        return {
+            'max_volume': self.max_volume,
+            'max_weight': self.max_weight,
+            'manifest': self.manifest
+        }
     
-    # @staticmethod
-    # def from_json(json_data):
-    #     max_volume = json_data.get('max_volume')
-    #     max_weight = json_data.get('max_weight')
-    #     manifest = [Item.from_json(item) for item in json_data.get('manifest')]
-    #
-    #     return Cargo(max_volume=max_volume, max_weight=max_weight, manifest=manifest)
+    @staticmethod
+    def from_json(json_data):
+        max_volume = json_data.get('max_volume')
+        max_weight = json_data.get('max_weight')
+        manifest = json_data.get('manifest')
+        return Cargo(max_volume=max_volume, max_weight=max_weight, manifest=manifest)
     
     @property
     def weight(self):

@@ -26,6 +26,16 @@ class Fighter(BaseComponent):
         else:
             self.can_hit = can_hit
     
+    def to_json(self):
+        return {
+            'max_hp': self.max_hp,
+            '_hp': self._hp,
+            'defense': self.defense,
+            'power': self.power,
+            'name': self.name,
+            'can_hit': self.can_hit
+        }
+
     @property
     def hp(self) -> int:
         return self._hp

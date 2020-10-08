@@ -70,7 +70,7 @@ def viewport_render(game_map: GameMap,
                 targets = []
                 neighbor_tiles = player.game_map.get_neighbors_at_elevations(player.x,
                                                                              player.y,
-                                                                             elevations=move_elevations['all'])
+                                                                             elevations='all')
                 neighbor_tiles.append((player.x, player.y))
                 for tile_x, tile_y in neighbor_tiles:
                     targets.extend(player.game_map.get_targets_at_location(tile_x, tile_y))

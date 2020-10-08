@@ -19,6 +19,14 @@ class Sails(BaseComponent):
         self.raised = raised
         self.name = name
     
+    def to_json(self):
+        return {
+            'max_hp': self.max_hp,
+            '_hp': self._hp,
+            'defense': self.defense,
+            'raised': self.raised
+        }
+
     @property
     def hp(self) -> int:
         return self._hp
