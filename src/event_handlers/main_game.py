@@ -7,11 +7,11 @@ from pygame import event as pygame_event
 
 from actions.attack.attack_choice import AttackAction
 from actions.auto.auto import AutoAction
-from actions.mouse import MouseMoveAction
+from actions.base.mouse import MouseMoveAction
 from actions.move.movement import MovementAction
 from actions.move.rotate import RotateAction
 from actions.port.port_choice import PortAction
-from actions.quit import ActionQuit
+from actions.base.quit import ActionQuit
 from actions.repair.repair_choice import RepairAction
 from actions.ship_config.ship import ShipAction
 from constants.colors import colors
@@ -22,7 +22,7 @@ from constants.keys import MODIFIERS, ATTACK_KEYS, REPAIR_KEYS, PORT_KEYS, SHIP_
 
 if TYPE_CHECKING:
     from engine import Engine
-    from actions.base import Action
+    from actions.base.base import Action
 
 
 class MainEventHandler(EventHandler):

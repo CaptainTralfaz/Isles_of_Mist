@@ -3,7 +3,7 @@ from __future__ import annotations
 from random import choice, randint
 from typing import TYPE_CHECKING
 
-from actions.base import Action
+from actions.base.base import Action
 from actions.move.movement import MovementAction
 from actions.move.rotate import RotateAction
 

@@ -1,4 +1,4 @@
-from actions.base import Action
+from actions.base.base import Action
 
 
 class ActionQuit(Action):

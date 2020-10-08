@@ -1,55 +1,46 @@
 #!/usr/bin/env python3
-import copy
-import random
 
 import pygame
 
-import entity_factory
-from constants.constants import map_width, map_height, caption, FPS
 from constants.colors import colors
+from constants.constants import map_width, map_height, caption
 from constants.images import misc_icons
-from engine import Engine
-from procgen import generate_map
+from game import Game
+from game import new_game, load_game
+from render.main_menu import main_menu_render
 from ui import DisplayInfo
 
 
 def main() -> None:
-    seed = random.randint(0, 10000)  # 8617
-    print(seed)
-    
-    random.seed(seed)
     pygame.init()
     fps_clock = pygame.time.Clock()
     
-    player = copy.deepcopy(entity_factory.player)
     ui_layout = DisplayInfo(map_width, map_height)
-    
-    engine = Engine(player=player, ui_layout=ui_layout)
-    engine.game_map = generate_map(map_width, map_height, engine=engine, seed=seed)
-    
-    engine.message_log.add_message(
-        "Hello and welcome, adventurer, to the Isles of Mist", colors['aqua']
-    )
-    
     game_display = pygame.display.set_mode((ui_layout.display_width, ui_layout.display_height),
                                            flags=pygame.SCALED | pygame.RESIZABLE)
-    game_display.fill(colors['black'])
     pygame.display.set_caption(caption)
     pygame.display.set_icon(misc_icons['compass'])
-    pygame.display.flip()
     
     should_quit = False
-    
     while not should_quit:
-        try:
-            engine.event_handler.handle_events()
-        
-        except SystemExit:
-            should_quit = True
-        
-        engine.render_all(main_surface=game_display)
+        game_display.fill(colors['black'])
+        main_menu_render(main_display=game_display, ui_layout=ui_layout)
         pygame.display.flip()
-        engine.clock.tick(FPS)
+        # noinspection PyArgumentList
+        events = pygame.event.get(pump=True)
+        for event in events:
+            if event.type == pygame.QUIT:
+                should_quit = True
+            if event.type == pygame.KEYDOWN:
+                if event.key in [pygame.K_UP]:
+                    player, engine = new_game(ui_layout=ui_layout)
+                    Game(game_display, engine).play_game()
+                elif event.key in [pygame.K_DOWN]:
+                    # load game
+                    player, engine = load_game(ui_layout=ui_layout)
+                    Game(game_display, engine).play_game()
+                elif event.key == pygame.K_ESCAPE:
+                    should_quit = True
     
     pygame.quit()
 

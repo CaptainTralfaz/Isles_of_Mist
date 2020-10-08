@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from actions.base import Action
-from custom_exceptions import Impossible
+from actions.base.base import Action
 
 if TYPE_CHECKING:
     from entity import Actor
