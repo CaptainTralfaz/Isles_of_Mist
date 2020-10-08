@@ -14,10 +14,12 @@ from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
 if TYPE_CHECKING:
     from entity import Entity, Actor
     from engine import Engine
+    from weather import Weather
 
 
 class GameMap:
-    def __init__(self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = (), terrain=None):
+    def __init__(self, engine: Engine, width: int, height: int, weather: Weather = None,
+                 entities: Iterable[Entity] = (), terrain=None):
         """
         The GameMap object, which holds the game map, map width, map height, tile information
         :param engine: Parent of the game map
@@ -30,6 +32,7 @@ class GameMap:
         self.width = width
         self.height = height
         self.entities = set(entities)
+        self.weather = weather
         
         if terrain:
             self.terrain = terrain

@@ -14,9 +14,11 @@ from constants.constants import move_elevations
 from constants.enums import Elevation
 from game_map import GameMap
 from tile import Terrain
+from weather import Weather
 
 if TYPE_CHECKING:
     from engine import Engine
+    from ui import DisplayInfo
 
 ISLAND_GEN = {
     'frequency': 3,
@@ -34,10 +36,11 @@ DECORATION_GEN = {
 }
 
 
-def generate_map(map_width: int, map_height: int, engine: Engine, seed: int) -> GameMap:
+def generate_map(map_width: int, map_height: int, engine: Engine, seed: int, ui_layout: DisplayInfo) -> GameMap:
     player = engine.player
     
     island_map = GameMap(engine, map_width, map_height, entities=[player])
+    island_map.weather = Weather(island_map, ui_layout.viewport_width, ui_layout.viewport_height)
     
     ev = OpenSimplex(seed=seed)
     island_noise = make_noise_island_map(map_width, map_height, ev, ISLAND_GEN)
@@ -58,7 +61,7 @@ def generate_map(map_width: int, map_height: int, engine: Engine, seed: int) -> 
         for y in range(map_height):
             
             # add mist
-            mist_chance = engine.weather.get_weather_info['mist'] \
+            mist_chance = island_map.weather.get_weather_info['mist'] \
                           + engine.time.get_time_of_day_info['mist']
             mist = True if randint(0, 99) < mist_chance else False
             

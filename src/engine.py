@@ -7,8 +7,8 @@ from pygame import Surface, time
 from actions.move.movement import MovementAction
 from camera import Camera
 from constants.constants import time_tick
-from custom_exceptions import Impossible
 from constants.enums import GameStates
+from custom_exceptions import Impossible
 from event_handlers.cargo_config import CargoConfigurationHandler
 from event_handlers.crew_config import CrewConfigurationHandler
 from event_handlers.main_game import MainEventHandler
@@ -24,8 +24,8 @@ from render.mini_map import mini_map_render
 from render.status_panel import status_panel_render
 from render.viewport import viewport_render
 from render.weapons import weapon_render
+from time_of_day import Time
 from ui import DisplayInfo
-from weather import Weather, Time
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -42,12 +42,11 @@ class Engine:
         self.message_log = MessageLog(parent=self)
         self.ui_layout = ui_layout
         self.clock = time.Clock()
-        self.weather = Weather(parent=self, width=ui_layout.viewport_width, height=ui_layout.viewport_height)
         self.time = Time()
         self.key_mod = None
         self.camera = Camera()
         self.game_state = GameStates.ACTION
-
+    
     def get_handler(self):
         if self.game_state == GameStates.ACTION:
             self.event_handler = MainEventHandler(self)
@@ -61,7 +60,7 @@ class Engine:
             self.event_handler = GameOverEventHandler(self)
         elif self.game_state == GameStates.MERCHANT:
             self.event_handler = MerchantHandler(self)
-
+    
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             if entity.is_alive and entity.ai:
@@ -79,14 +78,14 @@ class Engine:
     
     def handle_weather(self):
         self.time.roll_min(time_tick)
-        self.weather.roll_weather()
-        self.weather.roll_wind()
-        self.weather.roll_mist(self.game_map)
+        self.game_map.weather.roll_weather()
+        self.game_map.weather.roll_wind()
+        self.game_map.weather.roll_mist(self.game_map)
     
     def render_all(self, main_surface: Surface) -> None:
         mini_map_render(game_map=self.game_map, main_display=main_surface, ui_layout=self.ui_layout)
         
-        status_panel_render(console=main_surface, entity=self.player, weather=self.weather, time=self.time,
+        status_panel_render(console=main_surface, entity=self.player, weather=self.game_map.weather, time=self.time,
                             ui_layout=self.ui_layout)
         
         control_panel_render(console=main_surface, key_mod=self.key_mod, game_state=self.game_state,
@@ -99,7 +98,7 @@ class Engine:
             self.message_log.render(console=main_surface, ui_layout=self.ui_layout)
             if self.game_state in [GameStates.ACTION, GameStates.PLAYER_DEAD]:
                 self.camera.update(self.player)
-                viewport_render(game_map=self.game_map, main_display=main_surface, weather=self.weather,
+                viewport_render(game_map=self.game_map, main_display=main_surface, weather=self.game_map.weather,
                                 ui_layout=self.ui_layout, camera=self.camera)
                 if self.ui_layout.in_viewport(self.mouse_location[0], self.mouse_location[1]):
                     render_entity_info(console=main_surface,
