@@ -39,7 +39,7 @@ class MovementAction(Action):
                 # damage from terrain decorations
                 elif self.entity.game_map.terrain[x][y].decoration is not None:
                     self.entity.game_map.decoration_damage(x=x, y=y, entity=self.entity,
-                                                           conditions=self.engine.weather.conditions)
+                                                           conditions=self.entity.game_map.weather.conditions)
                 return True
             # player can't move here
             elif self.entity == self.engine.player:

@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 from random import choice
-from typing import List, Dict
+from typing import List, Dict, TYPE_CHECKING
 
 from components.base import BaseComponent
-from constants.constants import move_elevations
 from constants.colors import colors
-from entity import Actor
+from constants.constants import move_elevations
 from constants.enums import GameStates, RenderOrder, MenuKeys
 from event_handlers.player_dead import GameOverEventHandler
 from utilities import choice_from_dict
+
+if TYPE_CHECKING:
+    from entity import Actor
 
 
 class Crew(BaseComponent):
@@ -26,7 +30,7 @@ class Crew(BaseComponent):
         self.roster = roster
         if self.roster is None:
             self.roster = generate_roster(max_count)
-            
+        
         self.selected = 0
         if assignments is None:
             self.assignments = {MenuKeys.UP: None,
@@ -113,8 +117,8 @@ class Crew(BaseComponent):
                 # kill crewman
                 self.roster.remove(pick)
         self.count -= amount
-    
-    
+
+
 def generate_roster(count: int):
     roster = []
     for crewman in range(count):

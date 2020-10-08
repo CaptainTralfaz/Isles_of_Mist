@@ -1,9 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from components.base import BaseComponent
-from constants.constants import move_elevations
 from constants.colors import colors
-from entity import Actor
+from constants.constants import move_elevations
 from constants.enums import GameStates, RenderOrder
 from event_handlers.player_dead import GameOverEventHandler
+
+if TYPE_CHECKING:
+    from entity import Actor
 
 
 class Fighter(BaseComponent):

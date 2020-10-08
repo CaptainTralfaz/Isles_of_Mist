@@ -1,6 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from components.base import BaseComponent
-from entity import Actor
 from constants.enums import Elevation
+
+if TYPE_CHECKING:
+    from entity import Actor
 
 
 class View(BaseComponent):
@@ -16,7 +22,7 @@ class View(BaseComponent):
     
     def set_fov(self) -> None:
         distance = self.distance + self.engine.time.get_time_of_day_info['view'] + \
-                   self.engine.weather.get_weather_info['view']
+                   self.game_map.weather.get_weather_info['view']
         if distance < 1:
             distance = 1
         if self.parent.flying or (self.parent.x, self.parent.y) == self.parent.game_map.port.location:

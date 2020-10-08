@@ -1,14 +1,19 @@
+from __future__ import annotations
+
 from random import choice
 from typing import List, Tuple, Dict, Optional
+from typing import TYPE_CHECKING
 
 from components.base import BaseComponent
 from components.weapon import Weapon
 from constants.colors import colors
-from constants.weapons import weapons
-from constants.stats import item_stats
-from custom_exceptions import Impossible
-from entity import Actor
 from constants.enums import Location
+from constants.stats import item_stats
+from constants.weapons import weapons
+from custom_exceptions import Impossible
+
+if TYPE_CHECKING:
+    from entity import Actor
 
 max_slots = 4
 

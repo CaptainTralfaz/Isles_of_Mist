@@ -1,10 +1,14 @@
-from typing import Dict
+from __future__ import annotations
+
+from typing import Dict, TYPE_CHECKING
 
 from components.base import BaseComponent
 from constants.colors import colors
 from constants.stats import item_stats
 from custom_exceptions import Impossible
-from entity import Entity
+
+if TYPE_CHECKING:
+    from entity import Entity
 
 
 class Cargo(BaseComponent):
@@ -101,12 +105,6 @@ class Cargo(BaseComponent):
                                                                      colors['beach'])
                         remove_key.append(key)
                         break
-                
-                # if not item_stats[key]['category'] == 'ammo':
-                #     self.game_map.engine.message_log.add_message(f"Removed {item_dict[key]} {key} from cargo",
-                #                                                  colors['beach'])
-                #     self.game_map.engine.message_log.add_message(f"{self.manifest[key]} {key} left in cargo",
-                #                                                  colors['beach'])
             else:
                 raise Impossible(f"No such item {key} in manifest")
         if len(remove_key) > 0:
