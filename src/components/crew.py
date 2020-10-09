@@ -42,7 +42,8 @@ class Crew(BaseComponent):
             'roster': [crewman.to_json() for crewman in self.roster],
         }
     
-    def from_json(self, json_data) -> Crew:
+    @staticmethod
+    def from_json(json_data) -> Crew:
         """
         Convert json representation Crew object to Crew Object
         :param json_data: json representation of Crew object

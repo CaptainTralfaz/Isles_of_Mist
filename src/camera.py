@@ -1,17 +1,25 @@
+from __future__ import annotations
+
 from constants.constants import tile_size
 from typing import Dict
 
 
 class Camera:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+    def __init__(self, x: int = None, y: int = None):
+        self.x = 0 if x is None else x
+        self.y = 0 if y is None else y
         
     def to_json(self) -> Dict:
         return {
             'x': self.x,
             'y': self.y
         }
+    
+    @staticmethod
+    def from_json(json_data: Dict) -> Camera:  # wtf?
+        x = json_data.get('x')
+        y = json_data.get('y')
+        return Camera(x, y)
     
     def update(self, player):
         target_x = player.x * tile_size

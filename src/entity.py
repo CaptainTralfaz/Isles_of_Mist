@@ -27,7 +27,8 @@ class Entity:
     """
     parent: GameMap
     
-    def __init__(self, x: int,
+    def __init__(self,    # TODO   remove this - merge Actor and Entity into one
+                 x: int,
                  y: int,
                  icon: str,
                  elevations: str,
@@ -161,13 +162,36 @@ class Actor(Entity):
             'view': self.view.to_json() if self.view is not None else None,
             'ai': self.ai.to_json() if self.ai is not None else None,
             'icon': self.icon if self.icon is not None else None,
-            'sprite': self.sprite.sprite_name if self.sprite is not None else None,
+            'sprite': self.sprite.to_json() if self.sprite is not None else None,
             'fighter': self.fighter.to_json() if self.fighter is not None else None,
             'sails': self.sails.to_json() if self.sails is not None else None,
             'crew': self.crew.to_json() if self.crew is not None else None,
             'broadsides': self.broadsides.to_json() if self.broadsides is not None else None,
             'cargo': self.cargo.to_json() if self.cargo is not None else None
         }
+    
+    @staticmethod
+    def from_json(json_data) -> Actor:
+        name = json_data.get('name')
+        x = json_data.get('x')
+        y = json_data.get('y')
+        facing = json_data.get('facing')
+        flying = json_data.get('flying')
+        elevations = json_data.get('elevations')
+        view = View(json_data.get('view'))
+        ai_cls = json_data.get('ai')
+        icon = json_data.get('icon')
+        sprite = Sprite.from_json(json_data.get('sprite'))
+        fighter = Fighter.from_json(json_data.get('fighter'))
+        sails = Sails.from_json(json_data.get('sails'))
+        
+        crew = Crew.from_json(json_data.get('crew'))
+        broadsides = Broadsides.from_json(json_data.get('broadsides'))
+        cargo = Cargo.from_json(json_data.get('cargo'))
+        return Actor(name=name, x=x, y=y, facing=facing, flying=flying,
+                     elevations=elevations, view=view, ai_cls=ai_cls,
+                     icon=icon, sprite=sprite, fighter=fighter, sails=sails,
+                     crew=crew, broadsides=broadsides, cargo=cargo)
     
     def move(self) -> None:
         old_cube = hex_to_cube(Hex(self.x, self.y))

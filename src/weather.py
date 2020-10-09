@@ -33,13 +33,15 @@ wind_dir = {
 
 class Weather:
     def __init__(self,
-                 parent: GameMap,
                  width: int,
                  height: int,
+                 parent: GameMap = None,
                  wind_direction: int = None,
                  conditions: Conditions = None,
                  wind_count: int = 0,
                  conditions_count: int = 0):
+        self.width = width
+        self.height = height
         self.wind_direction = randint(0, 5) if wind_direction is None else wind_direction
         self.conditions = Conditions(randint(2, 3)) if conditions is None else conditions
         self.wind_count = wind_count
@@ -68,11 +70,24 @@ class Weather:
     
     def to_json(self):
         return {
+            'width': self.width,
+            'height': self.height,
             'wind_direction': self.wind_direction,
             'wind_count': self.wind_count,
             'conditions': self.conditions.value,
             'conditions_count': self.conditions_count,
         }
+    
+    @staticmethod
+    def from_json(json_data) -> Weather:
+        width = json_data.get('width')
+        height = json_data.get('height')
+        wind_direction = json_data.get('wind_direction')
+        wind_count = json_data.get('wind_count')
+        conditions = Conditions(json_data.get('conditions'))
+        conditions_count = json_data.get('conditions_count')
+        return Weather(width=width, height=height, wind_direction=wind_direction, conditions=conditions,
+                       wind_count=wind_count, conditions_count=conditions_count)
     
     def roll_wind(self):
         self.wind_count += 1

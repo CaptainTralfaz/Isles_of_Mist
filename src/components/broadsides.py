@@ -65,10 +65,24 @@ class Broadsides(BaseComponent):
     @staticmethod
     def from_json(json_data):
         slot_count = json_data.get('slot_count')
-        port = json_data.get('port')
-        starboard = json_data.get('starboard')
-        storage = json_data.get('storage')
-        return Broadsides(slot_count=slot_count, port=port, starboard=starboard, storage=storage)
+        port_data = json_data.get('port')
+        starboard_data = json_data.get('starboard')
+        storage_data = json_data.get('storage')
+        port = []
+        for weapon in port_data:
+            port.append(Weapon.from_json(weapon))
+        starboard = []
+        for weapon in starboard_data:
+            starboard.append(Weapon.from_json(weapon))
+        storage = []
+        for weapon in storage_data:
+            storage.append(Weapon.from_json(weapon))
+        broadsides = Broadsides(slot_count=slot_count, port=port, starboard=starboard, storage=storage)
+        for weapon in broadsides.all_weapons:
+            weapon.parent = broadsides
+        return broadsides
+        
+    
     
     @property
     def weight(self) -> int:

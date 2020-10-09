@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING
 
 from components.base import BaseComponent
 
@@ -26,7 +26,7 @@ class Weapon(BaseComponent):
         self.parent = parent
         self.ammo = ammo
 
-    def to_json(self):
+    def to_json(self) -> Dict:
         return {
             'max_hp': self.max_hp,
             '_hp': self._hp,
@@ -41,7 +41,7 @@ class Weapon(BaseComponent):
         }
     
     @staticmethod
-    def from_json(json_data):
+    def from_json(json_data: Dict) -> Weapon:
         max_hp = json_data.get('max_hp')
         hp = json_data.get('_hp')
         defense = json_data.get('defense')

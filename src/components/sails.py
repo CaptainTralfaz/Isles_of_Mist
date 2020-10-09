@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING
 
 from components.base import BaseComponent
 
@@ -11,21 +11,29 @@ if TYPE_CHECKING:
 class Sails(BaseComponent):
     parent: Actor
     
-    def __init__(self, hp: int, defense: int, raised: bool = True, name: str = "sail"):
-        self.max_hp = hp
+    def __init__(self, hp: int, defense: int, raised: bool = True, name: str = "sail", max_hp: int = None):
+        self.max_hp = hp if max_hp is None else max_hp
         self._hp = hp
         self.defense = defense
         self.raised = raised
         self.name = name
     
-    def to_json(self):
+    def to_json(self) -> Dict:
         return {
             'max_hp': self.max_hp,
-            '_hp': self._hp,
+            'hp': self._hp,
             'defense': self.defense,
             'raised': self.raised
         }
     
+    @staticmethod
+    def from_json(json_data: Dict) -> Sails:
+        max_hp = json_data.get('max_hp')
+        hp = json_data.get('hp')
+        defense = json_data.get('defense')
+        raised = json_data.get('raised')
+        return Sails(hp=hp, defense=defense, raised=raised, max_hp=max_hp)
+        
     @property
     def hp(self) -> int:
         return self._hp

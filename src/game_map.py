@@ -11,15 +11,16 @@ from tile import Terrain
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
     hex_to_cube, cube_neighbor, cube_line_draw, get_distance
 
+from weather import Weather
+
 if TYPE_CHECKING:
     from entity import Entity, Actor
     from engine import Engine
-    from weather import Weather
 
 
 class GameMap:
-    def __init__(self, engine: Engine, width: int, height: int, weather: Weather = None,
-                 entities: Iterable[Entity] = (), terrain=None):
+    def __init__(self, width: int, height: int, engine: Engine = None, weather: Weather = None,
+                 entities: Iterable[Entity] = (), terrain=None, port=None):
         """
         The GameMap object, which holds the game map, map width, map height, tile information
         :param engine: Parent of the game map
@@ -28,18 +29,14 @@ class GameMap:
         :param entities: list of Entity objects with locations on the game map
         :param terrain: list of lists of Terrain tiles
         """
-        self.engine = engine
         self.width = width
         self.height = height
+        self.engine = engine
         self.entities = set(entities)
         self.weather = weather
-        
-        if terrain:
-            self.terrain = terrain
-        else:
-            self.terrain = [[Terrain(elevation=Elevation.OCEAN, explored=False) for y in range(height)]
-                            for x in range(width)]
-        self.port = Port()
+        self.terrain = terrain if terrain is not None else [[Terrain(elevation=Elevation.OCEAN, explored=False)
+                                                             for y in range(height)] for x in range(width)]
+        self.port = port if port is not None else Port()
     
     @property
     def game_map(self) -> GameMap:
@@ -55,6 +52,18 @@ class GameMap:
             'terrain': [[terrain.to_json() for terrain in tile_rows] for tile_rows in self.terrain],
         }
     
+    @staticmethod
+    def from_json(json_data):
+        width = json_data.get('width')
+        height = json_data.get('height')
+        weather = Weather.from_json(json_data.get('weather'))
+        port = Port.from_json(json_data.get('port'))
+        entities_data = json_data.get('height')
+        entities = [Actor.from_json(entity) for entity in entities_data]
+        terrain = json_data.get('terrain')
+        
+        return GameMap(width=width, height=height, weather=weather, port=port, entities=entities, terrain=terrain)
+        
     def get_fov(self,
                 distance: int,
                 x: int,

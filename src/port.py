@@ -21,6 +21,14 @@ class Port:
             'smithy': self.smithy
         }
     
+    @staticmethod
+    def from_json(json_data):
+        location = json_data.get('location')
+        name = json_data.get('name')
+        merchant = json_data.get('merchant')
+        smithy = json_data.get('smithy')
+        return Port(location=location, name=name, merchant=merchant, smithy=smithy)
+    
 
 def gen_port_name() -> str:
     first = randint(0, 1)
@@ -62,7 +70,7 @@ def gen_port_name() -> str:
     if len(postfix) > 0:
         if postfix.startswith(" ") and not randint(0, 3):
             possessive = "'s"
-    return f"Port {adjective}{name}{possessive}{postfix}"
+    return f"port {adjective}{name}{possessive}{postfix}"
 
 
 def gen_merchant() -> Dict[str, int]:

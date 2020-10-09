@@ -1,4 +1,6 @@
-from typing import Dict, List, Reversible
+from __future__ import annotations
+
+from typing import Dict, List, Reversible, TYPE_CHECKING
 
 from pygame import Surface
 
@@ -7,12 +9,15 @@ from constants.constants import game_font, margin
 from render.utilities import render_border
 from ui import DisplayInfo
 
-
+if TYPE_CHECKING:
+    from engine import Engine
+    
+    
 class Message:
-    def __init__(self, text: str, color: str):
+    def __init__(self, text: str, color: str, count: int = None):
         self.plain_text = text
         self.color = color
-        self.count = 1
+        self.count = 1 if count is None else count
     
     def to_json(self) -> Dict:
         return {
@@ -20,17 +25,30 @@ class Message:
             'color': self.color,
             'count': self.count,
         }
-
+    
+    @staticmethod
+    def from_json(json_data: Dict) -> Message:
+        plain_text = json_data.get('plain_text')
+        color = json_data.get('color')
+        count = json_data.get('count')
+        return Message(text=plain_text, color=color, count=count)
+        
 
 class MessageLog:
-    def __init__(self, parent) -> None:
-        self.messages: List[Message] = []
+    def __init__(self, messages: List[Message] = None, parent: Engine = None) -> None:
+        self.messages: List[Message] = [] if messages is None else messages
         self.parent = parent
+        self.max_messages = 44  # how many can currently print in the viewer...
+        # TODO base this off display height / game_font height ?
     
     def to_json(self) -> Dict:
         return {
             'messages': [message.to_json() for message in self.messages]
         }
+    
+    @staticmethod
+    def from_json(json_data: Dict) -> MessageLog:
+        return MessageLog(messages=[Message.from_json(message) for message in json_data.get('messages')])
     
     def add_message(
             self, text: str, text_color: str = 'mountain', *, stack: bool = True,
@@ -44,6 +62,8 @@ class MessageLog:
             self.messages[-1].count += 1
         else:
             self.messages.append(Message(text, text_color))
+        if len(self.messages) > self.max_messages:
+            self.messages.remove(self.messages[0])
     
     def render(self, console: Surface, ui_layout: DisplayInfo) -> None:
         """Render this log over the given area.
