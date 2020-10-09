@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import List, TYPE_CHECKING
 
 from actions.base.base import Action
-from constants.colors import colors
 
 if TYPE_CHECKING:
     from entity import Actor, Entity
@@ -21,7 +20,7 @@ class SalvageAction(Action):
     
     def perform(self) -> bool:
         for salvage in self.salvage:
-            self.engine.message_log.add_message(f"You salvage {salvage.name}!", colors['orange'])
+            self.engine.message_log.add_message(f"You salvage {salvage.name}!", text_color='orange')
             self.entity.cargo.add_items_to_manifest(salvage.cargo.manifest)
             self.engine.game_map.entities.remove(salvage)
         return True

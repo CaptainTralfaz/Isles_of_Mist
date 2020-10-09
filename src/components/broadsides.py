@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from components.base import BaseComponent
 from components.weapon import Weapon
-from constants.colors import colors
 from constants.enums import Location
 from constants.stats import item_stats
 from constants.weapons import weapons
@@ -54,7 +53,7 @@ class Broadsides(BaseComponent):
                 for weapon in storage:
                     weapon.parent = self
                     self.storage.append(weapon)
-
+    
     def to_json(self) -> Dict:
         return {
             'slot_count': self.slot_count,
@@ -62,7 +61,7 @@ class Broadsides(BaseComponent):
             'starboard': [weapon.to_json() for weapon in self.starboard],
             'storage': [weapon.to_json() for weapon in self.storage]
         }
-
+    
     @staticmethod
     def from_json(json_data):
         slot_count = json_data.get('slot_count')
@@ -70,7 +69,7 @@ class Broadsides(BaseComponent):
         starboard = json_data.get('starboard')
         storage = json_data.get('storage')
         return Broadsides(slot_count=slot_count, port=port, starboard=starboard, storage=storage)
-
+    
     @property
     def weight(self) -> int:
         """
@@ -253,7 +252,7 @@ class Broadsides(BaseComponent):
             raise Impossible("Weapon slots already at maximum")
         self.slot_count += 1
         self.parent.game_map.engine.message_log.add_message(
-            f"Upgraded maximum number of weapons per side to {self.slot_count}", text_color=colors['cyan'])
+            f"Upgraded maximum number of weapons per side to {self.slot_count}", text_color='cyan')
     
     def pick_weapon(self) -> (Weapon, Location):
         """

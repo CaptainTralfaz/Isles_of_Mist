@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
-from constants.colors import colors
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
@@ -33,7 +32,7 @@ class MovementAction(Action):
                 self.entity.move()
                 if (x, y) == self.engine.game_map.port.location and self.entity is self.engine.player:
                     self.engine.message_log.add_message(f"Welcome to {self.engine.game_map.port.name}!",
-                                                        colors['cyan'])
+                                                        text_color='cyan')
                     if self.entity.sails.raised:
                         self.entity.sails.adjust()
                 # damage from terrain decorations
@@ -44,7 +43,7 @@ class MovementAction(Action):
             # player can't move here
             elif self.entity == self.engine.player:
                 if self.entity.sails and self.entity.sails.hp > 0 and self.entity.sails.raised:
-                    self.engine.message_log.add_message("Blocked", colors['gray'])
+                    self.engine.message_log.add_message("Blocked", text_color='gray')
                     self.entity.sails.adjust()
                 else:
                     raise Impossible("Blocked")
@@ -52,7 +51,7 @@ class MovementAction(Action):
         # player out of bounds
         elif self.entity == self.engine.player:
             if self.entity.sails and self.entity.sails.hp > 0 and self.entity.sails.raised:
-                self.engine.message_log.add_message("No Navigational Charts to leave area", colors['gray'])
+                self.engine.message_log.add_message("No Navigational Charts to leave area", text_color='gray')
                 self.entity.sails.adjust()
             else:
                 raise Impossible("No Navigational Charts to leave area")

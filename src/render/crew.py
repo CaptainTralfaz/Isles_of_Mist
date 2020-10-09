@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants.constants import margin, game_font
 from constants.colors import colors
+from constants.constants import margin, game_font
 from render.utilities import render_border
 
 if TYPE_CHECKING:
     from components.crew import Crew
-    from weather import Time
+    from time_of_day import Time
     from ui import DisplayInfo
 
 
@@ -46,7 +46,7 @@ def crew_render(console: Surface,
             crew_surf.blit(assign_surf, (margin + 120, height))
         height += game_font.get_height()
         count += 1
-
+    
     time.tint_render(crew_surf)
     render_border(crew_surf, time.get_sky_color)
     console.blit(crew_surf, (ui_layout.mini_width, 0))

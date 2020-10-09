@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from components.base import BaseComponent
-from constants.colors import colors
 from constants.constants import move_elevations
 from constants.enums import GameStates, RenderOrder
 from event_handlers.player_dead import GameOverEventHandler
@@ -35,7 +34,7 @@ class Fighter(BaseComponent):
             'name': self.name,
             'can_hit': self.can_hit
         }
-
+    
     @property
     def hp(self) -> int:
         return self._hp
@@ -52,14 +51,14 @@ class Fighter(BaseComponent):
             self.parent.icon = 'shipwreck'
             self.engine.event_handler = GameOverEventHandler(self.engine)
             self.engine.game_state = GameStates.PLAYER_DEAD
-            death_message_color = colors['red']
+            death_message_color = 'red'
         else:
             death_message = f"{self.parent.name} is dead!"
             if self.game_map.terrain[self.parent.x][self.parent.y].elevation in move_elevations["water"]:
                 self.parent.icon = "carcass"
             else:
                 self.parent.icon = None
-            death_message_color = colors['orange']
+            death_message_color = 'orange'
             self.parent.view = None
         
         if self.parent.sprite:
@@ -70,7 +69,7 @@ class Fighter(BaseComponent):
         self.parent.render_order = RenderOrder.CORPSE
         self.parent.flying = False
         
-        self.engine.message_log.add_message(death_message, death_message_color)
+        self.engine.message_log.add_message(death_message, text_color=death_message_color)
     
     def repair(self, amount: int) -> int:
         new_hull_value = self.hp + amount

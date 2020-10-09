@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Dict, List, TYPE_CHECKING
 
 from actions.base.base import Action
-from constants.colors import colors
 from constants.enums import Location
 
 if TYPE_CHECKING:
@@ -38,11 +37,10 @@ class SplitDamageAction(Action):
             if damage > 0:
                 self.engine.message_log.add_message(f"{attack_desc} for {damage} " +
                                                     f"{target.fighter.name} damage",
-                                                    colors['mountain'])
+                                                    text_color='mountain')
                 target.fighter.hp -= damage
             else:
-                self.engine.message_log.add_message(f"{attack_desc} but does no damage",
-                                                    colors['mountain'])
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", text_color='mountain')
         if self.direction == Location.PORT:
             for weapon in [w for w in self.entity.broadsides.port if w.cooldown == 0]:
                 weapon.cooldown = weapon.cooldown_max

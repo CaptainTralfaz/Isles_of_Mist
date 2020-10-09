@@ -1,15 +1,15 @@
-from typing import Dict, List, Reversible, Tuple
+from typing import Dict, List, Reversible
 
 from pygame import Surface
 
-from constants.constants import game_font, margin
 from constants.colors import colors
+from constants.constants import game_font, margin
 from render.utilities import render_border
 from ui import DisplayInfo
 
 
 class Message:
-    def __init__(self, text: str, color: Tuple[int, int, int]):
+    def __init__(self, text: str, color: str):
         self.plain_text = text
         self.color = color
         self.count = 1
@@ -33,7 +33,7 @@ class MessageLog:
         }
     
     def add_message(
-            self, text: str, text_color: Tuple[int, int, int] = colors['mountain'], *, stack: bool = True,
+            self, text: str, text_color: str = 'mountain', *, stack: bool = True,
     ) -> None:
         """Add a message to this log.
         `text` is the message text, `fg` is the text color.
@@ -89,7 +89,7 @@ class MessageLog:
             if message.count > 1:
                 count = f" (x {message.count})"
             text = f"{message.plain_text}{count}"
-            message_surf.blit(game_font.render(text, True, message.color),
+            message_surf.blit(game_font.render(text, True, colors[message.color]),
                               (x + margin, y + margin - y_offset * game_font.get_height()))
             y_offset += 1
             if y_offset > height:

@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Dict, TYPE_CHECKING
 
 from components.base import BaseComponent
-from constants.colors import colors
 from constants.stats import item_stats
 from custom_exceptions import Impossible
 
@@ -74,11 +73,11 @@ class Cargo(BaseComponent):
             if key in self.manifest.keys():
                 self.manifest[key] += item_dict[key]
                 self.game_map.engine.message_log.add_message(f"Added {item_dict[key]} {key} to cargo",
-                                                             colors['beach'])
+                                                             text_color='beach')
             else:
                 self.manifest[key] = item_dict[key]
                 self.game_map.engine.message_log.add_message(f"Added {item_dict[key]} {key} to cargo",
-                                                             colors['beach'])
+                                                             text_color='beach')
     
     def item_type_in_manifest(self, key: str) -> bool:
         """
@@ -101,7 +100,7 @@ class Cargo(BaseComponent):
                     self.manifest[key] -= 1
                     if self.manifest[key] < 1:
                         self.game_map.engine.message_log.add_message(f"Removed all {key} from cargo",
-                                                                     colors['beach'])
+                                                                     text_color='beach')
                         remove_key.append(key)
                         break
             else:

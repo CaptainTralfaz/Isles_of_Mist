@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from components.base import BaseComponent
-from constants.colors import colors
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -26,7 +25,7 @@ class Sails(BaseComponent):
             'defense': self.defense,
             'raised': self.raised
         }
-
+    
     @property
     def hp(self) -> int:
         return self._hp
@@ -47,12 +46,12 @@ class Sails(BaseComponent):
     
     def destroy(self):
         self.raised = False
-        self.engine.message_log.add_message(f"Sails have been destroyed!", colors['aqua'])
+        self.engine.message_log.add_message(f"Sails have been destroyed!", text_color='aqua')
     
     def adjust(self):
         if self.raised:
             self.raised = False
-            self.engine.message_log.add_message(f"Sails trimmed", colors['aqua'])
+            self.engine.message_log.add_message(f"Sails trimmed", text_color='aqua')
         else:
             self.raised = True
-            self.engine.message_log.add_message(f"Sails raised", colors['aqua'])
+            self.engine.message_log.add_message(f"Sails raised", text_color='aqua')

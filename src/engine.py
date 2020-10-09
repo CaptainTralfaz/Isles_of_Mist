@@ -50,12 +50,12 @@ class Engine:
     def to_json(self):
         return {
             'event_handler': self.event_handler.__class__.__name__,
-            'message_log': self.message_log.to_json(),
+            'game_state': self.game_state.value,
             'time': self.time.to_json(),
             'camera': self.camera.to_json(),
-            'game_state': self.game_state.value
+            'message_log': self.message_log.to_json(),
         }
-
+    
     def get_handler(self):
         if self.game_state == GameStates.ACTION:
             self.event_handler = MainEventHandler(self)

@@ -4,16 +4,17 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants.constants import game_font, margin, tile_size
 from constants.colors import colors
+from constants.constants import game_font, margin, tile_size
 from constants.images import cargo_icons, misc_icons
 from render.utilities import render_border, render_hp_bar, rot_center, colorize
 from utilities import direction_angle
 
 if TYPE_CHECKING:
     from ui import DisplayInfo
-    from weather import Time, Weather
+    from weather import Weather
     from entity import Actor
+    from time_of_day import Time
 
 
 def status_panel_render(console: Surface,

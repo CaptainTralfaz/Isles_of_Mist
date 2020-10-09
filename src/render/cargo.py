@@ -4,15 +4,15 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants.constants import game_font, margin
 from constants.colors import colors
-from constants.stats import item_stats
+from constants.constants import game_font, margin
 from constants.images import cargo_icons
+from constants.stats import item_stats
 from render.utilities import render_border
 
 if TYPE_CHECKING:
     from components.cargo import Cargo
-    from weather import Time
+    from time_of_day import Time
     from ui import DisplayInfo
 
 

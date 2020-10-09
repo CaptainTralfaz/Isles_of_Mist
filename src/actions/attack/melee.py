@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 from actions.base.base import Action
-from constants.colors import colors
 from utilities import choice_from_dict
 
 if TYPE_CHECKING:
@@ -40,37 +39,37 @@ class MeleeAction(Action):
             damage = self.entity.fighter.power - self.target.fighter.defense
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.fighter.name}"
             if damage > 0:
-                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", colors['pink'])
+                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", text_color='pink')
                 self.target.fighter.hp -= damage
             else:
-                self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", text_color='pink')
         elif gets_hit == "sail":
             damage = self.entity.fighter.power - self.target.sails.defense
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.sails.name}"
             if damage > 0:
-                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", colors['pink'])
+                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", text_color='pink')
                 self.target.sails.hp -= damage
             else:
-                self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", text_color='pink')
         elif gets_hit == "crew":
             damage = self.entity.fighter.power - self.target.crew.defense
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.crew.name}"
             if damage > 0:
-                self.engine.message_log.add_message(f"{attack_desc} and kills {damage} members", colors['pink'])
+                self.engine.message_log.add_message(f"{attack_desc} and kills {damage} members", text_color='pink')
                 self.target.crew.take_damage(damage)
             else:
-                self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", text_color='pink')
         elif gets_hit == "weapon":
             weapon, location = self.target.broadsides.pick_weapon()
             damage = self.entity.fighter.power - weapon.defense
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {weapon.name}"
             if damage > 0:
-                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", colors['pink'])
+                self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", text_color='pink')
                 destroy = weapon.hp - damage
                 if destroy <= 0:
                     self.engine.message_log.add_message(
-                        f"{location.name.capitalize()} {weapon.name.capitalize()} was destroyed!", colors['orange'])
+                        f"{location.name.capitalize()} {weapon.name.capitalize()} was destroyed!", text_color='orange')
                 weapon.hp -= damage
             else:
-                self.engine.message_log.add_message(f"{attack_desc} but does no damage", colors['pink'])
+                self.engine.message_log.add_message(f"{attack_desc} but does no damage", text_color='pink')
         return True

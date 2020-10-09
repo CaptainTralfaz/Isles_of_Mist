@@ -5,7 +5,6 @@ from components.crew import Crew
 from components.fighter import Fighter
 from components.sails import Sails
 from components.view import View
-from constants.constants import move_elevations
 from constants.sprites import animation_speed, flicker_timer, sprite_count
 from entity import Actor, Entity
 from sprite import Sprite
