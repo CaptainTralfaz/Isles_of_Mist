@@ -4,7 +4,6 @@ from queue import Queue
 from random import randint
 from typing import Iterable, List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 
-from constants.colors import colors
 from constants.constants import move_elevations
 from constants.enums import Conditions, Elevation
 from port import Port
@@ -50,10 +49,10 @@ class GameMap:
         return {
             'width': self.width,
             'height': self.height,
-            'entities': [entity.to_json() for entity in self.entities if entity is not self.engine.player],
             'weather': self.weather.to_json(),
-            'terrain': [[terrain.to_json() for terrain in tile_rows] for tile_rows in self.terrain],
             'port': self.port.to_json(),
+            'entities': [entity.to_json() for entity in self.entities if entity is not self.engine.player],
+            'terrain': [[terrain.to_json() for terrain in tile_rows] for tile_rows in self.terrain],
         }
     
     def get_fov(self,
@@ -279,7 +278,7 @@ class GameMap:
         return items
     
     def decoration_damage(self, x: int, y: int, entity: Actor, conditions: Conditions):
-        color = colors['pink'] if entity == self.engine.player else colors['mountain']
+        color = 'pink' if entity == self.engine.player else 'mountain'
         # Todo add in damage for cargo: over-weight, over-volume
         if entity.fighter.name == "hull":
             if entity.parent.game_map.terrain[x][y].decoration:
@@ -311,7 +310,7 @@ class GameMap:
             if entity.parent.game_map.terrain[x][y].decoration in ['minefield']:
                 damage = randint(2, 5)
                 if (entity.x, entity.y) in self.engine.player.view.fov:
-                    self.engine.message_log.add_message(f"Mines explode!", colors['red'])
+                    self.engine.message_log.add_message(f"Mines explode!", text_color='red')
                     self.engine.message_log.add_message(
                         f"{entity.name} takes {damage} {entity.fighter.name} damage!", color)
                 entity.fighter.take_damage(damage)

@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface, display
 
-from constants.constants import block_size, margin, move_elevations
 from constants.colors import colors
+from constants.constants import block_size, margin, move_elevations
 from render.utilities import render_border
 
 if TYPE_CHECKING:

@@ -30,5 +30,4 @@ class SelectedAction(Action):
             return AssignCrewAction(self.entity, self.event).perform()
         if self.state == GameStates.WEAPON_CONFIG:
             return AssignWeaponAction(self.entity, self.event, self.state).perform()
-        print(f"moving selection {self.event}")
         return False

@@ -48,7 +48,7 @@ class Weather:
         self.conditions_min_count = conditions_min_count
         self.game_map = parent
         self.rain = Rain(width, height)
-        
+    
     @property
     def get_weather_info(self):
         """
@@ -85,22 +85,18 @@ class Weather:
                     else:
                         self.wind_count = 0
                         self.wind_direction = None
-                        self.game_map.engine.message_log.add_message(
-                            f"Wind dies down",
-                            text_color=colors['grass'])
+                        self.game_map.engine.message_log.add_message(f"Wind dies down", text_color='grass')
                 else:
                     if self.wind_direction is None:
                         self.wind_count = 0
                         self.wind_direction = randint(0, 5)
                         self.game_map.engine.message_log.add_message(
-                            f"Wind starts blowing {wind_dir[self.wind_direction]}",
-                            text_color=colors['grass'])
+                            f"Wind starts blowing {wind_dir[self.wind_direction]}", text_color='grass')
                     else:
                         self.wind_count = 0
                         self.rotate_wind(change)
                         self.game_map.engine.message_log.add_message(
-                            f"Wind rotates to the {wind_dir[self.wind_direction]}",
-                            text_color=colors['grass'])
+                            f"Wind rotates to the {wind_dir[self.wind_direction]}", text_color='grass')
     
     def rotate_wind(self, rotate: int):
         self.wind_direction += rotate
@@ -127,7 +123,7 @@ class Weather:
                         self.conditions_count = 0
                         self.conditions = Conditions(self.conditions.value + 1)
                 text = f"The weather becomes {self.conditions.name.lower().capitalize()}"
-                self.game_map.engine.message_log.add_message(text, text_color=colors['grass'])
+                self.game_map.engine.message_log.add_message(text, text_color='grass')
     
     def roll_mist(self, game_map: GameMap):
         new_mist = []

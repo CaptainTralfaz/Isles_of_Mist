@@ -11,11 +11,10 @@ from actions.ship_config.change_select import ChangeSelectionAction
 from actions.ship_config.configure import ConfigureAction
 from actions.ship_config.exit_config import ExitConfigAction
 from actions.ship_config.selected import SelectedAction
-from constants.colors import colors
-from custom_exceptions import Impossible
 from constants.enums import GameStates, KeyMod
-from event_handlers.base import EventHandler
 from constants.keys import MODIFIERS, MENU_KEYS
+from custom_exceptions import Impossible
+from event_handlers.base import EventHandler
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -43,7 +42,7 @@ class WeaponConfigurationHandler(EventHandler):
                     something_happened = action.perform()
                 
                 except Impossible as e:
-                    self.engine.message_log.add_message(e.args[0], colors['gray'])
+                    self.engine.message_log.add_message(e.args[0], text_color='gray')
                     return False
             
             if something_happened:

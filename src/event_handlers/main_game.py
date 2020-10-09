@@ -8,17 +8,17 @@ from pygame import event as pygame_event
 from actions.attack.attack_choice import AttackAction
 from actions.auto.auto import AutoAction
 from actions.base.mouse import MouseMoveAction
+from actions.base.quit import ActionQuit
 from actions.move.movement import MovementAction
 from actions.move.rotate import RotateAction
 from actions.port.port_choice import PortAction
-from actions.base.quit import ActionQuit
 from actions.repair.repair_choice import RepairAction
 from actions.ship_config.ship import ShipAction
-from constants.colors import colors
-from custom_exceptions import Impossible
 from constants.enums import GameStates, KeyMod
+from constants.keys import MODIFIERS, ATTACK_KEYS, REPAIR_KEYS, PORT_KEYS, SHIP_KEYS, AUTO_KEYS, MOVEMENT_KEYS, \
+    ROTATE_KEYS
+from custom_exceptions import Impossible
 from event_handlers.base import EventHandler
-from constants.keys import MODIFIERS, ATTACK_KEYS, REPAIR_KEYS, PORT_KEYS, SHIP_KEYS, AUTO_KEYS, MOVEMENT_KEYS, ROTATE_KEYS
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -46,7 +46,7 @@ class MainEventHandler(EventHandler):
                     something_happened = action.perform()
                 
                 except Impossible as e:
-                    self.engine.message_log.add_message(e.args[0], colors['gray'])
+                    self.engine.message_log.add_message(e.args[0], text_color='gray')
                     return False
             
             if something_happened:
@@ -62,7 +62,7 @@ class MainEventHandler(EventHandler):
             if self.engine.game_state != GameStates.ACTION:
                 self.engine.get_handler()
         return something_happened
-        
+    
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         port = (player.x, player.y) == self.engine.game_map.port.location

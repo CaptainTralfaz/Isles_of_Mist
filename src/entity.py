@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from components.sails import Sails
     from components.view import View
     from sprite import Sprite
-    
+
 # noinspection
 T = TypeVar("T", bound="Entity")
 
@@ -59,16 +59,15 @@ class Entity:
     @property
     def game_map(self) -> GameMap:
         return self.parent.game_map
-
+    
     def to_json(self) -> Dict:
         return {
             'x': self.x,
             'y': self.y,
+            'name': self.name,
+            'elevations': self.elevations,
             'icon': self.icon if self.icon is not None else None,
             'sprite': self.sprite.sprite_name if self.sprite is not None else None,
-            'name': self.name,
-            'render_order': self.render_order.value,
-            'elevations': self.elevations,
             'cargo': self.cargo.to_json() if self.cargo is not None else None
         }
     
@@ -156,21 +155,20 @@ class Actor(Entity):
             'name': self.name,
             'x': self.x,
             'y': self.y,
+            'facing': self.facing,
+            'flying': self.flying,
+            'elevations': self.elevations,
+            'view': self.view.to_json() if self.view is not None else None,
+            'ai': self.ai.to_json() if self.ai is not None else None,
             'icon': self.icon if self.icon is not None else None,
             'sprite': self.sprite.sprite_name if self.sprite is not None else None,
-            'render_order': self.render_order.value,
-            'elevations': self.elevations,
-            'cargo': self.cargo.to_json() if self.cargo is not None else None,
-            'ai': self.ai.to_json() if self.ai is not None else None,
             'fighter': self.fighter.to_json() if self.fighter is not None else None,
             'sails': self.sails.to_json() if self.sails is not None else None,
             'crew': self.crew.to_json() if self.crew is not None else None,
             'broadsides': self.broadsides.to_json() if self.broadsides is not None else None,
-            'view': self.view.to_json() if self.view is not None else None,
-            'facing': self.facing,
-            'flying': self.cargo.to_json(),
+            'cargo': self.cargo.to_json() if self.cargo is not None else None
         }
-
+    
     def move(self) -> None:
         old_cube = hex_to_cube(Hex(self.x, self.y))
         new_hex = cube_to_hex(cube_neighbor(old_cube, self.facing))

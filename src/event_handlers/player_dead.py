@@ -8,11 +8,10 @@ from pygame import event as pygame_event
 from actions.base.mouse import MouseMoveAction
 from actions.base.quit import ActionQuit
 from actions.ship_config.configure import ConfigureAction
-from constants.colors import colors
-from custom_exceptions import Impossible
 from constants.enums import GameStates, KeyMod
-from event_handlers.base import EventHandler
 from constants.keys import MODIFIERS, MENU_KEYS
+from custom_exceptions import Impossible
+from event_handlers.base import EventHandler
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -24,6 +23,7 @@ class GameOverEventHandler(EventHandler):
     handles keys and dispatches events for when player is dead
     :param engine: the game Engine
     """
+    
     def __init__(self, engine: Engine):
         super().__init__(engine)
     
@@ -39,7 +39,7 @@ class GameOverEventHandler(EventHandler):
                 try:
                     something_happened = action.perform()
                 except Impossible as e:
-                    self.engine.message_log.add_message(e.args[0], colors['gray'])
+                    self.engine.message_log.add_message(e.args[0], text_color='gray')
                     return False
             
             if something_happened:

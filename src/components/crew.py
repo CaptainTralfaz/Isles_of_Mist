@@ -4,7 +4,6 @@ from random import choice
 from typing import List, Dict, TYPE_CHECKING
 
 from components.base import BaseComponent
-from constants.colors import colors
 from constants.constants import move_elevations
 from constants.enums import GameStates, RenderOrder, MenuKeys
 from event_handlers.player_dead import GameOverEventHandler
@@ -31,7 +30,7 @@ class Crew(BaseComponent):
         if self.roster is None:
             self.roster = generate_roster(max_count)
         self.selected = 0
-
+    
     def to_json(self) -> Dict:
         """
         Serialize Crew object to json
@@ -42,7 +41,7 @@ class Crew(BaseComponent):
             'defense': self.defense,
             'roster': [crewman.to_json() for crewman in self.roster],
         }
-
+    
     def from_json(self, json_data) -> Crew:
         """
         Convert json representation Crew object to Crew Object
@@ -55,7 +54,7 @@ class Crew(BaseComponent):
         count = len(roster_list)
         roster = [crewman.from_json() for crewman in roster_list]
         return Crew(count=count, max_count=max_crew, defense=defense, roster=roster)
-
+    
     @property
     def weight(self):
         """
@@ -88,14 +87,14 @@ class Crew(BaseComponent):
             self.parent.icon = "shipwreck"
             self.engine.event_handler = GameOverEventHandler(self.engine)
             self.engine.game_state = GameStates.PLAYER_DEAD
-            death_message_color = colors['red']
+            death_message_color = 'red'
         else:
             death_message = f"{self.parent.name} has no crew left!"
             if self.game_map.terrain[self.parent.x][self.parent.y].elevation in move_elevations["water"]:
                 self.parent.icon = "carcass"
             else:
                 self.parent.icon = None
-            death_message_color = colors['orange']
+            death_message_color = 'orange'
         
         self.parent.facing = 0
         self.parent.ai = None
@@ -103,7 +102,7 @@ class Crew(BaseComponent):
         self.parent.render_order = RenderOrder.CORPSE
         self.parent.view.distance = 0
         self.parent.flying = False
-        self.engine.message_log.add_message(death_message, death_message_color)
+        self.engine.message_log.add_message(death_message, text_color=death_message_color)
     
     def hire(self, amount: int) -> int:
         new_crew_value = self.count + amount
@@ -115,7 +114,7 @@ class Crew(BaseComponent):
             crewman = Crewman()
             self.roster.append(crewman)
             self.engine.message_log.add_message(f"Hired {crewman.name} the {crewman.occupation}",
-                                                colors['orange'])
+                                                text_color='cyan')
         return amount_hired
     
     def take_damage(self, amount: int) -> None:
@@ -124,7 +123,7 @@ class Crew(BaseComponent):
                 # pick a crewman
                 pick = choice(self.roster)
                 self.engine.message_log.add_message(f"{pick.name} the {pick.occupation} has perished!",
-                                                    colors['orange'])
+                                                    text_color='orange')
                 # kill crewman
                 self.roster.remove(pick)
         self.count -= amount

@@ -3,9 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.attack.split_damage import SplitDamageAction
-from constants.constants import move_elevations
-from custom_exceptions import Impossible
 from constants.enums import Location
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
     from entity import Actor

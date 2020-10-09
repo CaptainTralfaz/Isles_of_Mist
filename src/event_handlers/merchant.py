@@ -9,11 +9,10 @@ from actions.base.mouse import MouseMoveAction
 from actions.base.quit import ActionQuit
 from actions.ship_config.change_select import ChangeSelectionAction
 from actions.ship_config.exit_config import ExitConfigAction
-from constants.colors import colors
-from custom_exceptions import Impossible
 from constants.enums import GameStates
-from event_handlers.base import EventHandler
 from constants.keys import MENU_KEYS
+from custom_exceptions import Impossible
+from event_handlers.base import EventHandler
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -40,7 +39,7 @@ class MerchantHandler(EventHandler):
                 try:
                     something_happened = action.perform()
                 except Impossible as e:
-                    self.engine.message_log.add_message(e.args[0], colors['gray'])
+                    self.engine.message_log.add_message(e.args[0], text_color='gray')
                     return False
             
             if something_happened:

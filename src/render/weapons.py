@@ -4,15 +4,15 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants.constants import margin, game_font
 from constants.colors import colors
+from constants.constants import margin, game_font
 from constants.enums import Location
 from render.utilities import render_border, render_hp_bar
 
 if TYPE_CHECKING:
     from components.broadsides import Broadsides
     from ui import DisplayInfo
-    from weather import Time
+    from time_of_day import Time
 
 
 def weapon_render(console: Surface,
