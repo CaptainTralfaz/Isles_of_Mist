@@ -6,15 +6,15 @@ from typing import List, Tuple, TYPE_CHECKING
 import pygame.transform as transform
 from pygame import Surface, draw, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 
-from constants.constants import margin, tile_size, view_port, game_font
 from constants.colors import colors
+from constants.constants import margin, tile_size, view_port, game_font
 from constants.images import entity_icons
 from utilities import direction_angle
 
 if TYPE_CHECKING:
     from pygame.font import Font
     from camera import Camera
-    from entity import Actor
+    from entity import Entity
 
 
 def get_rotated_image(image: Surface, facing: int) -> Surface:
@@ -70,7 +70,7 @@ def map_to_surface_coords(x: int,
                           left: int,
                           top: int,
                           overlap: int,
-                          player: Actor,
+                          player: Entity,
                           camera: Camera,
                           entity=None) -> Tuple[int, int]:
     """
@@ -238,7 +238,7 @@ def render_simple_bar(current: int,
     return max_bar
 
 
-def create_ship_icon(entity: Actor) -> Surface:
+def create_ship_icon(entity: Entity) -> Surface:
     """
     Create ship icon from a sprite sheet
     :param entity: Entity's icon to be generated

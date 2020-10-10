@@ -3,15 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
-from custom_exceptions import Impossible
 from constants.enums import PortVisit
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class PortAction(Action):
-    def __init__(self, entity: Actor, event: str):
+    def __init__(self, entity: Entity, event: str):
         """
         this action directs which action should be used while the player is in port
         :param entity: acting Entity

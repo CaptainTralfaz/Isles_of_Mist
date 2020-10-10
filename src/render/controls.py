@@ -4,14 +4,14 @@ from typing import Tuple, TYPE_CHECKING
 
 from pygame import Surface
 
-from constants.constants import margin, game_font
 from constants.colors import colors
+from constants.constants import margin, game_font
 from constants.images import misc_icons
 from control_panel import get_keys
 from render.utilities import make_text_button, make_arrow_button, render_border
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from constants.enums import GameStates, KeyMod
     from ui import DisplayInfo
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 def control_panel_render(console: Surface,
                          key_mod: KeyMod,
                          game_state: GameStates,
-                         player: Actor,
+                         player: Entity,
                          ui_layout: DisplayInfo,
                          sky: Tuple[int, int, int]) -> None:
     """

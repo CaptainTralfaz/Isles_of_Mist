@@ -6,11 +6,11 @@ from actions.base.base import Action
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class RepairHullAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         Repairs the player's hull by 1 point (takes 2 hours)
         :param entity: acting Entity

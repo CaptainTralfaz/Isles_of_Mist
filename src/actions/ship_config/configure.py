@@ -4,16 +4,16 @@ from typing import TYPE_CHECKING
 
 from actions.base.base import Action
 from actions.ship_config.exit_config import ExitConfigAction
-from custom_exceptions import Impossible
 from constants.enums import GameStates, MenuKeys, ShipConfig
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from enum import Enum
 
 
 class ConfigureAction(Action):
-    def __init__(self, entity: Actor, event: Enum, state: GameStates):
+    def __init__(self, entity: Entity, event: Enum, state: GameStates):
         """
         directs which action to use when in the configuration menus
         :param entity: acting Entity

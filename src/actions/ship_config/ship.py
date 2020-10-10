@@ -8,13 +8,13 @@ from actions.ship_config.sail import SailAction
 from constants.enums import ShipConfig
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from constants.enums import GameStates
     from enum import Enum
 
 
 class ShipAction(Action):
-    def __init__(self, entity: Actor, event: Enum, status: GameStates):
+    def __init__(self, entity: Entity, event: Enum, status: GameStates):
         """
         this action directs which action should be used during a ship configure action
         :param entity: acting Entity

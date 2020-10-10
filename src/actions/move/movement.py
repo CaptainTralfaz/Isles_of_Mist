@@ -6,11 +6,11 @@ from actions.base.base import Action
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class MovementAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         attempts to move the entity forward 1 hex in the direction it is facing
         :param entity: acting Entity

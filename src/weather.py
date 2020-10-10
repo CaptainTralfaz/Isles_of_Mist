@@ -50,7 +50,7 @@ class Weather:
         self.conditions_min_count = conditions_min_count
         self.game_map = parent
         self.rain = Rain(width, height)
-    
+
     @property
     def get_weather_info(self):
         """
@@ -197,12 +197,10 @@ class Weather:
                 pick_y = randint(0, game_map.width - 1)
                 if (pick_x, pick_y) not in new_mist:
                     new_mist.append((pick_x, pick_y))
-            # print(f"{mist_target} > {mist_actual}: added {mist_change} mist")
         else:
             for i in range(mist_change):
                 pick = choice(new_mist)
                 new_mist.remove(pick)
-            # print(f"{mist_target} > {mist_actual}: removed {mist_change} mist")
         
         # add new fog to terrain
         for x, y in new_mist:

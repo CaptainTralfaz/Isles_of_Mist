@@ -7,11 +7,11 @@ from constants.enums import Location
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class ArrowAction(SplitDamageAction):
-    def __init__(self, entity: Actor, direction: Location):
+    def __init__(self, entity: Entity, direction: Location):
         """
         Arrow action hits all adjacent targets as well as entities at the attacker's location
         This is a split damage attack action that divides total damage by number of targets hit

@@ -6,11 +6,11 @@ from actions.base.base import Action
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class RepairWeaponsAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         repairs the player's weapons by 1 each (takes 1 hour each)
         :param entity: acting Entity

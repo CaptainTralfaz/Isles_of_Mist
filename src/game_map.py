@@ -6,15 +6,14 @@ from typing import Iterable, List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 
 from constants.constants import move_elevations
 from constants.enums import Conditions, Elevation
+from entity import Entity
 from port import Port
 from tile import Terrain
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
     hex_to_cube, cube_neighbor, cube_line_draw, get_distance
-
 from weather import Weather
 
 if TYPE_CHECKING:
-    from entity import Entity, Actor
     from engine import Engine
 
 
@@ -58,12 +57,12 @@ class GameMap:
         height = json_data.get('height')
         weather = Weather.from_json(json_data.get('weather'))
         port = Port.from_json(json_data.get('port'))
-        entities_data = json_data.get('height')
-        entities = [Actor.from_json(entity) for entity in entities_data]
-        terrain = json_data.get('terrain')
-        
+        entities_data = json_data.get('entities')
+        entities = [Entity.from_json(entity) for entity in entities_data]
+        terrain_data = json_data.get('terrain')
+        terrain = [[Terrain.from_json(tile) for tile in rows] for rows in terrain_data]
         return GameMap(width=width, height=height, weather=weather, port=port, entities=entities, terrain=terrain)
-        
+    
     def get_fov(self,
                 distance: int,
                 x: int,
@@ -286,7 +285,7 @@ class GameMap:
             items.remove(self.engine.player)
         return items
     
-    def decoration_damage(self, x: int, y: int, entity: Actor, conditions: Conditions):
+    def decoration_damage(self, x: int, y: int, entity: Entity, conditions: Conditions):
         color = 'pink' if entity == self.engine.player else 'mountain'
         # Todo add in damage for cargo: over-weight, over-volume
         if entity.fighter.name == "hull":

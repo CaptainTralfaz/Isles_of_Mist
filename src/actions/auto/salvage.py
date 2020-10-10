@@ -5,11 +5,11 @@ from typing import List, TYPE_CHECKING
 from actions.base.base import Action
 
 if TYPE_CHECKING:
-    from entity import Actor, Entity
+    from entity import Entity
 
 
 class SalvageAction(Action):
-    def __init__(self, entity: Actor, salvage: List[Entity]) -> None:
+    def __init__(self, entity: Entity, salvage: List[Entity]) -> None:
         """
         picks up all items in the entities location from the game map
         :param entity: acting Entity

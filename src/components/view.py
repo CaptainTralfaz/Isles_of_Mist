@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING
 
 from components.base import BaseComponent
 from constants.enums import Elevation
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class View(BaseComponent):
-    parent: Actor
+    parent: Entity
     
     def __init__(self, distance: int) -> None:
         """
@@ -20,10 +20,14 @@ class View(BaseComponent):
         self.distance = distance
         self.fov = {}
     
-    def to_json(self):
+    def to_json(self) -> Dict:
         return {
             'distance': self.distance
         }
+    
+    @staticmethod
+    def from_json(json_data: Dict) -> View:
+        return View(distance=json_data.get('distance'))
     
     def set_fov(self) -> None:
         distance = self.distance + self.engine.time.get_time_of_day_info['view'] + \

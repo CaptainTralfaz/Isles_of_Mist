@@ -12,10 +12,10 @@ class Port:
         self.name = name if name is name is not None else gen_port_name()
         self.merchant = merchant if merchant is not None else gen_merchant()
         self.smithy = smithy if smithy is not None else gen_smithy()
-
+    
     def to_json(self) -> Dict:
         return {
-            'location': self.location,
+            'location': tuple(self.location),
             'name': self.name,
             'merchant': self.merchant,
             'smithy': self.smithy
@@ -23,12 +23,13 @@ class Port:
     
     @staticmethod
     def from_json(json_data):
-        location = json_data.get('location')
+        location_data = json_data.get('location')
+        location = (location_data[0], location_data[1])
         name = json_data.get('name')
         merchant = json_data.get('merchant')
         smithy = json_data.get('smithy')
         return Port(location=location, name=name, merchant=merchant, smithy=smithy)
-    
+
 
 def gen_port_name() -> str:
     first = randint(0, 1)

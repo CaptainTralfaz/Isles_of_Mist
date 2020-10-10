@@ -6,9 +6,10 @@ from pygame import display
 import entity_factory
 from constants.constants import map_width, map_height, FPS
 from engine import Engine
-from procgen import generate_map
-from entity import Actor
+from entity import Entity
 from game_map import GameMap
+from procgen import generate_map
+
 
 class Game:
     def __init__(self, main_surface, engine):
@@ -32,7 +33,6 @@ class Game:
 
 
 def new_game(ui_layout):
-
     player = copy.deepcopy(entity_factory.player)
     engine = Engine(player=player, ui_layout=ui_layout)
     engine.game_map = generate_map(map_width, map_height, engine=engine, seed=engine.seed, ui_layout=ui_layout)
@@ -42,24 +42,32 @@ def new_game(ui_layout):
 
 
 def load_game(ui_layout):
-
     with open('data/saved_player.json') as save_file:
         data = load(save_file)
         if data.get('player'):
-            player = Actor.from_json(data.get('player'))
+            player = Entity.from_json(data.get('player'))
         else:
             raise IOError
     with open('data/saved_engine.json') as save_file:
         data = load(save_file)
         if data.get('engine'):
             engine = Engine.from_json(player=player, json_data=data.get('engine'), ui_layout=ui_layout)
+            engine.message_log.parent = engine
+            engine.time.parent = engine
         else:
             raise IOError
     with open('data/saved_game_map.json') as save_file:
         data = load(save_file)
         if data.get('game_map'):
             game_map = GameMap.from_json(data.get('game_map'))
+            game_map.weather.game_map = game_map
             game_map.engine = engine
+            engine.game_map = game_map
+            game_map.entities.add(player)
+            for entity in game_map.entities:
+                entity.parent = game_map
+                if entity.view:
+                    entity.view.set_fov()
         else:
             raise IOError
     return player, engine

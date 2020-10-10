@@ -6,11 +6,11 @@ from actions.base.base import Action
 from utilities import choice_from_dict
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class MeleeAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         Melee action hits a single target (typically the player)
         :param entity: acting Entity
@@ -18,7 +18,7 @@ class MeleeAction(Action):
         super().__init__(entity)
     
     @property
-    def target(self) -> Optional[Actor]:
+    def target(self) -> Optional[Entity]:
         return self.engine.player
     
     def perform(self) -> bool:

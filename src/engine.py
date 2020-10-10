@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import Dict, TYPE_CHECKING
 import random
+from typing import Dict, TYPE_CHECKING
 
 from pygame import Surface, time
 
@@ -29,19 +29,19 @@ from time_of_day import Time
 from ui import DisplayInfo
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from game_map import GameMap
 
 
 class Engine:
     game_map: GameMap
     
-    def __init__(self, player: Actor, ui_layout: DisplayInfo, seed: int = None,
+    def __init__(self, player: Entity, ui_layout: DisplayInfo, seed: int = None,
                  message_log: MessageLog = None, time_of_day: Time = None,
                  camera: Camera = None, game_state: GameStates = None):
         self.event_handler: MainEventHandler = MainEventHandler(self)
         self.player = player
-        self.seed = random.randint(0, 10000) if seed is None else seed # 8617
+        self.seed = random.randint(0, 10000) if seed is None else seed  # 8617
         self.mouse_location = (0, 0)
         self.message_log = MessageLog(parent=self) if message_log is None else message_log
         self.ui_layout = ui_layout
@@ -53,10 +53,9 @@ class Engine:
         
         random.seed(self.seed)
         print(self.seed)
-
+    
     def to_json(self) -> Dict:
         return {
-            # 'event_handler': self.event_handler.__class__.__name__,
             'game_state': self.game_state.value,
             'time': self.time.to_json(),
             'seed': self.seed,
@@ -90,7 +89,7 @@ class Engine:
     
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
-            if entity.is_alive and entity.ai:
+            if entity.is_alive and entity.ai is not None:
                 try:
                     entity.ai.perform()
                 except Impossible:

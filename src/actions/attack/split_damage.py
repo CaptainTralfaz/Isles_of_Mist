@@ -6,12 +6,12 @@ from actions.base.base import Action
 from constants.enums import Location
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class SplitDamageAction(Action):
-    def __init__(self, entity: Actor,
-                 targets: List[Actor],
+    def __init__(self, entity: Entity,
+                 targets: List[Entity],
                  damage: int,
                  direction: Location,
                  ammo: Dict[str, int]):

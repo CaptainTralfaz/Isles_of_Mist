@@ -7,11 +7,11 @@ from actions.auto.wait import WaitAction
 from actions.base.base import Action
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class AutoAction(Action):
-    def __init__(self, entity: Actor) -> None:
+    def __init__(self, entity: Entity) -> None:
         """
         This action directs what action should happen depending on the circumstances
             currently just salvage item or wait/coast

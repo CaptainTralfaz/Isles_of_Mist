@@ -8,51 +8,28 @@ from components.base import BaseComponent
 from components.weapon import Weapon
 from constants.enums import Location
 from constants.stats import item_stats
-from constants.weapons import weapons
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 max_slots = 4
 
 
 class Broadsides(BaseComponent):
-    parent: Actor
+    parent: Entity
     
     def __init__(self, slot_count: int,
-                 port: List = None,
-                 starboard: List = None,
-                 storage: List = None) -> None:
+                 port: List[Weapon],
+                 starboard: List[Weapon],
+                 storage: List[Weapon]) -> None:
         self.slot_count = slot_count
-        self.port = []
-        self.starboard = []
-        self.storage = []
         self.selected = 0
-        if port is not None and len(port) > 0:
-            if isinstance(port[0], str):
-                for weapon in port:
-                    self.attach(location=Location.PORT, weapon=self.make_weapon(weapon), new_game=True)
-            elif isinstance(port[0], Weapon):
-                for weapon in port:
-                    self.attach(location=Location.PORT, weapon=weapon)
-        if starboard is not None and len(starboard) > 0:
-            if isinstance(starboard[0], str):
-                for weapon in starboard:
-                    self.attach(location=Location.STARBOARD, weapon=self.make_weapon(weapon), new_game=True)
-            elif isinstance(starboard[0], Weapon):
-                for weapon in port:
-                    weapon.parent = self
-                    self.attach(location=Location.STARBOARD, weapon=weapon)
-        if storage is not None and len(storage) > 0:
-            if isinstance(storage[0], str):
-                for weapon in storage:
-                    weapon.parent = self
-                    self.storage.append(self.make_weapon(name=weapon))
-            elif isinstance(storage[0], Weapon):
-                for weapon in storage:
-                    weapon.parent = self
-                    self.storage.append(weapon)
+        self.port = port
+        self.starboard = starboard
+        self.storage = storage
+        for location, weapon in self.all_weapons:
+            weapon.parent = self
     
     def to_json(self) -> Dict:
         return {
@@ -78,11 +55,7 @@ class Broadsides(BaseComponent):
         for weapon in storage_data:
             storage.append(Weapon.from_json(weapon))
         broadsides = Broadsides(slot_count=slot_count, port=port, starboard=starboard, storage=storage)
-        for weapon in broadsides.all_weapons:
-            weapon.parent = broadsides
         return broadsides
-        
-    
     
     @property
     def weight(self) -> int:
@@ -117,40 +90,21 @@ class Broadsides(BaseComponent):
             weapon_list.append((Location.STORAGE, weapon))
         return weapon_list
     
-    def make_weapon(self, name: str) -> Weapon:
-        """
-        Creates a weapon instance with statistics of weapon as determined by weapon name
-        :param name: name of weapon to create
-        :return: new instance of Weapon
-        """
-        weapon = weapons[name]
-        return Weapon(parent=self,
-                      hp=weapon['hp'],
-                      defense=weapon['defense'],
-                      dist=weapon['range'],
-                      power=weapon['power'],
-                      cooldown=weapon['cooldown'],
-                      name=name.capitalize(),
-                      ammo=weapon['ammo'])
-    
-    def attach(self, location: Location, weapon: Weapon, new_game: bool = False) -> None:
+    def attach(self, location: Location, weapon: Weapon) -> None:
         """
         Attaches a weapon to port or starboard broadside. Cooldown not toggled on new game
         :param location: Enum port or starboard
         :param weapon: instance of Weapon to attach
-        :param new_game: boolean True only when broadside instance created
         :return: None
         """
         if location == Location.PORT:
             if len(self.port) < self.slot_count:
-                if not new_game:
-                    weapon.cooldown = weapon.cooldown_max
                 self.port.append(weapon)
+                weapon.cooldown = weapon.cooldown_max
         elif location == Location.STARBOARD:
             if len(self.starboard) < self.slot_count:
-                if not new_game:
-                    weapon.cooldown = weapon.cooldown_max
                 self.starboard.append(weapon)
+                weapon.cooldown = weapon.cooldown_max
     
     def detach(self, weapon: Weapon) -> None:
         """
@@ -228,8 +182,7 @@ class Broadsides(BaseComponent):
         creates a list of Weapons that are damaged
         :return: list of Weapons
         """
-        damaged = [weapon for weapon in self.port if weapon.hp < weapon.max_hp]
-        damaged.extend(weapon for weapon in self.starboard if weapon.hp < weapon.max_hp)
+        damaged = [weapon for location, weapon in self.all_weapons if weapon.hp < weapon.max_hp]
         return damaged
     
     def get_active_range(self, location: Location) -> Optional[int]:

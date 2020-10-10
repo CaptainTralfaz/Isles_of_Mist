@@ -4,19 +4,19 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from constants.constants import view_port, game_font, margin
 from constants.colors import colors
+from constants.constants import view_port, game_font, margin
 from render.utilities import surface_to_map_coords, render_border, render_simple_bar
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from game_map import GameMap
     from ui import DisplayInfo
 
 
 def render_entity_info(console: Surface,
                        game_map: GameMap,
-                       player: Actor,
+                       player: Entity,
                        mouse_x: int,
                        mouse_y: int,
                        ui: DisplayInfo) -> None:
@@ -33,7 +33,6 @@ def render_entity_info(console: Surface,
     coord_x, coord_y = surface_to_map_coords(mouse_x, mouse_y, player.x)
     trans_x = coord_x + player.x - view_port
     trans_y = coord_y + player.y - view_port
-    # print(f"{coord_x}:{coord_y} -> {trans_x}:{trans_y}")
     entities = game_map.get_targets_at_location(trans_x, trans_y)
     entities.extend(game_map.get_items_at_location(trans_x, trans_y))
     visible_entities = []

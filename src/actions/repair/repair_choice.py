@@ -9,11 +9,11 @@ from actions.repair.sails import RepairSailsAction
 from actions.repair.weapons import RepairWeaponsAction
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class RepairAction(Action):
-    def __init__(self, entity: Actor, event: str):
+    def __init__(self, entity: Entity, event: str):
         """
         this action directs which action should be used during a repair action
         :param entity: acting entity

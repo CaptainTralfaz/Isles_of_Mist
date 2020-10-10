@@ -3,16 +3,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
-from custom_exceptions import Impossible
 from constants.enums import GameStates
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from enum import Enum
 
 
 class AssignCrewAction(Action):
-    def __init__(self, entity: Actor, event: Enum):
+    def __init__(self, entity: Entity, event: Enum):
         """
         "assigns" selected crewman to a directional button
         :param entity: acting Entity
@@ -37,7 +37,7 @@ class AssignCrewAction(Action):
                 if person.assignment == self.event:
                     person.assignment = None
             crewman.assignment = self.event
-            self.engine.message_log.add_message(f"assigning {crewman.name} the {crewman.occupation}"
-                                                f" to '{self.event}' key")
+            self.engine.message_log.add_message(f"Assigning {crewman.name} the {crewman.occupation}"
+                                                f" to the '{self.event.name.lower().capitalize()}' key")
             self.engine.game_state = GameStates.ACTION
             return True

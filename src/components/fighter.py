@@ -8,11 +8,11 @@ from constants.enums import GameStates, RenderOrder
 from event_handlers.player_dead import GameOverEventHandler
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class Fighter(BaseComponent):
-    parent: Actor
+    parent: Entity
     
     def __init__(self, hp: int, defense: int, power: int, name: str = "body",
                  can_hit: dict = None, max_hp: int = None):
@@ -39,13 +39,13 @@ class Fighter(BaseComponent):
     @staticmethod
     def from_json(json_data: Dict) -> Fighter:
         max_hp = json_data.get('max_hp')
-        hp = json_data.get('_hp')
+        hp = json_data.get('hp')
         defense = json_data.get('defense')
         power = json_data.get('power')
         name = json_data.get('name')
         can_hit = json_data.get('can_hit')
         return Fighter(hp=hp, defense=defense, power=power, name=name, can_hit=can_hit, max_hp=max_hp)
-
+    
     @property
     def hp(self) -> int:
         return self._hp

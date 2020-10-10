@@ -6,10 +6,10 @@ from constants.enums import Location, GameStates, KeyMod, MenuKeys
 from utilities import get_cone_target_hexes_at_location
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
-def get_keys(key_mod: KeyMod, game_state: GameStates, player: Actor):
+def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
     arrow_keys = []
     text_keys = []
     

@@ -5,11 +5,11 @@ from typing import Dict, TYPE_CHECKING
 from components.base import BaseComponent
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class Sails(BaseComponent):
-    parent: Actor
+    parent: Entity
     
     def __init__(self, hp: int, defense: int, raised: bool = True, name: str = "sail", max_hp: int = None):
         self.max_hp = hp if max_hp is None else max_hp
@@ -33,7 +33,7 @@ class Sails(BaseComponent):
         defense = json_data.get('defense')
         raised = json_data.get('raised')
         return Sails(hp=hp, defense=defense, raised=raised, max_hp=max_hp)
-        
+    
     @property
     def hp(self) -> int:
         return self._hp

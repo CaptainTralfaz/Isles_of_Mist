@@ -10,18 +10,18 @@ from event_handlers.player_dead import GameOverEventHandler
 from utilities import choice_from_dict
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class Crew(BaseComponent):
-    parent: Actor
+    parent: Entity
     
-    def __init__(self, count: int,
+    def __init__(self,
+                 count: int,  # TODO remove this, use len(roster)
                  max_count: int,
                  defense: int,
                  name: str = "crew",
-                 roster: List = None,
-                 assignments: Dict = None) -> None:
+                 roster: List = None) -> None:
         self.max_count = max_count
         self._count = count
         self.defense = defense
@@ -49,12 +49,12 @@ class Crew(BaseComponent):
         :param json_data: json representation of Crew object
         :return: Crew Object
         """
-        max_crew = json_data.get('max_crew')
+        max_count = json_data.get('max_count')
         defense = json_data.get('defense')
         roster_list = json_data.get('roster')
         count = len(roster_list)
-        roster = [crewman.from_json() for crewman in roster_list]
-        return Crew(count=count, max_count=max_crew, defense=defense, roster=roster)
+        roster = [Crewman.from_json(crewman) for crewman in roster_list]
+        return Crew(count=count, max_count=max_count, defense=defense, roster=roster)
     
     @property
     def weight(self):
@@ -154,8 +154,12 @@ class Crewman:
     def from_json(json_data) -> Crewman:
         name = json_data.get('name')
         occupation = json_data.get('occupation')
-        assignment = json_data.get('assignment')
-        return Crewman(name=name, occupation=occupation, assignment=assignment)
+        assignment_data = json_data.get('assignment')
+        assignment = None
+        if assignment_data is not None:
+            assignment = MenuKeys(assignment_data)
+        return Crewman(name=name, occupation=occupation,
+                       assignment=assignment)
     
     @staticmethod
     def generate_name():

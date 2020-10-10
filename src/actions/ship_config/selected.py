@@ -8,12 +8,12 @@ from actions.ship_config.assign_weapon import AssignWeaponAction
 from constants.enums import GameStates
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from enum import Enum
 
 
 class SelectedAction(Action):
-    def __init__(self, entity: Actor, event: Enum, state: GameStates):
+    def __init__(self, entity: Entity, event: Enum, state: GameStates):
         """
         this action directs which action should be used when the highlighted item in a list is
             selected for another action

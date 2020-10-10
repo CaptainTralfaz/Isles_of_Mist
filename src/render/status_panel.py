@@ -13,12 +13,12 @@ from utilities import direction_angle
 if TYPE_CHECKING:
     from ui import DisplayInfo
     from weather import Weather
-    from entity import Actor
+    from entity import Entity
     from time_of_day import Time
 
 
 def status_panel_render(console: Surface,
-                        entity: Actor,
+                        entity: Entity,
                         weather: Weather,
                         time: Time,
                         ui_layout: DisplayInfo) -> None:

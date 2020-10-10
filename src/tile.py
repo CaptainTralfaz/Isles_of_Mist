@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from typing import Dict
+
 from constants.enums import Elevation
 
 
@@ -14,7 +17,7 @@ class Terrain:
         self.explored = explored
         self.decoration = decoration
         self.mist = mist
-
+    
     def to_json(self) -> Dict:
         return {
             'elevation': self.elevation.value,
@@ -22,3 +25,11 @@ class Terrain:
             'decoration': self.decoration,
             'mist': self.mist
         }
+    
+    @staticmethod
+    def from_json(json_data: Dict) -> Terrain:
+        elevation = json_data.get('elevation')
+        explored = json_data.get('explored')
+        decoration = json_data.get('decoration')
+        mist = json_data.get('mist')
+        return Terrain(elevation=Elevation(elevation), explored=explored, decoration=decoration, mist=mist)

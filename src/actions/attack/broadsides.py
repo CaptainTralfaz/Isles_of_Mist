@@ -3,16 +3,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.attack.split_damage import SplitDamageAction
-from custom_exceptions import Impossible
 from constants.enums import Location
+from custom_exceptions import Impossible
 from utilities import get_cone_target_hexes_at_location
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class BroadsideAction(SplitDamageAction):
-    def __init__(self, entity: Actor, direction: Location):
+    def __init__(self, entity: Entity, direction: Location):
         """
         Broadside action hits all targets in a cone in a particular side direction up to a certain range
         This is a split damage attack action that divides total damage by number of targets hit
