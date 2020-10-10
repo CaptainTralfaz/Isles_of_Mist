@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from components.base import BaseComponent
 from components.weapon import Weapon
 from constants.enums import Location
-from constants.stats import item_stats
+from constants.stats import weapon_stats
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
@@ -64,8 +64,8 @@ class Broadsides(BaseComponent):
         :return: total weight of weapons
         """
         weight = 0
-        for weapon in self.all_weapons:
-            weight += item_stats[weapon]['weight']
+        for location, weapon in self.all_weapons:
+            weight += weapon_stats[weapon.name.lower()]['weight']
         return weight
     
     @property
@@ -75,8 +75,8 @@ class Broadsides(BaseComponent):
         :return: total volume of weapons
         """
         weight = 0
-        for weapon in self.all_weapons:
-            weight += item_stats[weapon]['volume']
+        for location, weapon in self.all_weapons:
+            weight += weapon_stats[weapon.name.lower()]['volume']
         return weight
     
     @property

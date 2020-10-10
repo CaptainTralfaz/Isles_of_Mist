@@ -62,7 +62,7 @@ class Crew(BaseComponent):
         Determines total weight of crew
         :return: total weight of crew
         """
-        return self.count * 75
+        return self.count * 35
     
     @property
     def volume(self):
@@ -70,7 +70,7 @@ class Crew(BaseComponent):
         Determines total volume of crew
         :return: total volume of crew
         """
-        return self.count * 75
+        return self.count * 35
     
     @property
     def count(self) -> int:

@@ -5,6 +5,7 @@ from typing import Dict, TYPE_CHECKING
 from components.base import BaseComponent
 from constants.stats import item_stats
 from custom_exceptions import Impossible
+from utilities import choice_from_dict
 
 if TYPE_CHECKING:
     from entity import Entity
@@ -16,8 +17,6 @@ class Cargo(BaseComponent):
     def __init__(self, max_volume: float, max_weight: float, manifest: Dict = None, selected: int = 0):
         """
         Holds maximum weight and volume of a container, and a list of Items currently held
-        TODO: make over-weight effect ship's damage taken from hitting decorations
-        TODO: make over-volume items can be washed overboard in storm, or hit in combat
         :param max_volume: int maximum volume available in ship's cargo hold
         :param max_weight: int maximum weight a ship can SAFELY carry
         :param manifest: dict of item:quantity
@@ -108,3 +107,20 @@ class Cargo(BaseComponent):
         if len(remove_key) > 0:
             for key in remove_key:
                 del (self.manifest[key])
+                
+    def lose_random_cargo(self, count):
+        total_losses = {}
+        for loss in range(count):
+            loss_choices = {}
+            for key in self.manifest.keys():
+                if item_stats[key]['volume'] > 1:
+                    loss_choices[key] = self.manifest[key]
+            loss_key = choice_from_dict(loss_choices)
+            self.remove_items_from_manifest({str(loss_key): 1})
+            if loss_key in total_losses:
+                total_losses[loss_key] += 1
+            else:
+                total_losses[loss_key] = 1
+        for loss in total_losses.keys():
+            self.game_map.engine.message_log.add_message(f"{total_losses[loss]} {loss} was washed overboard!",
+                                                         text_color='orange')
