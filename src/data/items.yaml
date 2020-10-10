@@ -35,10 +35,14 @@ item_stats:
     weight: 2
     volume: 3
     category: 3
-  pearl:
+  coins:
     weight: 0
     volume: 0
     category: 1
+  pearl:
+    weight: 0
+    volume: 0
+    category: 6
   bat wing:
     weight: 1
     volume: 3

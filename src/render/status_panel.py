@@ -95,9 +95,9 @@ def status_panel_render(console: Surface,
                                                current=weapon.hp,
                                                maximum=weapon.max_hp,
                                                bar_width=status_panel.get_width() - margin * 2,
-                                               font_color="mountain" if entity.sails.raised else "gray",
-                                               top_color="bar_filled" if entity.sails.raised else "dark_green",
-                                               bottom_color="bar_empty" if entity.sails.raised else "dark")
+                                               font_color="gray",
+                                               top_color="dark_green",
+                                               bottom_color="dark")
                 status_panel.blit(weapon_bar, (margin, vertical))
                 vertical += weapon_bar.get_height() + margin // 2
         vertical += margin
