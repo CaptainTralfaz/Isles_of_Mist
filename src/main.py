@@ -36,12 +36,13 @@ def main() -> None:
         should_quit = event_handler.handle_events(game_display=game_display, ui_layout=ui_layout)
     
     pygame.quit()
+    raise SystemExit()
 
 
 def available_loads() -> List[int]:
     available = []
     for x in range(1, 5):
-        if path.exists(f"data/saved_engine_{x}.json"):
+        if path.exists(f"data/save_game_{x}.json"):
             available.append(x)
     return available
 

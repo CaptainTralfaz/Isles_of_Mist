@@ -43,23 +43,13 @@ def new_game(ui_layout):
 
 
 def load_game(ui_layout, number):
-    with open(f'data/saved_player_{number}.json') as save_file:
+    with open(f'data/save_game_{number}.json') as save_file:
         data = load(save_file)
-        if data.get('player'):
+        if data:
             player = Entity.from_json(data.get('player'))
-        else:
-            raise FileNotFoundError
-    with open(f'data/saved_engine_{number}.json') as save_file:
-        data = load(save_file)
-        if data.get('engine'):
             engine = Engine.from_json(player=player, json_data=data.get('engine'), ui_layout=ui_layout)
             engine.message_log.parent = engine
             engine.time.parent = engine
-        else:
-            raise FileNotFoundError
-    with open(f'data/saved_game_map_{number}.json') as save_file:
-        data = load(save_file)
-        if data.get('game_map'):
             game_map = GameMap.from_json(data.get('game_map'))
             game_map.weather.game_map = game_map
             game_map.engine = engine
@@ -76,19 +66,9 @@ def load_game(ui_layout, number):
 
 def save_game(engine, game_map, player, number):
     data = {
-        'engine': engine.to_json()
-    }
-    with open(f'data/saved_engine_{number}.json', 'w') as save_file:
-        dump(data, save_file, indent=4)
-    
-    data = {
-        'game_map': game_map.to_json()
-    }
-    with open(f'data/saved_game_map_{number}.json', 'w') as save_file:
-        dump(data, save_file, indent=4)
-    
-    data = {
+        'engine': engine.to_json(),
+        'game_map': game_map.to_json(),
         'player': player.to_json()
     }
-    with open(f'data/saved_player_{number}.json', 'w') as save_file:
+    with open(f'data/save_game_{number}.json', 'w') as save_file:
         dump(data, save_file, indent=4)
