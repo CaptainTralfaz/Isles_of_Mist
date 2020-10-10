@@ -12,9 +12,10 @@ from procgen import generate_map
 
 
 class Game:
-    def __init__(self, main_surface, engine):
+    def __init__(self, main_surface, engine, number):
         self.display = main_surface
         self.engine = engine
+        self.number = number
     
     def play_game(self):
         should_quit = False
@@ -23,7 +24,7 @@ class Game:
             try:
                 something_happened = self.engine.event_handler.handle_events()
                 if something_happened:
-                    save_game(self.engine, self.engine.game_map, self.engine.player)
+                    save_game(self.engine, self.engine.game_map, self.engine.player, self.number)
             except SystemExit:
                 should_quit = True
             
@@ -41,22 +42,22 @@ def new_game(ui_layout):
     return player, engine
 
 
-def load_game(ui_layout):
-    with open('data/saved_player.json') as save_file:
+def load_game(ui_layout, number):
+    with open(f'data/saved_player_{number}.json') as save_file:
         data = load(save_file)
         if data.get('player'):
             player = Entity.from_json(data.get('player'))
         else:
-            raise IOError
-    with open('data/saved_engine.json') as save_file:
+            raise FileNotFoundError
+    with open(f'data/saved_engine_{number}.json') as save_file:
         data = load(save_file)
         if data.get('engine'):
             engine = Engine.from_json(player=player, json_data=data.get('engine'), ui_layout=ui_layout)
             engine.message_log.parent = engine
             engine.time.parent = engine
         else:
-            raise IOError
-    with open('data/saved_game_map.json') as save_file:
+            raise FileNotFoundError
+    with open(f'data/saved_game_map_{number}.json') as save_file:
         data = load(save_file)
         if data.get('game_map'):
             game_map = GameMap.from_json(data.get('game_map'))
@@ -69,25 +70,25 @@ def load_game(ui_layout):
                 if entity.view:
                     entity.view.set_fov()
         else:
-            raise IOError
+            raise FileNotFoundError
     return player, engine
 
 
-def save_game(engine, game_map, player):
+def save_game(engine, game_map, player, number):
     data = {
         'engine': engine.to_json()
     }
-    with open('data/saved_engine.json', 'w') as save_file:
+    with open(f'data/saved_engine_{number}.json', 'w') as save_file:
         dump(data, save_file, indent=4)
     
     data = {
         'game_map': game_map.to_json()
     }
-    with open('data/saved_game_map.json', 'w') as save_file:
+    with open(f'data/saved_game_map_{number}.json', 'w') as save_file:
         dump(data, save_file, indent=4)
     
     data = {
         'player': player.to_json()
     }
-    with open('data/saved_player.json', 'w') as save_file:
+    with open(f'data/saved_player_{number}.json', 'w') as save_file:
         dump(data, save_file, indent=4)

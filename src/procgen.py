@@ -407,25 +407,25 @@ def get_entity_manifest(entity):
         return manifest
     elif entity == "mermaid":
         fish = randint(0, 2)
-        pearl = randint(5, 10)
+        pearl = randint(2, 5)
         manifest = {'pearl': pearl}
         if fish:
             manifest['fish'] = fish
         return manifest
     elif entity == 'chest':
-        pearl = randint(10, 30)
+        coins = randint(50, 100)
         arrows = randint(20, 30)
         if randint(0, 1):
             tar = randint(3, 5)
             rope = randint(3, 5)
-            return {'pearl': pearl,
+            return {'coins': coins,
                     'arrows': arrows,
                     'tar': tar,
                     'rope': rope}
         else:
             fruit = randint(4, 9)
             rum = randint(4, 7)
-            return {'pearl': pearl,
+            return {'coins': coins,
                     'arrows': arrows,
                     'fruit': fruit,
                     'rum': rum}
