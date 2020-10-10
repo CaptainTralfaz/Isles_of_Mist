@@ -287,5 +287,5 @@ def closest_rotation(target: Tuple[int, int], entity_x: int, entity_y: int, dire
                 return -1
             elif turns in [3, 4]:  # right is shorter
                 return 1
-            else:  # directly behind - turn randomly
+            else:  # 2: directly behind - turn randomly
                 return choice([-1, 1])

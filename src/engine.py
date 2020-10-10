@@ -134,7 +134,7 @@ class Engine:
                                        mouse_y=self.mouse_location[1],
                                        ui=self.ui_layout)
             elif self.game_state == GameStates.CARGO_CONFIG:
-                cargo_render(console=main_surface, cargo=self.player.cargo, time=self.time,
+                cargo_render(console=main_surface, player=self.player, time=self.time,
                              ui_layout=self.ui_layout)
             elif self.game_state == GameStates.CREW_CONFIG:
                 crew_render(console=main_surface, crew=self.player.crew, time=self.time,

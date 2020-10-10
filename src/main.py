@@ -36,7 +36,7 @@ def main() -> None:
                     player, engine = new_game(ui_layout=ui_layout)
                     Game(game_display, engine).play_game()
                 elif event.key in [pygame.K_DOWN]:
-                    # load game
+                    # load game  TODO: multiple save games?
                     try:
                         player, engine = load_game(ui_layout=ui_layout)
                         Game(game_display, engine).play_game()

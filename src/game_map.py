@@ -287,13 +287,19 @@ class GameMap:
     
     def decoration_damage(self, x: int, y: int, entity: Entity, conditions: Conditions):
         color = 'pink' if entity == self.engine.player else 'mountain'
-        # Todo add in damage for cargo: over-weight, over-volume
         if entity.fighter.name == "hull":
             if entity.parent.game_map.terrain[x][y].decoration:
-                decoration = self.terrain[x][y].decoration
                 damage = 0
-                if entity.cargo and entity.cargo.weight > entity.cargo.max_weight:
+                weight_ratio = (entity.crew.weight +
+                                entity.cargo.weight +
+                                entity.broadsides.weight) / entity.cargo.max_weight
+                if 0 < weight_ratio < .5:
+                    damage -= 1
+                elif 1 < weight_ratio < 1.5:
                     damage += 1
+                elif 1.5 < weight_ratio:
+                    damage += 2
+                decoration = self.terrain[x][y].decoration
                 if decoration in ['rocks']:
                     damage += 2
                     self.engine.message_log.add_message(
@@ -301,19 +307,42 @@ class GameMap:
                     entity.fighter.take_damage(damage)
                 elif decoration in ['coral']:
                     damage += 1
-                    self.engine.message_log.add_message(
-                        f"{entity.name} takes {damage} hull damage from scraping coral", color)
-                    entity.fighter.take_damage(damage)
+                    if damage > 0:
+                        self.engine.message_log.add_message(
+                            f"{entity.name} takes {damage} hull damage from scraping coral", color)
+                        entity.fighter.take_damage(damage)
                 elif decoration in ['sandbar']:
                     if damage > 0:
                         self.engine.message_log.add_message(
                             f"{entity.name} takes {damage} hull damage from bumping sandbar", color)
                         entity.fighter.take_damage(damage)
-                crew_loss = 1 if conditions == Conditions.STORMY else 0
-                if decoration in ['rocks', 'coral', 'sandbar'] and entity.crew and crew_loss:
-                    self.engine.message_log.add_message(
-                        f"Man Overboard!", color)
-                    entity.crew.take_damage(crew_loss)
+                # lose crew in storm if damage taken from hitting decorations
+                if damage > 0 and conditions == Conditions.STORMY:
+                    crew_loss = damage - 1
+                    if crew_loss > 0:
+                        if decoration in ['rocks', 'coral', 'sandbar'] and entity.crew and crew_loss:
+                            self.engine.message_log.add_message(f"Man Overboard!", color)
+                            entity.crew.take_damage(crew_loss)
+                if damage > 0:
+                    cargo_loss = 0
+                    volume_ratio = (entity.crew.volume +
+                                    entity.cargo.volume +
+                                    entity.broadsides.volume) / entity.cargo.max_volume
+                    if 1 < volume_ratio < 1.1:
+                        cargo_loss += 2
+                    elif 1.1 < volume_ratio < 1.2:
+                        cargo_loss += 4
+                    elif 1.2 < volume_ratio < 1.3:
+                        cargo_loss += 6
+                    elif 1.3 < volume_ratio < 1.4:
+                        cargo_loss += 8
+                    elif 1.4 < volume_ratio < 1.5:
+                        cargo_loss += 10
+                    elif 1.5 < volume_ratio:
+                        cargo_loss += 12
+                    if cargo_loss > 0:
+                        entity.cargo.lose_random_cargo(cargo_loss)
+
         if not entity.flying and entity.parent.game_map.terrain[x][y].decoration:
             if entity.parent.game_map.terrain[x][y].decoration in ['minefield']:
                 damage = randint(2, 5)
