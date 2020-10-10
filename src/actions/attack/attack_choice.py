@@ -9,11 +9,11 @@ from actions.base.base import Action
 from constants.enums import Location
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class AttackAction(Action):
-    def __init__(self, entity: Actor, direction: Location):
+    def __init__(self, entity: Entity, direction: Location):
         """
         this action directs which action should be used to make an attack, depending on the direction
         :param entity: acting Entity

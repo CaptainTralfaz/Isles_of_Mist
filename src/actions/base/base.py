@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Actor
+    from entity import Entity
 
 
 class Action:
     """Generic Action"""
     
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         self.entity = entity
     
     @property

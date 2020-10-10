@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 from actions.base.base import Action
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class WaitAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         skips an Entity's turn
         :param entity: acting Entity

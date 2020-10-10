@@ -37,8 +37,12 @@ def main() -> None:
                     Game(game_display, engine).play_game()
                 elif event.key in [pygame.K_DOWN]:
                     # load game
-                    player, engine = load_game(ui_layout=ui_layout)
-                    Game(game_display, engine).play_game()
+                    try:
+                        player, engine = load_game(ui_layout=ui_layout)
+                        Game(game_display, engine).play_game()
+                    except IOError as e:
+                        print(e)
+                        should_quit = True
                 elif event.key == pygame.K_ESCAPE:
                     should_quit = True
 

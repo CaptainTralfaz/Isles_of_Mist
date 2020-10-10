@@ -39,8 +39,8 @@ DECORATION_GEN = {
 def generate_map(map_width: int, map_height: int, engine: Engine, seed: int, ui_layout: DisplayInfo) -> GameMap:
     player = engine.player
     
-    island_map = GameMap(engine, map_width, map_height, entities=[player])
-    island_map.weather = Weather(island_map, ui_layout.viewport_width, ui_layout.viewport_height)
+    island_map = GameMap(width=map_width, height=map_height, engine=engine, entities=[player])
+    island_map.weather = Weather(ui_layout.viewport_width, ui_layout.viewport_height, island_map)
     
     ev = OpenSimplex(seed=seed)
     island_noise = make_noise_island_map(map_width, map_height, ev, ISLAND_GEN)

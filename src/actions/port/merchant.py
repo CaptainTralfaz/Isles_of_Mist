@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 from actions.base.base import Action
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class MerchantAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         action for buying and selling while the player is in port
         :param entity: acting Entity
@@ -22,5 +22,4 @@ class MerchantAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        
         return True

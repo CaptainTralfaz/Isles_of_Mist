@@ -6,11 +6,11 @@ from actions.base.base import Action
 from constants.enums import GameStates
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class ExitConfigAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         This action exits the config menus by setting game state to action (or dead),
             setting all three "selected" fields to be 0 (in case the current selection is destroyed)

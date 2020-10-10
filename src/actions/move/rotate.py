@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 from actions.base.base import Action
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class RotateAction(Action):
-    def __init__(self, entity: Actor, direction: int):
+    def __init__(self, entity: Entity, direction: int):
         """
         rotates the entity in the given direction
         :param entity: acting Entity

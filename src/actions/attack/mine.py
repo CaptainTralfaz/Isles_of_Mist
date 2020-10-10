@@ -6,11 +6,11 @@ from actions.base.base import Action
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class MineAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         creates a Minefield decoration on the game map
         :param entity: acting Entity

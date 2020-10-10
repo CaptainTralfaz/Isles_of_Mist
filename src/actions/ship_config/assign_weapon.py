@@ -4,16 +4,16 @@ from typing import TYPE_CHECKING
 
 from actions.base.base import Action
 from actions.ship_config.change_select import ChangeSelectionAction
-from custom_exceptions import Impossible
 from constants.enums import Location, GameStates, MenuKeys
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from enum import Enum
 
 
 class AssignWeaponAction(Action):
-    def __init__(self, entity: Actor, event: Enum, state: GameStates):
+    def __init__(self, entity: Entity, event: Enum, state: GameStates):
         """
         this action tries to assign (or remove) a weapon to/from a location, port or starboard
         :param entity: acting entity

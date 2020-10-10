@@ -3,16 +3,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
-from custom_exceptions import Impossible
 from constants.enums import GameStates, MenuKeys
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
     from enum import Enum
 
 
 class ChangeSelectionAction(Action):
-    def __init__(self, entity: Actor, event: Enum, state: GameStates):
+    def __init__(self, entity: Entity, event: Enum, state: GameStates):
         """
         this action moves the selector up or down in the config menus
         :param entity: acting Entity

@@ -6,11 +6,11 @@ from actions.base.base import Action
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class HireCrewAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         "hires" 1 crew member, takes 1 hour (this will move to port actions in the future)
         :param entity: acting Entity

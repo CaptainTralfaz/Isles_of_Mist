@@ -5,11 +5,11 @@ from typing import Tuple, TYPE_CHECKING
 from actions.base.base import Action
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class MouseMoveAction(Action):
-    def __init__(self, entity: Actor, position: Tuple[int, int]):
+    def __init__(self, entity: Entity, position: Tuple[int, int]):
         """
         this action simply records the current mouse x and y coordinates in the Engine
         :param entity:

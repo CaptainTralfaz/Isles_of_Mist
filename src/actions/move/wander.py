@@ -8,11 +8,11 @@ from actions.move.movement import MovementAction
 from actions.move.rotate import RotateAction
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Entity
 
 
 class WanderAction(Action):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Entity):
         """
         randomly chooses between rotating left, rotating right, or attempting to move forward
         :param entity: acting Entity
