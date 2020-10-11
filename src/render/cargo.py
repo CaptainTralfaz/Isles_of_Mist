@@ -30,7 +30,6 @@ def cargo_render(console: Surface,
     """
     
     cargo_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
-    count = 0
     height = margin * 2
     column = 70
     
@@ -41,14 +40,14 @@ def cargo_render(console: Surface,
     surf = game_font.render(f"Item Name", True, colors['mountain'])
     cargo_surf.blit(surf, (spacer, height))
     c = 3
-    for header in ["Qty", "Wt", "Vol", "T Wt", "T Vol"]:
+    for header in ["Qty", "Wt", "Vol", "T Wt", "T Vol", "Drop"]:
         surf = game_font.render(f"{header}", True, colors['mountain'])
         cargo_surf.blit(surf, (spacer + c * column - surf.get_width(), height))
         c += 1
     game_font.set_underline(False)
     height += game_font.get_height() + margin
     for item in manifest_keys:
-        if count == player.cargo.selected:
+        if item == player.cargo.selected:
             text_color = colors['black']
             background = colors['mountain']
         else:
@@ -69,8 +68,10 @@ def cargo_render(console: Surface,
         surf = game_font.render(f"{int(item_stats[item]['volume'] * player.cargo.manifest[item])}",
                                 True, colors['mountain'])
         cargo_surf.blit(surf, (spacer + 7 * column - surf.get_width(), height))
+        if item in player.cargo.sell_list.keys():
+            surf = game_font.render(f"{player.cargo.sell_list[item]}", True, colors['red'])
+            cargo_surf.blit(surf, (spacer + 8 * column - surf.get_width(), height))
         height += game_font.get_height() + margin
-        count += 1
     surf = game_font.render(f"Cargo Total", True, colors['mountain'])
     cargo_surf.blit(surf, (spacer + 5 * column - surf.get_width(), height))
     surf = game_font.render(f"{player.cargo.weight}", True, colors['mountain'])
@@ -100,7 +101,7 @@ def cargo_render(console: Surface,
     surf = game_font.render(f"{player.crew.volume + player.broadsides.volume + player.cargo.volume}",
                             True, colors['mountain'])
     cargo_surf.blit(surf, (spacer + 7 * column - surf.get_width(), height))
-
+    
     time.tint_render(cargo_surf)
     render_border(cargo_surf, time.get_sky_color)
     console.blit(cargo_surf, (ui_layout.mini_width, 0))

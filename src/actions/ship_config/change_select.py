@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from actions.base.base import Action
 from constants.enums import GameStates, MenuKeys
+from constants.stats import item_stats
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
@@ -24,12 +25,30 @@ class ChangeSelectionAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        if self.state == GameStates.WEAPON_CONFIG:
+        if self.state == GameStates.CARGO_CONFIG:
+            manifest_keys = sorted([key for key in self.entity.cargo.manifest.keys()],
+                                   key=lambda i: item_stats[i]['category'].value)
+            count = 0
+            for key in manifest_keys:
+                if key == self.entity.cargo.selected:
+                    break
+                count += 1
+            
+            if self.event == MenuKeys.UP:
+                count -= 1
+                if count < 0:
+                    count = len(manifest_keys) - 1
+                self.entity.cargo.selected = manifest_keys[count]
+            if self.event == MenuKeys.DOWN:
+                count += 1
+                if count >= len(manifest_keys):
+                    count = 0
+                self.entity.cargo.selected = manifest_keys[count]
+            return False
+        
+        elif self.state == GameStates.WEAPON_CONFIG:
             component = self.entity.broadsides
             length = len(self.entity.broadsides.all_weapons) - 1
-        elif self.state == GameStates.CARGO_CONFIG:
-            component = self.entity.cargo
-            length = len(self.entity.cargo.manifest.keys()) - 1
         elif self.state == GameStates.CREW_CONFIG:
             component = self.entity.crew
             length = len(self.entity.crew.roster) - 1

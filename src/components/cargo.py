@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class Cargo(BaseComponent):
     parent: Entity
     
-    def __init__(self, max_volume: float, max_weight: float, manifest: Dict = None, selected: int = 0):
+    def __init__(self, max_volume: float, max_weight: float, manifest: Dict = None):
         """
         Holds maximum weight and volume of a container, and a list of Items currently held
         :param max_volume: int maximum volume available in ship's cargo hold
@@ -24,8 +24,10 @@ class Cargo(BaseComponent):
         self.max_volume = max_volume
         self.max_weight = max_weight
         self.manifest = manifest
-        self.selected = selected
-    
+        self.selected = "arrows"
+        self.sell_list = {}
+        self.buy_list = {}
+        
     def to_json(self):
         return {
             'max_volume': self.max_volume,

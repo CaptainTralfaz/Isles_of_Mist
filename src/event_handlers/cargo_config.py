@@ -11,9 +11,11 @@ from actions.ship_config.change_select import ChangeSelectionAction
 from actions.ship_config.configure import ConfigureAction
 from actions.ship_config.exit_config import ExitConfigAction
 from actions.ship_config.selected import SelectedAction
+from components.cargo import Cargo
 from constants.enums import GameStates, KeyMod
 from constants.keys import MODIFIERS, MENU_KEYS
 from custom_exceptions import Impossible
+from entity import Entity
 from event_handlers.base import EventHandler
 
 if TYPE_CHECKING:
@@ -45,6 +47,16 @@ class CargoConfigurationHandler(EventHandler):
                     return False
             
             if something_happened:
+                if isinstance(something_happened, dict):
+                    if something_happened.get('name') == 'Chest':
+                        self.engine.game_map.entities.add(Entity(x=something_happened.get('x'),
+                                                                 y=something_happened.get('y'),
+                                                                 elevations=something_happened.get('elevations'),
+                                                                 name=something_happened.get('name'),
+                                                                 icon=something_happened.get('icon'),
+                                                                 cargo=Cargo(max_volume=10,
+                                                                             max_weight=10,
+                                                                             manifest=something_happened.get('cargo'))))
                 self.engine.player.view.set_fov()
                 if self.engine.player.broadsides:
                     self.engine.player.broadsides.tick_cooldown()
