@@ -31,6 +31,6 @@ class SelectedAction(Action):
             return AssignCrewAction(self.entity, self.event).perform()
         if self.state == GameStates.WEAPON_CONFIG:
             return AssignWeaponAction(self.entity, self.event, self.state).perform()
-        if self.state == GameStates.CARGO_CONFIG_CONFIG:
+        if self.state == GameStates.CARGO_CONFIG:
             return DropCargoAction(self.entity, self.event).perform()
         return False

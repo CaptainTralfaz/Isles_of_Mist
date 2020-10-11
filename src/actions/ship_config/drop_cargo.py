@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
-from constants.enums import GameStates, MenuKeys
-from constants.keys import MENU_KEYS
+from constants.enums import MenuKeys
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
@@ -20,19 +19,28 @@ class DropCargoAction(Action):
         :param event: direction key assigning crew to
         """
         super().__init__(entity)
-        self.count = 0
         self.event = event
     
     def perform(self) -> bool:
         if not self.entity.is_alive:
-            raise Impossible("Can't drop cargo when dead")
+            raise Impossible("Can't move cargo when dead")
         
-        item_list = list(self.entity.cargo.manifest.keys())
-        item = item_list[self.entity.cargo.selected]
+        cargo = self.entity.cargo
+        item = self.entity.cargo.selected
         
-        if self.event == MenuKeys.LEFT:
-            self.count -= 1
-        elif self.event == MenuKeys.RIGHT:
-            self.count += 1
+        # move marked inventory to drop list
+        if self.event == MenuKeys.RIGHT:
+            if item in cargo.manifest.keys() and cargo.manifest[item] > 0:
+                if item in cargo.sell_list.keys():
+                    cargo.sell_list[item] += 1
+                else:
+                    cargo.sell_list[item] = 1
+                if cargo.sell_list[item] > cargo.manifest[item]:
+                    cargo.sell_list[item] = cargo.manifest[item]
+        # remove marked inventory from drop list
+        elif self.event == MenuKeys.LEFT:
+            if item in cargo.sell_list.keys() and cargo.sell_list[item] > 0:
+                if item in cargo.sell_list.keys():
+                    cargo.sell_list[item] -= 1
         
         return False

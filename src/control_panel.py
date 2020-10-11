@@ -139,10 +139,14 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
                               {'rotation': 270, 'text': 'Tavern'},
                               {'rotation': 180, 'text': 'Smithy'}]
             else:
+                down_text = 'Wait'
+                if len(items) > 0:
+                    down_text = 'Salvage'
                 arrow_keys = [{'rotation': 0, 'text': 'Row'},
                               {'rotation': 90, 'text': 'Turn Port'},
                               {'rotation': 270, 'text': 'Turn Starboard'},
-                              {'rotation': 180, 'text': 'Wait'}]
+                              {'rotation': 180, 'text': down_text}]
+                
                 text_keys.append({'name': 'Shift', 'text': 'Repair Actions'})
                 if player.sails:
                     text_keys.append({'name': 'Cmd', 'text': 'Ship Actions'})
@@ -197,8 +201,8 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
     
     elif game_state == GameStates.CARGO_CONFIG:
         if key_mod == KeyMod.SHIFT and player.is_alive:
-            arrow_keys = [{'rotation': 90, 'text': 'Increase Count'},
-                          {'rotation': 270, 'text': 'Decrease Count'}]
+            arrow_keys = [{'rotation': 90, 'text': 'Increase Drop'},
+                          {'rotation': 270, 'text': 'Decrease Drop'}]
         elif key_mod == KeyMod.COMMAND:
             arrow_keys = [{'rotation': 90, 'text': 'Exit Config'},
                           {'rotation': 270, 'text': 'Crew Config'},
