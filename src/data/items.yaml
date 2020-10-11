@@ -3,80 +3,100 @@ item_stats:
     weight: 2
     volume: 4
     category: 4
+    cost: 5
   rope:
     weight: 1
     volume: 1
     category: 4
+    cost: 5
   tar:
     weight: 3
     volume: 3
     category: 4
+    cost: 7
   wood:
     weight: 2
     volume: 4
     category: 4
+    cost: 3
   meat:
     weight: 1
     volume: 1
     category: 3
+    cost: 1
   rum:
     weight: 1
     volume: 1
     category: 3
+    cost: 5
   fish:
     weight: 1
     volume: 1
     category: 3
+    cost: 1
   fruit:
     weight: 1
     volume: 1
     category: 3
+    cost: 3
   water:
     weight: 2
     volume: 3
     category: 3
+    cost: 1
   coins:
     weight: 0
     volume: 0
     category: 1
+    cost: 1
   pearl:
     weight: 0
     volume: 0
     category: 6
+    cost: 50
   bat wing:
     weight: 1
     volume: 3
     category: 6
+    cost: 5
   map:
     weight: 1
     volume: 1
     category: 6
+    cost: 20
   message:
     weight: 0
     volume: 0
     category: 6
+    cost: 0
   shell:
     weight: 5
     volume: 5
     category: 6
+    cost: 10
   scale:
     weight: 2
     volume: 3
     category: 6
+    cost: 5
   arrows:
     weight: .1
     volume: .1
     category: 2
+    cost: 1
   bolts:
     weight: 1
     volume: 2
     category: 2
+    cost: 3
   cannonballs:
     weight: 2
     volume: 1
     category: 2
+    cost: 6
   mines:
     weight: 2
     volume: 2
     category: 2
+    cost: 15
 

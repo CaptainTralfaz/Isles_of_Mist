@@ -414,7 +414,7 @@ def get_entity_manifest(entity):
         return manifest
     elif entity == 'chest':
         coins = randint(50, 100)
-        arrows = randint(20, 30)
+        arrows = randint(10, 30)
         if randint(0, 1):
             tar = randint(3, 5)
             rope = randint(3, 5)
@@ -424,7 +424,7 @@ def get_entity_manifest(entity):
                     'rope': rope}
         else:
             fruit = randint(4, 9)
-            rum = randint(4, 7)
+            rum = randint(2, 5)
             return {'coins': coins,
                     'arrows': arrows,
                     'fruit': fruit,

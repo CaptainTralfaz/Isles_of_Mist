@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from actions.base.base import Action
 from actions.ship_config.assign_crew import AssignCrewAction
 from actions.ship_config.assign_weapon import AssignWeaponAction
+from actions.ship_config.drop_cargo import DropCargoAction
 from constants.enums import GameStates
 
 if TYPE_CHECKING:
@@ -30,4 +31,6 @@ class SelectedAction(Action):
             return AssignCrewAction(self.entity, self.event).perform()
         if self.state == GameStates.WEAPON_CONFIG:
             return AssignWeaponAction(self.entity, self.event, self.state).perform()
+        if self.state == GameStates.CARGO_CONFIG_CONFIG:
+            return DropCargoAction(self.entity, self.event).perform()
         return False

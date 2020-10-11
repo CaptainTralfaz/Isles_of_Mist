@@ -21,6 +21,7 @@ from render.cargo import cargo_render
 from render.controls import control_panel_render
 from render.crew import crew_render
 from render.entity_info import render_entity_info
+from render.merchant import merchant_render
 from render.mini_map import mini_map_render
 from render.status_panel import status_panel_render
 from render.viewport import viewport_render
@@ -142,3 +143,6 @@ class Engine:
             elif self.game_state == GameStates.WEAPON_CONFIG:
                 weapon_render(console=main_surface, broadsides=self.player.broadsides, time=self.time,
                               ui_layout=self.ui_layout)
+            elif self.game_state == GameStates.MERCHANT:
+                merchant_render(console=main_surface, player=self.player, time=self.time,
+                                ui_layout=self.ui_layout)
