@@ -1,24 +1,29 @@
+from __future__ import annotations
+
 from random import choice, randint
 from typing import Dict, Tuple
+
+from constants.constants import MERCHANT,SMITHY
+from utilities import choice_from_dict
 
 
 class Port:
     def __init__(self,
                  location: Tuple[int, int] = (0, 0),
                  name: str = None,
-                 merchant: Dict[str, int] = None,
-                 smithy: Dict[str, int] = None):
+                 merchant: Merchant = None,
+                 smithy: Smithy = None):
         self.location = location
         self.name = name if name is name is not None else gen_port_name()
-        self.merchant = merchant if merchant is not None else gen_merchant()
-        self.smithy = smithy if smithy is not None else gen_smithy()
-    
+        self.merchant = merchant if merchant is not None else Merchant()
+        self.smithy = smithy if smithy is not None else Smithy()
+        
     def to_json(self) -> Dict:
         return {
             'location': tuple(self.location),
             'name': self.name,
-            'merchant': self.merchant,
-            'smithy': self.smithy
+            'merchant': self.merchant.to_json(),
+            'smithy': self.smithy.to_json()
         }
     
     @staticmethod
@@ -26,8 +31,8 @@ class Port:
         location_data = json_data.get('location')
         location = (location_data[0], location_data[1])
         name = json_data.get('name')
-        merchant = json_data.get('merchant')
-        smithy = json_data.get('smithy')
+        merchant = Merchant.from_json(json_data.get('merchant'))
+        smithy = Smithy.from_json(json_data.get('smithy'))
         return Port(location=location, name=name, merchant=merchant, smithy=smithy)
 
 
@@ -74,11 +79,49 @@ def gen_port_name() -> str:
     return f"port {adjective}{name}{possessive}{postfix}"
 
 
-def gen_merchant() -> Dict[str, int]:
-    merchant = {}
-    return merchant
+class Merchant:
+    def __init__(self, manifest: Dict = None):
+        # TODO generate this depending on port's surroundings / buildings
+        #  but for now...
+        self.selected = 0
+        if manifest is not None:
+            self.manifest = manifest
+        else:
+            self.manifest = {}
+            for x in range(0, randint(100, 200)):
+                pick = choice_from_dict(MERCHANT)
+                if pick in self.manifest.keys():
+                    self.manifest[pick] += 1
+                else:
+                    self.manifest[pick] = 1
 
+    def to_json(self):
+        return {'manifest': self.manifest}
 
-def gen_smithy() -> Dict[str, int]:
-    smithy = {}
-    return smithy
+    @staticmethod
+    def from_json(json_data):
+        return Merchant(json_data.get('manifest'))
+        
+        
+class Smithy:
+    def __init__(self, manifest: Dict = None):
+        # TODO generate this depending on port's surroundings / buildings
+        #  but for now...
+        self.selected = 0
+        if manifest is not None:
+            self.manifest = manifest
+        else:
+            self.manifest = {}
+            for x in range(0, randint(1, 3)):
+                pick = choice_from_dict(SMITHY)
+                if pick in self.manifest.keys():
+                    self.manifest[pick] += 1
+                else:
+                    self.manifest[pick] = 1
+
+    def to_json(self):
+        return {'manifest': self.manifest}
+
+    @staticmethod
+    def from_json(json_data):
+        return Smithy(json_data.get('manifest'))

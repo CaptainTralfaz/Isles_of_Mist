@@ -11,7 +11,7 @@ map_width = 48
 map_height = 48
 caption = "Isles of Mist"
 
-view_port = 8
+view_port = 9
 message_count = 10
 
 time_tick = 2
@@ -37,4 +37,32 @@ move_elevations = {
     'shallows': [Elevation.SHALLOWS],
     'all': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH,
             Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO]
+}
+
+SMITHY = {
+    'ballista': 100,
+    'heavy ballista': 20,
+    'repeating ballista': 20,
+    'sniper ballista': 20,
+    'cannon': 10,
+    'organ gun': 5,
+    'heavy cannon': 5,
+    'long guns': 5,
+}
+
+MERCHANT = {
+    'canvas': 20,
+    'rope': 20,
+    'tar': 10,
+    'wood': 30,
+    'meat': 30,
+    'rum': 10,
+    'fish': 30,
+    'fruit': 10,
+    'water': 30,
+    'arrows': 20,
+    'bolts': 20,
+    'cannonballs': 10,
+    'mines': 10,
+    
 }
