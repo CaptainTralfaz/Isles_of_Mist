@@ -36,6 +36,7 @@ player = Entity(x=0,
                 cargo=Cargo(max_weight=1000,
                             max_volume=1000,
                             manifest={
+                                'coins': 100,
                                 'rope': 10,
                                 'wood': 10,
                                 'meat': 10,

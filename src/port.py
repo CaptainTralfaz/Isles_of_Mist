@@ -83,7 +83,6 @@ class Merchant:
     def __init__(self, manifest: Dict = None):
         # TODO generate this depending on port's surroundings / buildings
         #  but for now...
-        self.selected = 0
         if manifest is not None:
             self.manifest = manifest
         else:
@@ -94,7 +93,7 @@ class Merchant:
                     self.manifest[pick] += 1
                 else:
                     self.manifest[pick] = 1
-
+            
     def to_json(self):
         return {'manifest': self.manifest}
 
@@ -107,7 +106,6 @@ class Smithy:
     def __init__(self, manifest: Dict = None):
         # TODO generate this depending on port's surroundings / buildings
         #  but for now...
-        self.selected = 0
         if manifest is not None:
             self.manifest = manifest
         else:

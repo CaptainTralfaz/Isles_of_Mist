@@ -49,14 +49,15 @@ class CargoConfigurationHandler(EventHandler):
             if something_happened:
                 if isinstance(something_happened, dict):
                     if something_happened.get('name') == 'Chest':
-                        self.engine.game_map.entities.add(Entity(x=something_happened.get('x'),
-                                                                 y=something_happened.get('y'),
-                                                                 elevations=something_happened.get('elevations'),
-                                                                 name=something_happened.get('name'),
-                                                                 icon=something_happened.get('icon'),
-                                                                 cargo=Cargo(max_volume=10,
-                                                                             max_weight=10,
-                                                                             manifest=something_happened.get('cargo'))))
+                        self.engine.game_map.entities.add(
+                            Entity(x=something_happened.get('x'),
+                                   y=something_happened.get('y'),
+                                   elevations=something_happened.get('elevations'),
+                                   name=something_happened.get('name'),
+                                   icon=something_happened.get('icon'),
+                                   cargo=Cargo(max_volume=10,
+                                               max_weight=10,
+                                               manifest=something_happened.get('cargo'))))
                 self.engine.player.view.set_fov()
                 if self.engine.player.broadsides:
                     self.engine.player.broadsides.tick_cooldown()

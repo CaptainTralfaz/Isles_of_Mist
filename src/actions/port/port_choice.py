@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from actions.base.base import Action
 from actions.port.merchant import MerchantAction
+from actions.port.smithy import SmithyAction
 from constants.enums import PortVisit, GameStates
 from custom_exceptions import Impossible
 
@@ -22,16 +23,15 @@ class PortAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        if self.event == PortVisit.SHIPYARD:
-            raise Impossible(f"{self.event} action yet implemented")
-        if self.event == PortVisit.MERCHANT:
-            raise Impossible(f"{self.event} action yet implemented")
-            # self.engine.game_state = GameStates.MERCHANT
-            # return MerchantAction(self.entity, self.event).perform()
-        if self.event == PortVisit.TAVERN:
-            raise Impossible(f"{self.event} action yet implemented")
-        if self.event == PortVisit.SMITHY:
-            raise Impossible(f"{self.event} action yet implemented")
-            # self.engine.game_state = GameStates.SMITHY
-            # return MerchantAction(self.entity, self.event).perform()
-        return False
+        # if self.event == PortVisit.SHIPYARD:  # Ship Upgrades
+        #     raise Impossible(f"{self.event} action yet implemented")
+        if self.event == PortVisit.MERCHANT:  # Buy / sell Cargo
+            self.engine.game_state = GameStates.MERCHANT
+            return False
+        # if self.event == PortVisit.TAVERN:  # Hire Crewmen
+        #     raise Impossible(f"{self.event} action yet implemented")
+        # if self.event == PortVisit.SMITHY:  # Buy / Sell Weapons
+        #     self.engine.game_state = GameStates.SMITHY
+        #     return SmithyAction(self.entity, self.event).perform()
+
+        raise Impossible(f"{self.event} action yet implemented")

@@ -37,15 +37,20 @@ if TYPE_CHECKING:
 class Engine:
     game_map: GameMap
     
-    def __init__(self, player: Entity, ui_layout: DisplayInfo, seed: int = None,
-                 message_log: MessageLog = None, time_of_day: Time = None,
-                 camera: Camera = None, game_state: GameStates = None):
+    def __init__(self, player: Entity,
+                 ui_layout: DisplayInfo,
+                 seed: int = None,
+                 message_log: MessageLog = None,
+                 time_of_day: Time = None,
+                 camera: Camera = None,
+                 game_state: GameStates = None):
         self.event_handler: MainEventHandler = MainEventHandler(self)
         self.player = player
         self.seed = random.randint(0, 10000) if seed is None else seed  # 8617
         self.mouse_location = (0, 0)
-        self.message_log = MessageLog(parent=self) if message_log is None else message_log
         self.ui_layout = ui_layout
+        self.message_log = MessageLog(parent=self,
+                                      height=self.ui_layout.display_height) if message_log is None else message_log
         self.clock = time.Clock()
         self.time = Time() if time_of_day is None else time_of_day
         self.key_mod = None
@@ -87,7 +92,11 @@ class Engine:
             self.event_handler = GameOverEventHandler(self)
         elif self.game_state == GameStates.MERCHANT:
             self.event_handler = MerchantHandler(self)
-    
+        # elif self.game_state == GameStates.SMITHY:
+        #     self.event_handler = SmithyHandler(self)
+        # elif self.game_state == GameStates.UPGRADES:
+        #     self.event_handler = UpgradeHandler(self)
+
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             if entity.is_alive and entity.ai is not None:

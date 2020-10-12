@@ -7,8 +7,9 @@ from pygame import event as pygame_event
 
 from actions.base.mouse import MouseMoveAction
 from actions.base.quit import ActionQuit
-from actions.ship_config.change_select import ChangeSelectionAction
-from actions.ship_config.exit_config import ExitConfigAction
+from actions.port.change_select import ChangeSelectionAction
+from actions.port.selected import SelectedAction
+from actions.port.exit_port import ExitPortAction
 from constants.enums import GameStates, KeyMod
 from constants.keys import MENU_KEYS, MODIFIERS
 from custom_exceptions import Impossible
@@ -67,13 +68,13 @@ class MerchantHandler(EventHandler):
         if event.type == KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            # if self.engine.key_mod == KeyMod.SHIFT and event.key in MENU_KEYS:
-            #     response = SelectedAction(player, MENU_KEYS[event.key], self.engine.game_state)
+            if self.engine.key_mod == KeyMod.SHIFT and event.key in MENU_KEYS:
+                response = SelectedAction(player, MENU_KEYS[event.key], self.engine.game_state)
             elif self.engine.key_mod is None:
                 if event.key in MENU_KEYS:
                     response = ChangeSelectionAction(player, MENU_KEYS[event.key], self.engine.game_state)
                 elif event.key == K_ESCAPE:
-                    response = ExitConfigAction(player)
+                    response = ExitPortAction(player)
         
         if event.type == MOUSEMOTION:
             response = MouseMoveAction(player, mouse.get_pos())
