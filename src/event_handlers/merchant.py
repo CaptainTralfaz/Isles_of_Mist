@@ -8,9 +8,10 @@ from pygame import event as pygame_event
 from actions.base.mouse import MouseMoveAction
 from actions.base.quit import ActionQuit
 from actions.port.change_select import ChangeSelectionAction
-from actions.port.selected import SelectedAction
+from actions.port.confirm import ConfirmAction
 from actions.port.exit_port import ExitPortAction
-from constants.enums import GameStates, KeyMod
+from actions.port.selected import SelectedAction
+from constants.enums import GameStates, MenuKeys, KeyMod
 from constants.keys import MENU_KEYS, MODIFIERS
 from custom_exceptions import Impossible
 from event_handlers.base import EventHandler
@@ -55,7 +56,7 @@ class MerchantHandler(EventHandler):
                         entity.view.set_fov()
             if self.engine.game_state != GameStates.MERCHANT:
                 self.engine.get_handler()
-
+    
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None
@@ -68,13 +69,18 @@ class MerchantHandler(EventHandler):
         if event.type == KEYDOWN:
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
-            if self.engine.key_mod == KeyMod.SHIFT and event.key in MENU_KEYS:
-                response = SelectedAction(player, MENU_KEYS[event.key], self.engine.game_state)
-            elif self.engine.key_mod is None:
-                if event.key in MENU_KEYS:
-                    response = ChangeSelectionAction(player, MENU_KEYS[event.key], self.engine.game_state)
-                elif event.key == K_ESCAPE:
-                    response = ExitPortAction(player)
+            if self.engine.key_mod == KeyMod.SHIFT \
+                    and event.key in MENU_KEYS \
+                    and MENU_KEYS[event.key] in [MenuKeys.LEFT, MenuKeys.RIGHT]:
+                response = ConfirmAction(player, MENU_KEYS[event.key])
+            if self.engine.key_mod is None:
+                if event.type == KEYDOWN:
+                    if event.key in MENU_KEYS and MENU_KEYS[event.key] in [MenuKeys.UP, MenuKeys.DOWN]:
+                        response = ChangeSelectionAction(player, MENU_KEYS[event.key])
+                    elif event.key in MENU_KEYS and MENU_KEYS[event.key] in [MenuKeys.LEFT, MenuKeys.RIGHT]:
+                        response = SelectedAction(player, MENU_KEYS[event.key])
+                    elif event.key == K_ESCAPE:
+                        response = ExitPortAction(player)
         
         if event.type == MOUSEMOTION:
             response = MouseMoveAction(player, mouse.get_pos())

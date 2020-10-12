@@ -21,6 +21,7 @@ class SalvageAction(Action):
     def perform(self) -> bool:
         for salvage in self.salvage:
             self.engine.message_log.add_message(f"You salvage {salvage.name}!", text_color='orange')
+            self.entity.cargo.add_coins_to_cargo(salvage.cargo.coins)
             self.entity.cargo.add_items_to_manifest(salvage.cargo.manifest)
             self.engine.game_map.entities.remove(salvage)
         return True

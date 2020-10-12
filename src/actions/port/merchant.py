@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from actions.base.base import Action
 from actions.port.change_select import ChangeSelectionAction
 from constants.enums import MenuKeys
+from constants.stats import item_stats
 
 if TYPE_CHECKING:
     from entity import Entity
@@ -21,41 +22,47 @@ class MerchantAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        manifest = self.entity.cargo.manifest
         selected = self.entity.cargo.selected
-        sell_list = self.entity.cargo.sell_list
-        buy_list = self.entity.cargo.buy_list
-        merchant = self.engine.game_map.port.merchant.manifest
         
         if self.event == MenuKeys.UP:
-            return ChangeSelectionAction(self.entity, self.event, self.engine.game_state).perform()
+            return ChangeSelectionAction(self.entity, self.event).perform()
         elif self.event == MenuKeys.DOWN:
-            return ChangeSelectionAction(self.entity, self.event, self.engine.game_state).perform()
+            return ChangeSelectionAction(self.entity, self.event).perform()
         elif self.event == MenuKeys.LEFT:
             # reduce buy list first if able
-            if selected in buy_list.keys() and buy_list[selected] > 0:
-                buy_list[selected] -= 1
+            if selected in self.entity.cargo.buy_list.keys() and self.entity.cargo.buy_list[selected] > 0:
+                self.entity.cargo.buy_list[selected] -= 1
+                self.engine.game_map.port.merchant.temp_coins -= item_stats[selected]['cost']
                 return False
             # make sure item to sell is in inventory and more than 1
-            if selected not in manifest.keys() or manifest[selected] < 1:
+            if selected not in self.entity.cargo.manifest.keys() or self.entity.cargo.manifest[selected] < 1:
                 return False
-            if selected not in sell_list.keys():
-                sell_list[selected] = 1
+            if selected not in self.entity.cargo.sell_list.keys():
+                self.entity.cargo.sell_list[selected] = 1
+                self.engine.game_map.port.merchant.temp_coins -= item_stats[selected]['cost']
                 return False
-            if sell_list[selected] + 1 > manifest[selected]:
+            if self.entity.cargo.sell_list[selected] + 1 > self.entity.cargo.manifest[selected]:
                 return False
-            sell_list[selected] += 1
+            self.entity.cargo.sell_list[selected] += 1
+            self.engine.game_map.port.merchant.temp_coins -= item_stats[selected]['cost']
+            return False
+        
         elif self.event == MenuKeys.RIGHT:
             # reduce sell list first
-            if selected in sell_list.keys() and sell_list[selected] > 0:
-                sell_list[selected] -= 1
+            if selected in self.entity.cargo.sell_list.keys() and self.entity.cargo.sell_list[selected] > 0:
+                self.entity.cargo.sell_list[selected] -= 1
+                self.engine.game_map.port.merchant.temp_coins += item_stats[selected]['cost']
                 return False
-            if selected not in merchant.keys() or merchant[selected] < 1:
+            if selected not in self.engine.game_map.port.merchant.manifest.keys() \
+                    or self.engine.game_map.port.merchant.manifest[selected] < 1:
                 return False
-            if selected not in buy_list.keys():
-                buy_list[selected] = 1
+            if selected not in self.entity.cargo.buy_list.keys():
+                self.entity.cargo.buy_list[selected] = 1
+                self.engine.game_map.port.merchant.temp_coins += item_stats[selected]['cost']
                 return False
-            if buy_list[selected] + 1 > merchant[selected]:
+            if self.entity.cargo.buy_list[selected] + 1 > self.engine.game_map.port.merchant.manifest[selected]:
                 return False
-            buy_list[selected] += 1
+            self.entity.cargo.buy_list[selected] += 1
+            self.engine.game_map.port.merchant.temp_coins += item_stats[selected]['cost']
+            return False
         return False

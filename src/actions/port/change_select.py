@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from actions.base.base import Action
 from constants.enums import GameStates, MenuKeys
 from constants.stats import item_stats
-from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
     from entity import Entity
@@ -13,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class ChangeSelectionAction(Action):
-    def __init__(self, entity: Entity, event: Enum, state: GameStates):
+    def __init__(self, entity: Entity, event: Enum):
         """
         this action moves the selector up or down in the config menus
         :param entity: acting Entity
@@ -21,23 +20,22 @@ class ChangeSelectionAction(Action):
         :param state: GameState
         """
         self.event = event
-        self.state = state
         super().__init__(entity)
     
     def perform(self) -> bool:
-        if self.state == GameStates.MERCHANT:
+        if self.engine.game_state == GameStates.MERCHANT:
             manifest_keys = [key for key in self.entity.cargo.manifest.keys()]
             merchant_keys = [key for key in self.entity.game_map.port.merchant.manifest.keys()]
-
+            
             all_keys = sorted(list(set(manifest_keys) | set(merchant_keys)),
                               key=lambda i: item_stats[i]['category'].value)
-
+            
             count = 0
             for key in all_keys:
                 if key == self.entity.cargo.selected:
                     break
                 count += 1
-    
+            
             if self.event == MenuKeys.UP:
                 count -= 1
                 if count < 0:
@@ -49,7 +47,7 @@ class ChangeSelectionAction(Action):
                     count = 0
                 self.entity.cargo.selected = all_keys[count]
             return False
-    
+        
         # elif self.state == GameStates.SMITHY:
         #     component = self.entity.game_map.port.smithy
         #     length = len(self.entity.game_map.port.smithy.manifest.keys()) - 1

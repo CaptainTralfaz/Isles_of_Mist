@@ -19,37 +19,12 @@ class ExitPortAction(Action):
         super().__init__(entity)
     
     def perform(self) -> Optional[Dict, bool]:
-        if not self.entity.is_alive:
-            self.engine.game_state = GameStates.PLAYER_DEAD
-            return False
-        else:
-            self.engine.game_state = GameStates.ACTION
-            self.entity.cargo.selected = "arrows"
-            self.entity.crew.selected = 0
-            self.entity.broadsides.selected = 0
-            merchant = self.entity.game_map.port.merchant.manifest
-            acted = False
-            if sum(self.entity.cargo.sell_list.values()) > 0:  # if there's actually stuff to sell
-                # remove the items from player inventory, add to merchant inventory
-                for key in self.entity.cargo.sell_list:
-                    if self.entity.cargo.sell_list[key] > 0:
-                        self.entity.cargo.manifest[key] -= self.entity.cargo.sell_list[key]
-                        if not (key in self.engine.game_map.port.merchant.manifest.keys()):
-                            self.engine.game_map.port.merchant.manifest[key] = 0
-                        self.engine.game_map.port.merchant.manifest[key] += self.entity.cargo.sell_list[key]
-                        if key not in merchant.keys():
-                            merchant[key] = 0
-                        merchant[key] = self.entity.cargo.sell_list[key]
-                acted = True
-                self.entity.cargo.sell_list = {}
-            if sum(self.entity.cargo.buy_list.values()) > 0:  # if there's actually stuff to buy
-                # remove the items from merchant inventory, add to player inventory
-                for key in self.entity.cargo.buy_list:
-                    if self.entity.cargo.buy_list[key] > 0:
-                        if key not in self.entity.cargo.manifest.keys():
-                            self.entity.cargo.manifest[key] = 0
-                        self.entity.cargo.manifest[key] += self.entity.cargo.buy_list[key]
-                        merchant[key] -= self.entity.cargo.buy_list[key]
-                acted = True
-                self.entity.cargo.buy_list = {}
-            return acted
+        self.engine.game_state = GameStates.ACTION
+        self.entity.crew.selected = 0
+        self.entity.broadsides.selected = 0
+        self.entity.cargo.selected = "arrows"
+        self.entity.cargo.buy_list = {}
+        self.entity.cargo.sell_list = {}
+        self.entity.game_map.port.merchant.temp_coins = 0
+        self.entity.game_map.port.smithy.temp_coins = 0
+        return False

@@ -31,7 +31,6 @@ class ExitConfigAction(Action):
                     if self.entity.cargo.sell_list[key] > 0:
                         self.entity.cargo.manifest[key] -= self.entity.cargo.sell_list[key]
                         chest_dict[key] = self.entity.cargo.sell_list[key]
-                self.entity.cargo.sell_list = {}
                 # and create a dict to pass back for creation
                 entity_dict = {
                     'x': self.entity.x,
@@ -41,6 +40,7 @@ class ExitConfigAction(Action):
                     'icon': 'chest',
                     'cargo': chest_dict
                 }
+                self.entity.cargo.sell_list = {}
                 return entity_dict
             return False
         else:

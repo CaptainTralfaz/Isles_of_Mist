@@ -3,8 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
-from actions.port.merchant import MerchantAction
-from actions.port.smithy import SmithyAction
 from constants.enums import PortVisit, GameStates
 from custom_exceptions import Impossible
 
@@ -33,5 +31,5 @@ class PortAction(Action):
         # if self.event == PortVisit.SMITHY:  # Buy / Sell Weapons
         #     self.engine.game_state = GameStates.SMITHY
         #     return SmithyAction(self.entity, self.event).perform()
-
+        
         raise Impossible(f"{self.event} action yet implemented")

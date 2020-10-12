@@ -315,7 +315,12 @@ def place_entities(island_map: GameMap, elevations):
                 available.extend(elevations[elevation.name])
             (x, y) = choice(available)
             chest = entity_factory.chest.spawn(island_map, x, y)
-            chest.cargo = Cargo(max_volume=10, max_weight=10, manifest=get_entity_manifest('chest'))
+            manifest = get_entity_manifest('chest')
+            coins = 0
+            if 'coins' in manifest.keys():
+                coins = manifest['coins']
+                del (manifest['coins'])
+            chest.cargo = Cargo(max_volume=10, max_weight=10, manifest=manifest, coins=coins)
         else:
             available = []
             for elevation in move_elevations['water']:
