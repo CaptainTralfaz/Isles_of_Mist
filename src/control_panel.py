@@ -214,6 +214,18 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
                 text_keys = [{'name': 'Shift', 'text': 'Adjust Count'}]
             text_keys.extend([{'name': 'Cmd', 'text': 'Config Menu'},
                               {'name': 'Esc', 'text': 'Exit Config'}])
+    elif game_state == GameStates.MERCHANT:
+        if key_mod == KeyMod.SHIFT:
+            arrow_keys = [{'rotation': 90, 'text': 'Confirm'},
+                          {'rotation': 270, 'text': 'Cancel'}]
+        else:
+            arrow_keys = [{'rotation': 0, 'text': 'Move Up'},
+                          {'rotation': 90, 'text': 'Sell'},
+                          {'rotation': 270, 'text': 'Buy'},
+                          {'rotation': 180, 'text': 'Move Down'}]
+            
+            text_keys = [{'name': 'Shift', 'text': 'Finished'},
+                         {'name': 'Esc', 'text': 'Exit'}]
     
     elif game_state == GameStates.PLAYER_DEAD:
         if key_mod == KeyMod.COMMAND:

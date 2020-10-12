@@ -3,7 +3,7 @@ from __future__ import annotations
 from random import choice, randint
 from typing import Dict, Tuple
 
-from constants.constants import MERCHANT,SMITHY
+from constants.constants import MERCHANT, SMITHY
 from utilities import choice_from_dict
 
 
@@ -17,7 +17,7 @@ class Port:
         self.name = name if name is name is not None else gen_port_name()
         self.merchant = merchant if merchant is not None else Merchant()
         self.smithy = smithy if smithy is not None else Smithy()
-        
+    
     def to_json(self) -> Dict:
         return {
             'location': tuple(self.location),
@@ -42,8 +42,9 @@ def gen_port_name() -> str:
         adjective = choice([
             "Odd ", "Grand ", "Little ", "Poor ", "Tiny ", "Perfect ", "Stinky ", "Old ", "Fierce ", "Ole ", "Sad ",
             "Red ", "Black ", "Blue ", "Green ", "Yellow ", "Ugly ", "Rich ", "Happy ", "Royal ", "White ", "Drunken ",
-            "Sandy ", "One ", "Sloppy ", "Tidy ", "Lonely ", "Deadly ", "Foggy ", "Big ", "Double ",
-            "Shifty ", "Slippery ", "Hungry ", "Sliced ", "Oiled ", "Twisted ", "Long ", "Short ", "Crusty ",
+            "Sandy ", "One ", "Sloppy ", "Tidy ", "Lonely ", "Deadly ", "Foggy ", "Big ", "Double ", "Pierced "
+                                                                                                     "Shifty ",
+            "Slippery ", "Hungry ", "Sliced ", "Oiled ", "Twisted ", "Long ", "Short ", "Crusty ",
             "Hairy ", "New ", "Jolly ", "Half ", "Dirty ", "Salty ", "Tired ", "Lumpy ", "Leaning ", "Round ", "Bad ",
             "Angry ", "Ancient ", "Zero ", "Lame ", "Fancy ", "Priceless ", "Worthless ", "Lazy ", "Rocky ",
             "Windy ", "Dry ", "Sunny ", "Hazy ", "Shady "
@@ -80,10 +81,11 @@ def gen_port_name() -> str:
 
 
 class Merchant:
-    def __init__(self, manifest: Dict = None):
+    def __init__(self, manifest: Dict = None, coins: int = None):
+        self.coins = coins if coins is not None else randint(100, 200)
+        self.temp_coins = 0
         # TODO generate this depending on port's surroundings / buildings
         #  but for now...
-        self.selected = 0
         if manifest is not None:
             self.manifest = manifest
         else:
@@ -94,20 +96,22 @@ class Merchant:
                     self.manifest[pick] += 1
                 else:
                     self.manifest[pick] = 1
-
+    
     def to_json(self):
-        return {'manifest': self.manifest}
-
+        return {'manifest': self.manifest,
+                'coins': self.coins}
+    
     @staticmethod
     def from_json(json_data):
-        return Merchant(json_data.get('manifest'))
-        
-        
+        return Merchant(manifest=json_data.get('manifest'), coins=json_data.get('coins'))
+
+
 class Smithy:
-    def __init__(self, manifest: Dict = None):
+    def __init__(self, manifest: Dict = None, coins: int = None):
         # TODO generate this depending on port's surroundings / buildings
         #  but for now...
-        self.selected = 0
+        self.coins = coins if coins is not None else randint(100, 200)
+        self.temp_coins = 0
         if manifest is not None:
             self.manifest = manifest
         else:
@@ -118,10 +122,11 @@ class Smithy:
                     self.manifest[pick] += 1
                 else:
                     self.manifest[pick] = 1
-
+    
     def to_json(self):
-        return {'manifest': self.manifest}
-
+        return {'manifest': self.manifest,
+                'coins': self.coins}
+    
     @staticmethod
     def from_json(json_data):
-        return Smithy(json_data.get('manifest'))
+        return Smithy(manifest=json_data.get('manifest'), coins=json_data.get('coins'))

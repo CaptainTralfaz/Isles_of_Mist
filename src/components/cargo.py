@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class Cargo(BaseComponent):
     parent: Entity
     
-    def __init__(self, max_volume: float, max_weight: float, manifest: Dict = None):
+    def __init__(self, max_volume: float, max_weight: float, manifest: Dict = None, coins: int = 0):
         """
         Holds maximum weight and volume of a container, and a list of Items currently held
         :param max_volume: int maximum volume available in ship's cargo hold
@@ -24,15 +24,17 @@ class Cargo(BaseComponent):
         self.max_volume = max_volume
         self.max_weight = max_weight
         self.manifest = manifest
+        self.coins = coins
         self.selected = "arrows"
         self.sell_list = {}
         self.buy_list = {}
-        
+    
     def to_json(self):
         return {
             'max_volume': self.max_volume,
             'max_weight': self.max_weight,
-            'manifest': self.manifest
+            'manifest': self.manifest,
+            'coins': self.coins
         }
     
     @staticmethod
@@ -40,7 +42,8 @@ class Cargo(BaseComponent):
         max_volume = json_data.get('max_volume')
         max_weight = json_data.get('max_weight')
         manifest = json_data.get('manifest')
-        return Cargo(max_volume=max_volume, max_weight=max_weight, manifest=manifest)
+        coins = json_data.get('coins')
+        return Cargo(max_volume=max_volume, max_weight=max_weight, manifest=manifest, coins=coins)
     
     @property
     def weight(self):
@@ -63,6 +66,11 @@ class Cargo(BaseComponent):
         for item in self.manifest.keys():
             volume += item_stats[item]['volume'] * self.manifest[item]
         return volume
+    
+    def add_coins_to_cargo(self, coins: int):
+        self.coins += coins
+        if coins > 0:
+            self.game_map.engine.message_log.add_message(f"Added {coins} coins!", text_color='yellow')
     
     def add_items_to_manifest(self, item_dict: dict):
         """
@@ -109,7 +117,7 @@ class Cargo(BaseComponent):
         if len(remove_key) > 0:
             for key in remove_key:
                 del (self.manifest[key])
-                
+    
     def lose_random_cargo(self, count):
         total_losses = {}
         for loss in range(count):

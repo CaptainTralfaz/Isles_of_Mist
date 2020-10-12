@@ -26,8 +26,11 @@ class ExitConfigAction(Action):
             self.entity.broadsides.selected = 0
             if sum(self.entity.cargo.sell_list.values()) > 0:  # if there's actually stuff to drop
                 # remove the items from inventory
+                chest_dict = {}
                 for key in self.entity.cargo.sell_list:
-                    self.entity.cargo.manifest[key] -= self.entity.cargo.sell_list[key]
+                    if self.entity.cargo.sell_list[key] > 0:
+                        self.entity.cargo.manifest[key] -= self.entity.cargo.sell_list[key]
+                        chest_dict[key] = self.entity.cargo.sell_list[key]
                 # and create a dict to pass back for creation
                 entity_dict = {
                     'x': self.entity.x,
@@ -35,7 +38,7 @@ class ExitConfigAction(Action):
                     'elevations': 'ocean',
                     'name': 'Chest',
                     'icon': 'chest',
-                    'cargo': self.entity.cargo.sell_list
+                    'cargo': chest_dict
                 }
                 self.entity.cargo.sell_list = {}
                 return entity_dict
