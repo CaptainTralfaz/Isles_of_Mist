@@ -30,7 +30,7 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
         elif not port:
             # TODO logic below mirrors rendering targeting hexes and attacking... combine this somehow?
             if key_mod == KeyMod.SHIFT:
-                ammo = {'arrows': player.crew.count // 4}
+                ammo = {'arrows': len(player.crew.roster) // 4}
                 enough_ammo = True
                 for ammo_type in ammo.keys():
                     if ammo_type not in player.cargo.manifest.keys():

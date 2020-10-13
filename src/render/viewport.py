@@ -58,7 +58,7 @@ def viewport_render(game_map: GameMap,
     if game_map.engine.key_mod and game_map.engine.game_state == GameStates.ACTION:
         if game_map.engine.key_mod == KeyMod.SHIFT and not (player.x, player.y) == game_map.port.location:
             target_tiles = []
-            ammo = {'arrows': player.crew.count // 4}
+            ammo = {'arrows': len(player.crew.roster) // 4}
             enough_ammo = True
             for ammo_type in ammo.keys():
                 if ammo_type not in player.cargo.manifest.keys():

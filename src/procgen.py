@@ -412,10 +412,12 @@ def get_entity_manifest(entity):
         return manifest
     elif entity == "mermaid":
         fish = randint(0, 2)
-        pearl = randint(2, 5)
-        manifest = {'pearl': pearl}
+        pearl = randint(0, 1)
+        manifest = {}
         if fish:
             manifest['fish'] = fish
+        if pearl:
+            manifest['pearl'] = pearl
         return manifest
     elif entity == 'chest':
         coins = randint(50, 100)
