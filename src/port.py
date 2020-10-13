@@ -117,7 +117,7 @@ class Smithy:
             self.manifest = manifest
         else:
             self.manifest = []
-            for x in range(0, randint(2, 4)):
+            for x in range(0, randint(2, 3)):
                 self.manifest.append(Weapon.make_weapon_from_name(choice_from_dict(SMITHY)))
     
     def to_json(self):

@@ -8,7 +8,7 @@ from constants.colors import colors
 from constants.constants import game_font, margin
 from constants.images import cargo_icons
 from constants.stats import item_stats
-from render.utilities import render_border
+from render.utilities import render_border, weapon_stats_render
 
 if TYPE_CHECKING:
     from entity import Entity
@@ -67,12 +67,15 @@ def smithy_render(console: Surface,
     
     game_font.set_underline(False)
     height += game_font.get_height() + margin
+    
     count = 0
+    selected_weapon = None
     
     for weapon in weapon_list:
         if count == player.broadsides.selected:
             text_color = colors['black']
             background = colors['mountain']
+            selected_weapon = weapon
         else:
             text_color = colors['mountain']
             background = colors['black']
@@ -94,6 +97,7 @@ def smithy_render(console: Surface,
         if count == player.broadsides.selected:
             text_color = colors['black']
             background = colors['pink']
+            selected_weapon = weapon
         else:
             text_color = colors['pink']
             background = colors['black']
@@ -113,6 +117,11 @@ def smithy_render(console: Surface,
         height += game_font.get_height() + margin
         count += 1
     
+    if selected_weapon is not None:
+        stats_surf = weapon_stats_render(selected_weapon, time.get_sky_color)
+        smithy_surf.blit(stats_surf, ((ui_layout.viewport_width - stats_surf.get_width()) // 2,
+                                      ui_layout.viewport_height - stats_surf.get_height() - margin))
+
     time.tint_render(smithy_surf)
     render_border(smithy_surf, time.get_sky_color)
     console.blit(smithy_surf, (ui_layout.mini_width, 0))

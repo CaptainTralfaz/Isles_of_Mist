@@ -9,12 +9,15 @@ from pygame import Surface, draw, BLEND_RGBA_MULT, BLEND_RGBA_ADD
 from constants.colors import colors
 from constants.constants import margin, tile_size, view_port, game_font
 from constants.images import entity_icons
+from constants.stats import item_stats
+from constants.weapons import weapons
 from utilities import direction_angle
 
 if TYPE_CHECKING:
     from pygame.font import Font
     from camera import Camera
     from entity import Entity
+    from components.weapon import Weapon
 
 
 def get_rotated_image(image: Surface, facing: int) -> Surface:
@@ -283,3 +286,38 @@ def colorize(image: Surface, new_color: List[int]):
     image.fill(new_color[0:3] + (0,), None, BLEND_RGBA_ADD)
     
     return image
+
+
+def weapon_stats_render(weapon: Weapon, sky_color: Tuple[int, int, int]) -> Surface:
+    """
+    creates and returns a Surface with the given weapon's stats rendered
+    :param weapon: Weapon to have stats rendered
+    :param sky_color: current color of the sky for the border
+    :return: pygame Surface
+    """
+    size = 10 * (game_font.get_height() + margin) + 2 * margin
+    weapon_surf = Surface((size, size))
+    height = margin
+    
+    game_font.set_underline(True)
+    surf = game_font.render(f"{weapon.name}", True, colors['mountain'])
+    weapon_surf.blit(surf, ((weapon_surf.get_width() - surf.get_width()) // 2, height))
+    game_font.set_underline(False)
+    height += game_font.get_height() + margin
+    
+    for stat in ["range", "power", "cooldown", "hp", "defense", "ammo"]:
+        surf = game_font.render(f"{stat.capitalize()}", True, colors['mountain'])
+        weapon_surf.blit(surf, (margin, height))
+        surf = game_font.render(f"{weapons[weapon.name.lower()][stat]}", True, colors['mountain'])
+        weapon_surf.blit(surf, (weapon_surf.get_width() - surf.get_width() - margin, height))
+        height += game_font.get_height() + margin
+
+    for stat in ["weight", "volume", "cost"]:
+        surf = game_font.render(f"{stat.capitalize()}", True, colors['mountain'])
+        weapon_surf.blit(surf, (margin, height))
+        surf = game_font.render(f"{item_stats[weapon.name.lower()][stat]}", True, colors['mountain'])
+        weapon_surf.blit(surf, (weapon_surf.get_width() - surf.get_width() - margin, height))
+        height += game_font.get_height() + margin
+
+    render_border(weapon_surf, sky_color)
+    return weapon_surf

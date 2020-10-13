@@ -7,7 +7,7 @@ from pygame import Surface
 from constants.colors import colors
 from constants.constants import margin, game_font
 from constants.enums import Location
-from render.utilities import render_border, render_hp_bar
+from render.utilities import render_border, render_hp_bar, weapon_stats_render
 
 if TYPE_CHECKING:
     from components.broadsides import Broadsides
@@ -33,10 +33,12 @@ def weapon_render(console: Surface,
     height = margin * 2
     weapon_list = broadsides.all_weapons
     
+    selected_weapon = None
     for (location, weapon) in weapon_list:
         if count == broadsides.selected:
             text_color = colors['black']
             background = colors['mountain']
+            selected_weapon = weapon
         else:
             text_color = colors['mountain']
             background = colors['black']
@@ -50,6 +52,12 @@ def weapon_render(console: Surface,
         height += game_font.get_height() + margin
         count += 1
     
+    if selected_weapon is not None:
+        stats_surf = weapon_stats_render(selected_weapon, time.get_sky_color)
+        
+        weapon_surf.blit(stats_surf, ((ui_layout.viewport_width - stats_surf.get_width()) // 2,
+                                      ui_layout.viewport_height - stats_surf.get_height() - margin))
+
     time.tint_render(weapon_surf)
     render_border(weapon_surf, time.get_sky_color)
     console.blit(weapon_surf, (ui_layout.mini_width, 0))
