@@ -100,42 +100,42 @@ item_stats:
     category: 2
     cost: 15
   ballista:
-    weight: 20
-    volume: 25
+    weight: 50
+    volume: 100
     category: 7
-    cost: 30
+    cost: 150
   heavy ballista:
-    weight: 30
-    volume: 30
+    weight: 100
+    volume: 150
     category: 7
-    cost: 40
+    cost: 250
   repeating ballista:
-    weight: 25
-    volume: 30
+    weight: 75
+    volume: 150
     category: 7
-    cost: 40
+    cost: 225
   sniper ballista:
-    weight: 25
-    volume: 35
+    weight: 75
+    volume: 200
     category: 7
-    cost: 40
+    cost: 275
   cannon:
-    weight: 30
-    volume: 20
+    weight: 100
+    volume: 50
     category: 7
-    cost: 50
+    cost: 450
   heavy cannon:
-    weight: 40
-    volume: 25
+    weight: 200
+    volume: 75
     category: 7
-    cost: 60
+    cost: 550
   organ gun:
-    weight: 35
-    volume: 25
+    weight: 150
+    volume: 75
     category: 7
-    cost: 60
+    cost: 450
   long guns:
-    weight: 35
-    volume: 30
+    weight: 150
+    volume: 100
     category: 7
-    cost: 60
+    cost: 500

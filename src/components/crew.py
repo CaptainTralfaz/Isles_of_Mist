@@ -59,7 +59,7 @@ class Crew(BaseComponent):
         Determines total weight of crew
         :return: total weight of crew
         """
-        return len(self.roster) * 35
+        return len(self.roster) * 20
     
     @property
     def volume(self):
@@ -67,7 +67,7 @@ class Crew(BaseComponent):
         Determines total volume of crew
         :return: total volume of crew
         """
-        return len(self.roster) * 35
+        return len(self.roster) * 20
     
     def die(self) -> None:
         if self.engine.player is self.parent:
