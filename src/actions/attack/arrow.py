@@ -19,7 +19,7 @@ class ArrowAction(SplitDamageAction):
         :param direction: key pressed to make attack
         """
         self.entity = entity
-        ammo = {'arrows': self.entity.crew.count // 4}
+        ammo = {'arrows': len(self.entity.crew.roster) // 4}
         enough_ammo = True
         for ammo_type in ammo.keys():
             if ammo_type not in self.entity.cargo.manifest.keys():
@@ -40,7 +40,7 @@ class ArrowAction(SplitDamageAction):
             targets.remove(self.entity)
         if len(targets) < 1:
             raise Impossible(f"No adjacent targets")
-        damage = (self.entity.crew.count // 4) // len(targets)
+        damage = (len(self.entity.crew.roster) // 4) // len(targets)
         super().__init__(entity, targets, damage, direction, ammo)
     
     def perform(self) -> bool:

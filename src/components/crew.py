@@ -17,13 +17,11 @@ class Crew(BaseComponent):
     parent: Entity
     
     def __init__(self,
-                 count: int,  # TODO remove this, use len(roster)
                  max_count: int,
                  defense: int,
                  name: str = "crew",
                  roster: List = None) -> None:
         self.max_count = max_count
-        self._count = count
         self.defense = defense
         self.name = name
         self.roster = roster
@@ -52,9 +50,8 @@ class Crew(BaseComponent):
         max_count = json_data.get('max_count')
         defense = json_data.get('defense')
         roster_list = json_data.get('roster')
-        count = len(roster_list)
         roster = [Crewman.from_json(crewman) for crewman in roster_list]
-        return Crew(count=count, max_count=max_count, defense=defense, roster=roster)
+        return Crew(max_count=max_count, defense=defense, roster=roster)
     
     @property
     def weight(self):
@@ -62,7 +59,7 @@ class Crew(BaseComponent):
         Determines total weight of crew
         :return: total weight of crew
         """
-        return self.count * 35
+        return len(self.roster) * 35
     
     @property
     def volume(self):
@@ -70,17 +67,7 @@ class Crew(BaseComponent):
         Determines total volume of crew
         :return: total volume of crew
         """
-        return self.count * 35
-    
-    @property
-    def count(self) -> int:
-        return self._count
-    
-    @count.setter
-    def count(self, value: int) -> None:
-        self._count = max(0, min(value, self.max_count))
-        if self._count == 0 and self.parent.ai:
-            self.die()
+        return len(self.roster) * 35
     
     def die(self) -> None:
         if self.engine.player is self.parent:
@@ -106,11 +93,10 @@ class Crew(BaseComponent):
         self.engine.message_log.add_message(death_message, text_color=death_message_color)
     
     def hire(self, amount: int) -> int:
-        new_crew_value = self.count + amount
+        new_crew_value = len(self.roster) + amount
         if new_crew_value > self.max_count:
             new_crew_value = self.max_count
-        amount_hired = new_crew_value - self.count
-        self.count = new_crew_value
+        amount_hired = new_crew_value - len(self.roster)
         for crew in range(amount_hired):
             crewman = Crewman()
             self.roster.append(crewman)
@@ -127,7 +113,8 @@ class Crew(BaseComponent):
                                                     text_color='orange')
                 # kill crewman
                 self.roster.remove(pick)
-        self.count -= amount
+            if len(self.roster) <= 0:
+                self.die()
 
 
 def generate_roster(count: int):
@@ -142,6 +129,8 @@ class Crewman:
         self.name = self.generate_name() if name is None else name
         self.occupation = self.generate_occupation() if occupation is None else occupation
         self.assignment = assignment
+        self.cooldown = 0
+        self.cooldown_max = occupation_cd[self.occupation]
     
     def to_json(self) -> Dict:
         return {
@@ -169,22 +158,49 @@ class Crewman:
     
     @staticmethod
     def generate_occupation():
-        return choice_from_dict({"sailor": 90,
-                                 "cook": 10,
-                                 "soldier": 5,
-                                 "archer": 10,
-                                 "rogue": 10,
-                                 "captain": 5,
-                                 "farmer": 5,
-                                 "carpenter": 5,
-                                 "engineer": 5,
-                                 "sharpshooter": 5,
-                                 "mistweaver": 1,
-                                 "seer": 5,
-                                 "diver": 5,
-                                 "scryer": 1,
-                                 "steward": 5,
-                                 "smith": 5,
-                                 "stormbringer": 1,
-                                 "surgeon": 1,
-                                 })
+        return choice_from_dict({
+            "sailor": 90,
+            "cook": 10,
+            "soldier": 5,
+            "archer": 10,
+            "rogue": 10,
+            "fisherman": 15,
+            "captain": 5,
+            "farmer": 5,
+            "carpenter": 5,
+            "engineer": 5,
+            "sharpshooter": 5,
+            "mistweaver": 1,
+            "seer": 5,
+            "diver": 5,
+            "scryer": 1,
+            "steward": 5,
+            "smith": 5,
+            "stormbringer": 1,
+            "surgeon": 1,
+        })
+
+
+""" maps occupation to cooldown_max"""
+occupation_cd = {
+    "sailor": 0,
+    "cook": 0,
+    "soldier": 0,           # Auto: +1 crew defense?
+    "archer": 0,            # Auto: +1 damage to arrow total
+    "rogue": 0,
+    "fisherman": 5,         # Action: catches fish at seaweed
+    "captain": 0,           # Auto: raises morale
+    "farmer": 0,
+    "carpenter": 5,         # Action: repairs ship with tar & wood
+    "engineer": 5,          # Action: repairs ballista with rope and wood
+    "sharpshooter": 0,      # Auto: + 1 weapon damage total
+    "mistweaver": 5,        # Action: summons a circle of mist around ship
+    "seer": 5,              # Action: reveal map as if flying
+    "diver": 5,
+    "scryer": 10,           # Action: reveals location of all monsters in viewport
+    "steward": 0,
+    "smith": 5,             # Action: repair cannons with steel
+    "stormbringer": 10,     # Action: makes weather worse
+    "surgeon": 0,
+    "merchant": 0,          # Auto: discount buying/selling
+}

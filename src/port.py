@@ -111,13 +111,13 @@ class Smithy:
     def __init__(self, manifest: List[Weapon] = None, coins: int = None):
         # TODO generate this depending on port's surroundings / buildings
         #  but for now...
-        self.coins = coins if coins is not None else randint(100, 200)
+        self.coins = coins if coins is not None else randint(50, 100)
         self.temp_coins = 0
         if manifest is not None:
             self.manifest = manifest
         else:
             self.manifest = []
-            for x in range(0, randint(1, 3)):
+            for x in range(0, randint(2, 4)):
                 self.manifest.append(Weapon.make_weapon_from_name(choice_from_dict(SMITHY)))
     
     def to_json(self):

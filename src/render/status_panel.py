@@ -67,7 +67,7 @@ def status_panel_render(console: Surface,
         vertical += sail_bar.get_height() + margin // 2
     if entity.crew:
         crew_bar = render_hp_bar(text=f"{entity.crew.name.capitalize()}",
-                                 current=entity.crew.count,
+                                 current=len(entity.crew.roster),
                                  maximum=entity.crew.max_count,
                                  bar_width=status_panel.get_width() - margin * 2)
         status_panel.blit(crew_bar, (margin, vertical))

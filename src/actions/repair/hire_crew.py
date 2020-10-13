@@ -18,7 +18,7 @@ class HireCrewAction(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        if self.entity.crew.count < self.entity.crew.max_count:
+        if len(self.entity.crew.roster) < self.entity.crew.max_count:
             self.entity.crew.hire(1)
             self.engine.time.roll_hrs(1)
             self.engine.message_log.add_message(f"Hired 1 Sailor (an hour passes)")
