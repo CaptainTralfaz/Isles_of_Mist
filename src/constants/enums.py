@@ -53,7 +53,7 @@ class MenuKeys(Enum):
     RIGHT = auto()
     LEFT = auto()
     DOWN = auto()
- 
+
 
 class ShipConfig(Enum):
     """
@@ -64,7 +64,7 @@ class ShipConfig(Enum):
     CREW = auto()
     WEAPONS = auto()
 
-    
+
 class KeyMod(Enum):
     """
     Enum of possible weather values
@@ -84,6 +84,7 @@ class ItemType(Enum):
     GOODS = auto()
     MATERIALS = auto()
     EXOTICS = auto()
+    WEAPON = auto()
 
 
 class Location(Enum):
@@ -95,8 +96,8 @@ class Location(Enum):
     PORT = auto()
     AFT = auto()
     STORAGE = auto()
-    
-    
+
+
 class PortVisit(Enum):
     """
     Enum of attack directions

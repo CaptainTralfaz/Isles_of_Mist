@@ -53,7 +53,7 @@ item_stats:
     weight: 0
     volume: 0
     category: 6
-    cost: 50
+    cost: 10
   bat wing:
     weight: 1
     volume: 3
@@ -99,4 +99,43 @@ item_stats:
     volume: 2
     category: 2
     cost: 15
-
+  ballista:
+    weight: 20
+    volume: 25
+    category: 7
+    cost: 30
+  heavy ballista:
+    weight: 30
+    volume: 30
+    category: 7
+    cost: 40
+  repeating ballista:
+    weight: 25
+    volume: 30
+    category: 7
+    cost: 40
+  sniper ballista:
+    weight: 25
+    volume: 35
+    category: 7
+    cost: 40
+  cannon:
+    weight: 30
+    volume: 20
+    category: 7
+    cost: 50
+  heavy cannon:
+    weight: 40
+    volume: 25
+    category: 7
+    cost: 60
+  organ gun:
+    weight: 35
+    volume: 25
+    category: 7
+    cost: 60
+  long guns:
+    weight: 35
+    volume: 30
+    category: 7
+    cost: 60

@@ -17,7 +17,6 @@ class ChangeSelectionAction(Action):
         this action moves the selector up or down in the config menus
         :param entity: acting Entity
         :param event: the key pressed
-        :param state: GameState
         """
         self.event = event
         super().__init__(entity)
@@ -48,18 +47,14 @@ class ChangeSelectionAction(Action):
                 self.entity.cargo.selected = all_keys[count]
             return False
         
-        # elif self.state == GameStates.SMITHY:
-        #     component = self.entity.game_map.port.smithy
-        #     length = len(self.entity.game_map.port.smithy.manifest.keys()) - 1
-        # else:
-        #     raise Impossible("Bad State")
-        #
-        # if self.event == MenuKeys.UP:
-        #     component.selected -= 1
-        #     if component.selected < 0:
-        #         component.selected = length
-        # if self.event == MenuKeys.DOWN:
-        #     component.selected += 1
-        #     if component.selected > length:
-        #         component.selected = 0
+        elif self.engine.game_state == GameStates.SMITHY:
+            length = len(self.entity.broadsides.storage) + len(self.entity.game_map.port.smithy.manifest) - 1
+            if self.event == MenuKeys.UP:
+                self.entity.broadsides.selected -= 1
+                if self.entity.broadsides.selected < 0:
+                    self.entity.broadsides.selected = length
+            if self.event == MenuKeys.DOWN:
+                self.entity.broadsides.selected += 1
+                if self.entity.broadsides.selected > length:
+                    self.entity.broadsides.selected = 0
         return False
