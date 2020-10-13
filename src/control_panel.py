@@ -214,6 +214,7 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
                 text_keys = [{'name': 'Shift', 'text': 'Adjust Count'}]
             text_keys.extend([{'name': 'Cmd', 'text': 'Config Menu'},
                               {'name': 'Esc', 'text': 'Exit Config'}])
+    
     elif game_state == GameStates.MERCHANT:
         if key_mod == KeyMod.SHIFT:
             arrow_keys = [{'rotation': 90, 'text': 'Confirm'},
@@ -223,7 +224,31 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
                           {'rotation': 90, 'text': 'Sell'},
                           {'rotation': 270, 'text': 'Buy'},
                           {'rotation': 180, 'text': 'Move Down'}]
-            
+            text_keys = [{'name': 'Shift', 'text': 'Finished'},
+                         {'name': 'Esc', 'text': 'Exit'}]
+    
+    elif game_state == GameStates.SMITHY:
+        if key_mod == KeyMod.SHIFT:
+            arrow_keys = [{'rotation': 90, 'text': 'Confirm'},
+                          {'rotation': 270, 'text': 'Cancel'}]
+        else:
+            weapon_list = []
+            for weapon in player.broadsides.storage:
+                weapon_list.append(weapon)
+            for weapon in player.game_map.port.smithy.manifest:
+                weapon_list.append(weapon)
+            selected = player.broadsides.selected
+            if len(weapon_list) > 1:
+                arrow_keys = [{'rotation': 0, 'text': 'Move Up'}]
+                if weapon_list[selected] in player.broadsides.sell_list:
+                    arrow_keys.append({'rotation': 270, 'text': 'Return'})
+                elif weapon_list[selected] in player.broadsides.storage:
+                    arrow_keys.append({'rotation': 90, 'text': 'Sell'})
+                elif weapon_list[selected] in player.game_map.port.smithy.manifest:
+                    arrow_keys.append({'rotation': 270, 'text': 'Buy'})
+                elif weapon_list[selected] in player.broadsides.buy_list:
+                    arrow_keys.append({'rotation': 90, 'text': 'Return'})
+                arrow_keys.append({'rotation': 180, 'text': 'Move Down'})
             text_keys = [{'name': 'Shift', 'text': 'Finished'},
                          {'name': 'Esc', 'text': 'Exit'}]
     

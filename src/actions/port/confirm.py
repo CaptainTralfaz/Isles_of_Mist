@@ -27,52 +27,65 @@ class ConfirmAction(Action):
         elif self.event == MenuKeys.LEFT:
             return ExitPortAction(self.entity).perform()
         else:
-            # make sure there is enough money
-            if self.entity.cargo.coins - self.entity.game_map.port.merchant.temp_coins < 0:
-                self.engine.message_log.add_message("You don't have enough coins...")
-                self.entity.cargo.sell_list = {}
-                self.entity.cargo.buy_list = {}
-                self.entity.game_map.port.merchant.temp_coins = 0
-                return False
+            if self.engine.game_state == GameStates.MERCHANT:
+                # make sure there is enough money
+                if self.entity.cargo.coins - self.entity.game_map.port.merchant.temp_coins < 0:
+                    self.engine.message_log.add_message("You don't have enough coins...")
+                    return ExitPortAction(self.entity).perform()
+                
+                if self.entity.game_map.port.merchant.coins + self.entity.game_map.port.merchant.temp_coins < 0:
+                    self.engine.message_log.add_message("Merchant doesn't have enough coins...")
+                    return ExitPortAction(self.entity).perform()
+                
+                if sum(self.entity.cargo.sell_list.values()) > 0:  # if there's actually stuff to sell
+                    # remove the items from player inventory, add to merchant inventory
+                    for key in self.entity.cargo.sell_list:
+                        if self.entity.cargo.sell_list[key] > 0:
+                            self.entity.cargo.manifest[key] -= self.entity.cargo.sell_list[key]
+                            if not (key in self.engine.game_map.port.merchant.manifest.keys()):
+                                self.engine.game_map.port.merchant.manifest[key] = 0
+                            self.engine.game_map.port.merchant.manifest[key] += self.entity.cargo.sell_list[key]
+                            if key not in self.entity.game_map.port.merchant.manifest.keys():
+                                self.entity.game_map.port.merchant.manifest[key] = 0
+                            self.entity.game_map.port.merchant.manifest[key] = self.entity.cargo.sell_list[key]
+                
+                if sum(self.entity.cargo.buy_list.values()) > 0:  # if there's actually stuff to buy
+                    # remove the items from merchant inventory, add to player inventory
+                    for key in self.entity.cargo.buy_list:
+                        if self.entity.cargo.buy_list[key] > 0:
+                            if key not in self.entity.cargo.manifest.keys():
+                                self.entity.cargo.manifest[key] = 0
+                            self.entity.cargo.manifest[key] += self.entity.cargo.buy_list[key]
+                            self.entity.game_map.port.merchant.manifest[key] -= self.entity.cargo.buy_list[key]
+                
+                self.entity.cargo.coins -= self.entity.game_map.port.merchant.temp_coins
+                self.entity.game_map.port.merchant.coins += self.entity.game_map.port.merchant.temp_coins
+                self.engine.message_log.add_message("Transaction completed")
+                return ExitPortAction(self.entity).perform()
             
-            if self.entity.game_map.port.merchant.coins + self.entity.game_map.port.merchant.temp_coins < 0:
-                self.engine.message_log.add_message("Merchant doesn't have enough coins...")
-                self.entity.cargo.sell_list = {}
-                self.entity.cargo.buy_list = {}
-                self.entity.game_map.port.merchant.temp_coins = 0
-                return False
-            
-            self.engine.game_state = GameStates.ACTION
-            self.entity.cargo.selected = "arrows"
-            self.entity.crew.selected = 0
-            self.entity.broadsides.selected = 0
-            
-            if sum(self.entity.cargo.sell_list.values()) > 0:  # if there's actually stuff to sell
-                # remove the items from player inventory, add to merchant inventory
-                for key in self.entity.cargo.sell_list:
-                    if self.entity.cargo.sell_list[key] > 0:
-                        self.entity.cargo.manifest[key] -= self.entity.cargo.sell_list[key]
-                        if not (key in self.engine.game_map.port.merchant.manifest.keys()):
-                            self.engine.game_map.port.merchant.manifest[key] = 0
-                        self.engine.game_map.port.merchant.manifest[key] += self.entity.cargo.sell_list[key]
-                        if key not in self.entity.game_map.port.merchant.manifest.keys():
-                            self.entity.game_map.port.merchant.manifest[key] = 0
-                        self.entity.game_map.port.merchant.manifest[key] = self.entity.cargo.sell_list[key]
-                self.entity.cargo.sell_list = {}
-            
-            if sum(self.entity.cargo.buy_list.values()) > 0:  # if there's actually stuff to buy
-                # remove the items from merchant inventory, add to player inventory
-                for key in self.entity.cargo.buy_list:
-                    if self.entity.cargo.buy_list[key] > 0:
-                        if key not in self.entity.cargo.manifest.keys():
-                            self.entity.cargo.manifest[key] = 0
-                        self.entity.cargo.manifest[key] += self.entity.cargo.buy_list[key]
-                        self.entity.game_map.port.merchant.manifest[key] -= self.entity.cargo.buy_list[key]
-                self.entity.cargo.buy_list = {}
-            
-            self.entity.cargo.coins -= self.entity.game_map.port.merchant.temp_coins
-            self.entity.game_map.port.merchant.coins += self.entity.game_map.port.merchant.temp_coins
-            self.entity.game_map.port.merchant.temp_coins = 0
-            self.engine.message_log.add_message("Transaction completed")
-        
-        return True
+            elif self.engine.game_state == GameStates.SMITHY:
+                # make sure there is enough money
+                if self.entity.cargo.coins - self.entity.game_map.port.smithy.temp_coins < 0:
+                    self.engine.message_log.add_message("You don't have enough coins...")
+                    return ExitPortAction(self.entity).perform()
+                
+                if self.entity.game_map.port.smithy.coins + self.entity.game_map.port.smithy.temp_coins < 0:
+                    self.engine.message_log.add_message("Smith doesn't have enough coins...")
+                    return ExitPortAction(self.entity).perform()
+                
+                if len(self.entity.broadsides.sell_list) > 0:  # if there's actually stuff to sell
+                    # remove the items from player inventory, add to smithy inventory
+                    for weapon in self.entity.broadsides.sell_list:
+                        self.entity.game_map.port.smithy.manifest.append(weapon)
+                        self.entity.broadsides.storage.remove(weapon)
+                
+                if len(self.entity.broadsides.buy_list) > 0:  # if there's actually stuff to buy
+                    # remove the items from smithy inventory, add to player inventory
+                    for weapon in self.entity.broadsides.buy_list:
+                        self.entity.game_map.port.smithy.manifest.remove(weapon)
+                        self.entity.broadsides.storage.append(weapon)
+                
+                self.entity.cargo.coins -= self.entity.game_map.port.smithy.temp_coins
+                self.entity.game_map.port.smithy.coins += self.entity.game_map.port.smithy.temp_coins
+                self.engine.message_log.add_message("Transaction completed")
+                return ExitPortAction(self.entity).perform()

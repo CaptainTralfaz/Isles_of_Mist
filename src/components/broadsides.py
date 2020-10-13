@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from components.base import BaseComponent
 from components.weapon import Weapon
 from constants.enums import Location
-from constants.stats import weapon_stats
+from constants.stats import item_stats
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
@@ -24,12 +24,15 @@ class Broadsides(BaseComponent):
                  starboard: List[Weapon],
                  storage: List[Weapon]) -> None:
         self.slot_count = slot_count
-        self.selected = 0
         self.port = port
         self.starboard = starboard
         self.storage = storage
         for location, weapon in self.all_weapons:
             weapon.parent = self
+        
+        self.selected = 0
+        self.sell_list = []
+        self.buy_list = []
     
     def to_json(self) -> Dict:
         return {
@@ -65,7 +68,7 @@ class Broadsides(BaseComponent):
         """
         weight = 0
         for location, weapon in self.all_weapons:
-            weight += weapon_stats[weapon.name.lower()]['weight']
+            weight += item_stats[weapon.name.lower()]['weight']
         return weight
     
     @property
@@ -76,7 +79,7 @@ class Broadsides(BaseComponent):
         """
         weight = 0
         for location, weapon in self.all_weapons:
-            weight += weapon_stats[weapon.name.lower()]['volume']
+            weight += item_stats[weapon.name.lower()]['volume']
         return weight
     
     @property

@@ -22,9 +22,11 @@ class ExitPortAction(Action):
         self.engine.game_state = GameStates.ACTION
         self.entity.crew.selected = 0
         self.entity.broadsides.selected = 0
+        self.entity.broadsides.buy_list = []
+        self.entity.broadsides.sell_list = []
+        self.entity.game_map.port.smithy.temp_coins = 0
         self.entity.cargo.selected = "arrows"
         self.entity.cargo.buy_list = {}
         self.entity.cargo.sell_list = {}
         self.entity.game_map.port.merchant.temp_coins = 0
-        self.entity.game_map.port.smithy.temp_coins = 0
         return False

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from random import choice, randint
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
 from constants.constants import MERCHANT, SMITHY
 from utilities import choice_from_dict
+from components.weapon import Weapon
 
 
 class Port:
@@ -98,8 +99,8 @@ class Merchant:
                     self.manifest[pick] = 1
     
     def to_json(self):
-        return {'manifest': self.manifest,
-                'coins': self.coins}
+        return {'coins': self.coins,
+                'manifest': self.manifest}
     
     @staticmethod
     def from_json(json_data):
@@ -107,7 +108,7 @@ class Merchant:
 
 
 class Smithy:
-    def __init__(self, manifest: Dict = None, coins: int = None):
+    def __init__(self, manifest: List[Weapon] = None, coins: int = None):
         # TODO generate this depending on port's surroundings / buildings
         #  but for now...
         self.coins = coins if coins is not None else randint(100, 200)
@@ -115,18 +116,18 @@ class Smithy:
         if manifest is not None:
             self.manifest = manifest
         else:
-            self.manifest = {}
+            self.manifest = []
             for x in range(0, randint(1, 3)):
-                pick = choice_from_dict(SMITHY)
-                if pick in self.manifest.keys():
-                    self.manifest[pick] += 1
-                else:
-                    self.manifest[pick] = 1
+                self.manifest.append(Weapon.make_weapon_from_name(choice_from_dict(SMITHY)))
     
     def to_json(self):
-        return {'manifest': self.manifest,
-                'coins': self.coins}
+        return {'coins': self.coins,
+                'manifest': [weapon.to_json() for weapon in self.manifest]}
     
     @staticmethod
     def from_json(json_data):
-        return Smithy(manifest=json_data.get('manifest'), coins=json_data.get('coins'))
+        manifest_data = json_data.get('manifest')
+        manifest = []
+        for weapon in manifest_data:
+            manifest.append(Weapon.from_json(weapon))
+        return Smithy(manifest=manifest, coins=json_data.get('coins'))

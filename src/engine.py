@@ -23,6 +23,7 @@ from render.crew import crew_render
 from render.entity_info import render_entity_info
 from render.merchant import merchant_render
 from render.mini_map import mini_map_render
+from render.smithy import smithy_render
 from render.status_panel import status_panel_render
 from render.viewport import viewport_render
 from render.weapons import weapon_render
@@ -90,13 +91,13 @@ class Engine:
             self.event_handler = CargoConfigurationHandler(self)
         elif self.game_state == GameStates.PLAYER_DEAD:
             self.event_handler = GameOverEventHandler(self)
-        elif self.game_state == GameStates.MERCHANT:
+        elif self.game_state in [GameStates.MERCHANT, GameStates.SMITHY]:
             self.event_handler = MerchantHandler(self)
         # elif self.game_state == GameStates.SMITHY:
         #     self.event_handler = SmithyHandler(self)
-        # elif self.game_state == GameStates.UPGRADES:
+        # # elif self.game_state == GameStates.UPGRADES:
         #     self.event_handler = UpgradeHandler(self)
-
+    
     def handle_enemy_turns(self) -> None:
         for entity in self.game_map.entities - {self.player}:
             if entity.is_alive and entity.ai is not None:
@@ -155,3 +156,6 @@ class Engine:
             elif self.game_state == GameStates.MERCHANT:
                 merchant_render(console=main_surface, player=self.player, time=self.time,
                                 ui_layout=self.ui_layout)
+            elif self.game_state == GameStates.SMITHY:
+                smithy_render(console=main_surface, player=self.player, time=self.time,
+                              ui_layout=self.ui_layout)
