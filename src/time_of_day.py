@@ -82,7 +82,7 @@ class Time:
     
     def tint_render(self, panel):
         tint_surf = Surface((panel.get_width(), panel.get_height()))
-        tint_surf.set_alpha(abs(self.hrs * 60 + self.mins - 720) // 8)
+        tint_surf.set_alpha(abs(self.hrs * 60 + self.mins - 720) // 6)
         tint = self.get_sky_color
         tint_surf.fill(tint)
         panel.blit(tint_surf, (0, 0))

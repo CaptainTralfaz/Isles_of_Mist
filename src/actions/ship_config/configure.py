@@ -13,34 +13,32 @@ if TYPE_CHECKING:
 
 
 class ConfigureAction(Action):
-    def __init__(self, entity: Entity, event: Enum, state: GameStates):
+    def __init__(self, entity: Entity, event: Enum):
         """
         directs which action to use when in the configuration menus
         :param entity: acting Entity
         :param event:
-        :param state: GameState
         """
         self.event = event
-        self.state = state
         super().__init__(entity)
     
     def perform(self) -> bool:
         if self.event in [MenuKeys.UP, ShipConfig.SAILS]:
             return False
         elif self.event in [MenuKeys.DOWN, ShipConfig.WEAPONS]:
-            if self.state == GameStates.WEAPON_CONFIG:
+            if self.entity.game_map.engine.game_state == GameStates.WEAPON_CONFIG:
                 return ExitConfigAction(self.entity).perform()
             else:
                 self.engine.game_state = GameStates.WEAPON_CONFIG
             return False
         elif self.event in [MenuKeys.LEFT, ShipConfig.CREW]:
-            if self.state == GameStates.CREW_CONFIG:
+            if self.entity.game_map.engine.game_state == GameStates.CREW_CONFIG:
                 return ExitConfigAction(self.entity).perform()
             else:
                 self.engine.game_state = GameStates.CREW_CONFIG
             return False
         elif self.event in [MenuKeys.RIGHT, ShipConfig.CARGO]:
-            if self.state == GameStates.CARGO_CONFIG:
+            if self.entity.game_map.engine.game_state == GameStates.CARGO_CONFIG:
                 return ExitConfigAction(self.entity).perform()
             else:
                 self.engine.game_state = GameStates.CARGO_CONFIG

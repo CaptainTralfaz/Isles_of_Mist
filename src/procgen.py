@@ -156,9 +156,9 @@ def place_player(island_map, player):
         player_x = 1
         player_y = randint(1, island_map.height - 2)
         if player_y < island_map.width // 2:
-            direction = 3
-        else:
             direction = 2
+        else:
+            direction = 1
     player.place(player_x, player_y, island_map)
     player.facing = direction
     player.view.set_fov()

@@ -56,7 +56,9 @@ class MerchantHandler(EventHandler):
                         entity.view.set_fov()
             if self.engine.game_state != GameStates.MERCHANT:
                 self.engine.get_handler()
-    
+
+            return something_happened
+
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None

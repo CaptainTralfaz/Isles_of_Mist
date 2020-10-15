@@ -50,8 +50,7 @@ class Engine:
         self.seed = random.randint(0, 10000) if seed is None else seed  # 8617
         self.mouse_location = (0, 0)
         self.ui_layout = ui_layout
-        self.message_log = MessageLog(parent=self,
-                                      height=self.ui_layout.display_height) if message_log is None else message_log
+        self.message_log = MessageLog(parent=self) if message_log is None else message_log
         self.clock = time.Clock()
         self.time = Time() if time_of_day is None else time_of_day
         self.key_mod = None

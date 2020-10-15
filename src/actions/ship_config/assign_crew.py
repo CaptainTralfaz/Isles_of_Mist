@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
+from actions.ship_config.exit_config import ExitConfigAction
 from constants.enums import GameStates
 from custom_exceptions import Impossible
 
@@ -31,7 +32,7 @@ class AssignCrewAction(Action):
         if crewman.assignment == self.event:
             crewman.assignment = None
             self.engine.message_log.add_message(f"assigning nobody to '{self.event}' key")
-            return False
+            return ExitConfigAction(entity=self.entity).perform()
         else:
             for person in self.entity.crew.roster:
                 if person.assignment == self.event:
@@ -40,4 +41,4 @@ class AssignCrewAction(Action):
             self.engine.message_log.add_message(f"Assigning {crewman.name} the {crewman.occupation}"
                                                 f" to the '{self.event.name.lower().capitalize()}' key")
             self.engine.game_state = GameStates.ACTION
-            return True
+            return ExitConfigAction(entity=self.entity, confirm=True).perform()

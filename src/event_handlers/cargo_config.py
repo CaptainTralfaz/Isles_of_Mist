@@ -10,7 +10,7 @@ from actions.base.quit import ActionQuit
 from actions.ship_config.change_select import ChangeSelectionAction
 from actions.ship_config.configure import ConfigureAction
 from actions.ship_config.exit_config import ExitConfigAction
-from actions.ship_config.selected import SelectedAction
+from actions.ship_config.confirm import ConfirmAction
 from components.cargo import Cargo
 from constants.enums import GameStates, KeyMod
 from constants.keys import MODIFIERS, MENU_KEYS
@@ -82,12 +82,12 @@ class CargoConfigurationHandler(EventHandler):
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
             if self.engine.key_mod == KeyMod.SHIFT and event.key in MENU_KEYS:
-                response = SelectedAction(player, MENU_KEYS[event.key], self.engine.game_state)
+                response = ConfirmAction(player, MENU_KEYS[event.key])
             elif self.engine.key_mod == KeyMod.COMMAND and event.key in MENU_KEYS:
-                response = ConfigureAction(player, MENU_KEYS[event.key], self.engine.game_state)
+                response = ConfigureAction(player, MENU_KEYS[event.key])
             elif self.engine.key_mod is None:
                 if event.key in MENU_KEYS:
-                    response = ChangeSelectionAction(player, MENU_KEYS[event.key], self.engine.game_state)
+                    response = ChangeSelectionAction(player, MENU_KEYS[event.key])
                 elif event.key == K_ESCAPE:
                     response = ExitConfigAction(player)
         

@@ -81,7 +81,7 @@ class MainEventHandler(EventHandler):
                 else:
                     response = AttackAction(player, ATTACK_KEYS[event.key])
             elif self.engine.key_mod == KeyMod.COMMAND and event.key in SHIP_KEYS:
-                response = ShipAction(player, SHIP_KEYS[event.key], self.engine.game_state)
+                response = ShipAction(player, SHIP_KEYS[event.key])
             elif port and self.engine.key_mod == KeyMod.OPTION and event.key in PORT_KEYS:
                 response = PortAction(player, PORT_KEYS[event.key])
             if self.engine.key_mod is None:

@@ -35,27 +35,23 @@ class Message:
         
 
 class MessageLog:
-    def __init__(self, messages: List[Message] = None, parent: Engine = None, height: int = None) -> None:
+    def __init__(self, messages: List[Message] = None, parent: Engine = None) -> None:
         self.messages: List[Message] = [] if messages is None else messages
         self.parent = parent
-        self.max_messages = (height - 2 * margin) // game_font.get_height()  # how many cam fot in full viewport
+        self.max_messages = 50
     
     def to_json(self) -> Dict:
-        return {
-            'messages': [message.to_json() for message in self.messages],
-            'height': self.max_messages
-        }
+        return {'messages': [message.to_json() for message in self.messages]}
     
     @staticmethod
     def from_json(json_data: Dict) -> MessageLog:
-        return MessageLog(messages=[Message.from_json(message) for message in json_data.get('messages')],
-                          height=json_data.get('height'))
+        return MessageLog(messages=[Message.from_json(message) for message in json_data.get('messages')])
     
     def add_message(
             self, text: str, text_color: str = 'mountain', *, stack: bool = True,
     ) -> None:
         """Add a message to this log.
-        `text` is the message text, `fg` is the text color.
+        `text` is the message text, `text_color` is the text color.
         If `stack` is True then the message can stack with a previous message
         of the same text.
         """
