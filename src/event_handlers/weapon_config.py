@@ -70,12 +70,12 @@ class WeaponConfigurationHandler(EventHandler):
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
             if self.engine.key_mod == KeyMod.SHIFT and event.key in MENU_KEYS:
-                response = SelectedAction(player, MENU_KEYS[event.key], self.engine.game_state)
+                response = SelectedAction(player, MENU_KEYS[event.key])
             elif self.engine.key_mod == KeyMod.COMMAND and event.key in MENU_KEYS:
-                response = ConfigureAction(player, MENU_KEYS[event.key], self.engine.game_state)
+                response = ConfigureAction(player, MENU_KEYS[event.key])
             elif self.engine.key_mod is None:
                 if event.key in MENU_KEYS:
-                    response = ChangeSelectionAction(player, MENU_KEYS[event.key], self.engine.game_state)
+                    response = ChangeSelectionAction(player, MENU_KEYS[event.key])
                 elif event.key == K_ESCAPE:
                     response = ExitConfigAction(player)
         

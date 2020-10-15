@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from enum import Enum
 
 
-class DropCargoAction(Action):
+class AssignCargoAction(Action):
     def __init__(self, entity: Entity, event: Enum):
         """
         "assigns" selected crewman to a directional button
@@ -22,14 +22,14 @@ class DropCargoAction(Action):
         self.event = event
     
     def perform(self) -> bool:
-        if not self.entity.is_alive:
-            raise Impossible("Can't move cargo when dead")
-        
         cargo = self.entity.cargo
         item = self.entity.cargo.selected
         
+        if not self.entity.is_alive:
+            raise Impossible("Can't move cargo when dead")
+
         # move marked inventory to drop list
-        if self.event == MenuKeys.RIGHT:
+        if self.event == MenuKeys.LEFT:
             if item in cargo.manifest.keys() and cargo.manifest[item] > 0:
                 if item in cargo.sell_list.keys():
                     cargo.sell_list[item] += 1
@@ -38,7 +38,7 @@ class DropCargoAction(Action):
                 if cargo.sell_list[item] > cargo.manifest[item]:
                     cargo.sell_list[item] = cargo.manifest[item]
         # remove marked inventory from drop list
-        elif self.event == MenuKeys.LEFT:
+        elif self.event == MenuKeys.RIGHT:
             if item in cargo.sell_list.keys() and cargo.sell_list[item] > 0:
                 if item in cargo.sell_list.keys():
                     cargo.sell_list[item] -= 1

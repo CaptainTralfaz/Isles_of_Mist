@@ -4,22 +4,33 @@ from typing import Optional, Dict, TYPE_CHECKING
 
 from actions.base.base import Action
 from constants.enums import GameStates
+from utilities import remove_zero_quantities
 
 if TYPE_CHECKING:
     from entity import Entity
 
 
 class ExitConfigAction(Action):
-    def __init__(self, entity: Entity):
+    def __init__(self, entity: Entity, confirm: bool = False):
         """
         This action exits the config menus by setting game state to action (or dead),
             setting all three "selected" fields to be 0 (in case the current selection is destroyed)
         :param entity: acting Entity
         """
+        self.confirm = confirm
         super().__init__(entity)
     
     def perform(self) -> Optional[Dict, bool]:
-        if self.entity.is_alive:
+        if not self.entity.is_alive:
+            return False
+        elif not self.confirm:
+            self.engine.game_state = GameStates.ACTION
+            self.entity.cargo.selected = "arrows"
+            self.entity.crew.selected = 0
+            self.entity.broadsides.selected = 0
+            self.entity.cargo.sell_list = {}
+            return False
+        else:
             self.engine.game_state = GameStates.ACTION
             self.entity.cargo.selected = "arrows"
             self.entity.crew.selected = 0
@@ -41,8 +52,6 @@ class ExitConfigAction(Action):
                     'cargo': chest_dict
                 }
                 self.entity.cargo.sell_list = {}
+                self.entity.cargo.manifest = remove_zero_quantities(self.entity.cargo.manifest)
                 return entity_dict
-            return False
-        else:
-            self.engine.game_state = GameStates.PLAYER_DEAD
-        return False
+            return self.confirm

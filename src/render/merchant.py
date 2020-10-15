@@ -86,13 +86,13 @@ def merchant_render(console: Surface,
         surf = game_font.render(f"{int(item_stats[item]['cost'])}", True, colors['cyan'])
         merchant_surf.blit(surf, (spacer + 4 * column - surf.get_width(), height))
         if item in sell_manifest.keys():
-            surf = game_font.render(f"{sell_manifest[item]}", True, colors['grass'])
+            surf = game_font.render(f"{sell_manifest[item]}", True, colors['red'])
             merchant_surf.blit(surf, (spacer + 5 * column - surf.get_width(), height))
         if item in merchant_manifest.keys():
             surf = game_font.render(f"{merchant_manifest[item]}", True, colors['pink'])
             merchant_surf.blit(surf, (spacer + 6 * column - surf.get_width(), height))
         if item in buy_manifest.keys():
-            surf = game_font.render(f"{buy_manifest[item]}", True, colors['red'])
+            surf = game_font.render(f"{buy_manifest[item]}", True, colors['grass'])
             merchant_surf.blit(surf, (spacer + 7 * column - surf.get_width(), height))
         height += game_font.get_height() + margin
     

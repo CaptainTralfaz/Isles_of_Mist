@@ -83,7 +83,7 @@ def gen_port_name() -> str:
 
 class Merchant:
     def __init__(self, manifest: Dict = None, coins: int = None):
-        self.coins = coins if coins is not None else randint(100, 200)
+        self.coins = coins if coins is not None else randint(200, 300)
         self.temp_coins = 0
         # TODO generate this depending on port's surroundings / buildings
         #  but for now...

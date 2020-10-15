@@ -51,18 +51,25 @@ SMITHY = {
 }
 
 MERCHANT = {
+    'bread': 20,
+    'brick': 25,
     'canvas': 20,
-    'rope': 20,
-    'tar': 10,
-    'wood': 30,
-    'meat': 30,
-    'rum': 10,
     'fish': 30,
     'fruit': 10,
+    'grain': 30,
+    'leather': 10,
+    'log': 30,
+    'meat': 30,
+    'rope': 20,
+    'rum': 10,
+    'salt': 10,
+    'skins': 30,
+    'stone': 30,
+    'tar': 10,
     'water': 30,
+    'wood': 30,
     'arrows': 20,
     'bolts': 20,
     'cannonballs': 10,
     'mines': 10,
-    
 }

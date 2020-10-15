@@ -289,3 +289,14 @@ def closest_rotation(target: Tuple[int, int], entity_x: int, entity_y: int, dire
                 return 1
             else:  # 2: directly behind - turn randomly
                 return choice([-1, 1])
+
+
+def remove_zero_quantities(manifest: Dict) -> Dict:
+    del_list = []
+    for key in manifest.keys():
+        if manifest[key] == 0 and key != "arrows":
+            del_list.append(key)
+    for key in del_list:
+        del (manifest[key])
+    return manifest
+    

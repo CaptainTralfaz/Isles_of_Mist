@@ -61,7 +61,7 @@ class ConfirmAction(Action):
                 self.entity.cargo.coins -= self.entity.game_map.port.merchant.temp_coins
                 self.entity.game_map.port.merchant.coins += self.entity.game_map.port.merchant.temp_coins
                 self.engine.message_log.add_message("Transaction completed")
-                return ExitPortAction(self.entity).perform()
+                return ExitPortAction(self.entity, confirm=True).perform()
             
             elif self.engine.game_state == GameStates.SMITHY:
                 # make sure there is enough money
@@ -88,4 +88,4 @@ class ConfirmAction(Action):
                 self.entity.cargo.coins -= self.entity.game_map.port.smithy.temp_coins
                 self.entity.game_map.port.smithy.coins += self.entity.game_map.port.smithy.temp_coins
                 self.engine.message_log.add_message("Transaction completed")
-                return ExitPortAction(self.entity).perform()
+                return ExitPortAction(self.entity, confirm=True).perform()

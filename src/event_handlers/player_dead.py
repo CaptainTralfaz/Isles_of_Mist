@@ -59,7 +59,7 @@ class GameOverEventHandler(EventHandler):
             if event.mod in MODIFIERS:
                 self.engine.key_mod = MODIFIERS[event.mod]
             if self.engine.key_mod == KeyMod.COMMAND and event.key in MENU_KEYS:
-                response = ConfigureAction(player, MENU_KEYS[event.key], self.engine.game_state)
+                response = ConfigureAction(player, MENU_KEYS[event.key])
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     response = ActionQuit(player)
