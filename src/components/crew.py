@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from random import choice
+from random import choice, randint
 from typing import List, Dict, TYPE_CHECKING
 
 from components.base import BaseComponent
@@ -11,6 +11,10 @@ from utilities import choice_from_dict
 
 if TYPE_CHECKING:
     from entity import Entity
+
+
+starting_crew_list = ["sailor", "sailor", "sailor", "sailor", "sailor", "sailor",
+                      "shipwright", "tailor", "cook", "captain"]
 
 
 class Crew(BaseComponent):
@@ -26,7 +30,7 @@ class Crew(BaseComponent):
         self.name = name
         self.roster = roster
         if self.roster is None:
-            self.roster = generate_roster(max_count)
+            self.roster = generate_new_game_roster(starting_crew_list)
         self.selected = 0
     
     def to_json(self) -> Dict:
@@ -124,6 +128,13 @@ def generate_roster(count: int):
     return roster
 
 
+def generate_new_game_roster(occupation_list):
+    roster = []
+    for occupation in occupation_list:
+        roster.append(Crewman(occupation=occupation))
+    return roster
+
+
 class Crewman:
     def __init__(self, name: str = None, occupation: str = None, assignment: MenuKeys = None):
         self.name = self.generate_name() if name is None else name
@@ -152,22 +163,60 @@ class Crewman:
     
     @staticmethod
     def generate_name():
-        first = choice(["Jim", "Billy", "Sam", "Jack", "Davey", "Mick", "Alex"])
-        last = choice(["Jones", "Bones", "Tate", "Sparrow", "Turner", "Silver", "Corday", "Conroy"])
-        return f"{first} {last}"
+        nickname = ""
+        if randint(0, 5) == 0:
+            nickname = choice([
+                "'Fat' ", "'Skinny' ", "'Lazy' ", "'Big' ", "'Tiny' ", "'Old' ", "'Young' ", "'Handsome' ", "'Stinky' ",
+                "'Lucky' ", "'Dark' ", "'Pale' ", "'Crazy' ", "'Sharp' ", "'Mean' ", "'Smelly' ", "'Drunk'", "'Tipsy' ",
+                "'Sleepy' ", "'Lumpy' ", "'Bald' ", "'Quick' ", "'Fancy' ", "'Ugly' ", "'Long' ", "'Wise' ", "'Rusty' ",
+                "'Sneaky' ", "'Honest' ", "'Dirty' ", "'Clumsy' ", "'Slippery' ", "'Fierce' ", "'Mighty' ", "'Pretty' ",
+                "'Quiet' ", "'Eagle Eye' ", "'Cautious' ", "'Hairy' ", "'Cruel' ", "'Angry' ",  "'Salty' ", "'Crusty' ",
+                "'Slim' ", "'Wild' ", "'Poor' ", "'Thrifty' ",
+            ])
+        first = choice([
+            "Jack", "James", "Benjamin", "Halsten", "Joseph", "Phillip", "Robert", "Carey", "Terrance", "Igor", "Derek",
+            "Stephen", "Russel", "Sherman", "Kenneth", "Alexander", "Thomas", "Albert", "Paddington", "Roger", "Arthur",
+            "Samuel", "Shaun", "Sean", "Andrew", "Marcus", "Daniel", "Christopher", "David", "Michael", "Bryan", "Evan",
+            "Percival", "Louis", "Edward", "Silas", "Timothy", "Abraham", "Eric", "Lief", "Nicholas", "Braxton", "Adam",
+            "Harold", "Harrison",  "Dennis", "Darrel", "Raymond", "Cornelius", "Charles", "Steffan", "Raymond", "Lucas",
+            "Virgil", "Orville", "Gerald", "Vance", "Stanley", "Darren", "Ingvar", "Royce", "Harold", "Linus", "Gordon",
+            "Bradley", "Patrick", "Calvin", "Matthew", "Jonas", "Bertram", "Isaac", "Miles", "Wendel", "Rene", "Ronald",
+            "George", "Joshua", "Martin", "Justin", "Bruce", "Zachary", "Brandon", "Carlton", "Lance", "Randal", "Paul",
+            "Julius", "Augustus", "Curtis", "Gregory", "Forrest", "Oliver", "Donavan", "Jonathon", "Octavius", "Conrad",
+            "Brutus", "Emeryl", "Ernest", "Richard", "Trevor", "Noah", "Reginald", "Aaron", "Malcolm", "Pierre", "Amos",
+            "Henry", "Douglas", "Theodore", "Francis", "Fredrick", "Peter", "Felix", "Duane", "Joel", "Byron", "Kellen",
+            "Ian", "Grant",
+        ])
+        last = choice([
+            "Jones", "Bones", "Smith", "Sparrow", "Turner", "Silver", "Corday", "Conroy", "Evans", "Maxwell", "Jameson",
+            "Finch", "Smythe", "Harrison", "Harris", "Black", "Ramsey", "Gray", "Carpenter", "Fisher", "Lewis", "Adams",
+            "Archer", "Quinn", "Wylde", "Robbins", "Hawkins", "Pierce", "Anderson", "Quimby", "Dance", "James", "Flint",
+            "Hunter", "Beck", "Beckett", "Peck", "Samson", "Porter", "Gibbs", "Dalton", "Chase", "Avery", "Aims", "Ott",
+            "Sherman", "Sheridan", "Ford", "Nelson", "Baldwin", "Woods", "Edwards", "Erikson", "Ferris", "Oaks", "Tate",
+            "Young", "Flynn", "Beard", "Sharpe", "Bonds", "Dickerson", "Dickens", "White", "Brown", "Iverson", "Warner",
+            "Thomas", "Thomson", "Hamm", "Abrams", "Hammond", "Philips", "Jensen", "Johnson", "Mercy", "Miles", "Scott",
+            "Oatley", "Bryant", "Caldwell", "Chisolm", "Goode", "DuMorne", "Early", "Nance", "Nevins", "Park", "Parker",
+            "Royce", "Irving", "Vale", "Valley", "York", "Dunn", "Holden", "Xavier", "Paris", "Parish", "Ogden", "Pyre",
+            "Davidson", "Benson", "Davis", "Price", "Stone", "Hobbs", "Cobb", "Harrington", "Foster", "Wright", "Green",
+            "Cavanaugh", "Mannish", "Landry", "Cavandish", "Scott", "Snelling", "Richards", "Towers", "Barton", "Stowe",
+            "Lincoln", "Harris", "Morgan", "Starling", "Miller", "Quince", "Oswald", "Peterson", "Pine", "Hale", "Ward",
+            "Flemming", "MacDonald", "McCray", "Downs", "Ivy", "Scrubbs", "Sneed", "Morris", "Morrison", "Sands", "Sty",
+            "Stay", "Steel", "McNee", "Maine", "Decker", "Moore"
+        ])
+        return f"{nickname}{first} {last}"
     
     @staticmethod
     def generate_occupation():
         return choice_from_dict({
-            "sailor": 90,
-            "cook": 10,
+            "sailor": 80,
+            "cook": 5,
             "soldier": 5,
             "archer": 10,
             "rogue": 10,
             "fisherman": 15,
             "captain": 5,
-            "farmer": 5,
-            "carpenter": 5,
+            "tailor": 5,
+            "shipwright": 5,
             "engineer": 5,
             "sharpshooter": 5,
             "mistweaver": 1,
@@ -184,23 +233,23 @@ class Crewman:
 """ maps occupation to cooldown_max"""
 occupation_cd = {
     "sailor": 0,
-    "cook": 0,
-    "soldier": 0,           # Auto: +1 crew defense?
-    "archer": 0,            # Auto: +1 damage to arrow total
+    "cook": 0,  # Auto: feed crew extra somehow
+    "soldier": 0,  # Auto: +1 crew defense? but dies first...
+    "archer": 0,  # Auto: +1 damage to arrow total
     "rogue": 0,
-    "fisherman": 5,         # Action: catches fish at seaweed
-    "captain": 0,           # Auto: raises morale
-    "farmer": 0,
-    "carpenter": 5,         # Action: repairs ship with tar & wood
-    "engineer": 5,          # Action: repairs ballista with rope and wood
-    "sharpshooter": 0,      # Auto: + 1 weapon damage total
-    "mistweaver": 5,        # Action: summons a circle of mist around ship
-    "seer": 5,              # Action: reveal map as if flying
-    "diver": 5,
-    "scryer": 10,           # Action: reveals location of all monsters in viewport
-    "steward": 0,
-    "smith": 5,             # Action: repair cannons with steel
-    "stormbringer": 10,     # Action: makes weather worse
-    "surgeon": 0,
-    "merchant": 0,          # Auto: discount buying/selling
+    "fisherman": 5,  # Action: catches fish at seaweed
+    "captain": 0,  # Auto: raises morale
+    "shipwright": 5,  # Action: repairs ship with tar & wood
+    "engineer": 5,  # Action: repairs ballista with rope and wood
+    "sharpshooter": 0,  # Auto: + 1 weapon damage total
+    "mistweaver": 5,  # Action: summons a circle of mist around ship
+    "seer": 5,  # Action: reveal map as if flying
+    "tailor": 5,  # Action: repair sails with rope and canvas
+    "diver": 5,  # Auto: recover more from sunken ships?
+    "scryer": 10,  # Action: reveals location of all monsters in viewport
+    "steward": 0,  # fit more cargo somehow?
+    "smith": 5,  # Action: repair cannons with steel
+    "stormbringer": 10,  # Action: makes weather worse
+    "surgeon": 0,  # ?
+    "merchant": 0,  # Auto: discount buying/selling
 }
