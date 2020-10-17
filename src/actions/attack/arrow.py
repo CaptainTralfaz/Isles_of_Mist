@@ -41,6 +41,8 @@ class ArrowAction(SplitDamageAction):
         if len(targets) < 1:
             raise Impossible(f"No adjacent targets")
         damage = (len(self.entity.crew.roster) // 4) // len(targets)
+        if self.entity.crew.has_occupation("archer"):
+            damage += 1
         super().__init__(entity, targets, damage, direction, ammo)
     
     def perform(self) -> bool:

@@ -12,8 +12,7 @@ from utilities import choice_from_dict
 if TYPE_CHECKING:
     from entity import Entity
 
-
-starting_crew_list = ["sailor", "sailor", "sailor", "sailor", "sailor", "sailor",
+starting_crew_list = ["lookout", "archer", "sharpshooter", "sailor", "sailor", "sailor",
                       "shipwright", "tailor", "cook", "captain"]
 
 
@@ -32,6 +31,8 @@ class Crew(BaseComponent):
         if self.roster is None:
             self.roster = generate_new_game_roster(starting_crew_list)
         self.selected = 0
+        self.release_list = []
+        self.hire_list = []
     
     def to_json(self) -> Dict:
         """
@@ -72,6 +73,12 @@ class Crew(BaseComponent):
         :return: total volume of crew
         """
         return len(self.roster) * 20
+    
+    def has_occupation(self, occupation: str) -> bool:
+        for crewman in self.roster:
+            if crewman.occupation == occupation:
+                return True
+        return False
     
     def die(self) -> None:
         if self.engine.player is self.parent:
@@ -141,7 +148,7 @@ class Crewman:
         self.occupation = self.generate_occupation() if occupation is None else occupation
         self.assignment = assignment
         self.cooldown = 0
-        self.cooldown_max = occupation_cd[self.occupation]
+        self.cooldown_max = occupation_stats[self.occupation]['cd']
     
     def to_json(self) -> Dict:
         return {
@@ -170,7 +177,7 @@ class Crewman:
                 "'Lucky' ", "'Dark' ", "'Pale' ", "'Crazy' ", "'Sharp' ", "'Mean' ", "'Smelly' ", "'Drunk'", "'Tipsy' ",
                 "'Sleepy' ", "'Lumpy' ", "'Bald' ", "'Quick' ", "'Fancy' ", "'Ugly' ", "'Long' ", "'Wise' ", "'Rusty' ",
                 "'Sneaky' ", "'Honest' ", "'Dirty' ", "'Clumsy' ", "'Slippery' ", "'Fierce' ", "'Mighty' ", "'Pretty' ",
-                "'Quiet' ", "'Eagle Eye' ", "'Cautious' ", "'Hairy' ", "'Cruel' ", "'Angry' ",  "'Salty' ", "'Crusty' ",
+                "'Quiet' ", "'Eagle Eye' ", "'Cautious' ", "'Hairy' ", "'Cruel' ", "'Angry' ", "'Salty' ", "'Crusty' ",
                 "'Slim' ", "'Wild' ", "'Poor' ", "'Thrifty' ",
             ])
         first = choice([
@@ -178,7 +185,7 @@ class Crewman:
             "Stephen", "Russel", "Sherman", "Kenneth", "Alexander", "Thomas", "Albert", "Paddington", "Roger", "Arthur",
             "Samuel", "Shaun", "Sean", "Andrew", "Marcus", "Daniel", "Christopher", "David", "Michael", "Bryan", "Evan",
             "Percival", "Louis", "Edward", "Silas", "Timothy", "Abraham", "Eric", "Lief", "Nicholas", "Braxton", "Adam",
-            "Harold", "Harrison",  "Dennis", "Darrel", "Raymond", "Cornelius", "Charles", "Steffan", "Raymond", "Lucas",
+            "Harold", "Harrison", "Dennis", "Darrel", "Raymond", "Cornelius", "Charles", "Steffan", "Raymond", "Lucas",
             "Virgil", "Orville", "Gerald", "Vance", "Stanley", "Darren", "Ingvar", "Royce", "Harold", "Linus", "Gordon",
             "Bradley", "Patrick", "Calvin", "Matthew", "Jonas", "Bertram", "Isaac", "Miles", "Wendel", "Rene", "Ronald",
             "George", "Joshua", "Martin", "Justin", "Bruce", "Zachary", "Brandon", "Carlton", "Lance", "Randal", "Paul",
@@ -201,7 +208,7 @@ class Crewman:
             "Cavanaugh", "Mannish", "Landry", "Cavandish", "Scott", "Snelling", "Richards", "Towers", "Barton", "Stowe",
             "Lincoln", "Harris", "Morgan", "Starling", "Miller", "Quince", "Oswald", "Peterson", "Pine", "Hale", "Ward",
             "Flemming", "MacDonald", "McCray", "Downs", "Ivy", "Scrubbs", "Sneed", "Morris", "Morrison", "Sands", "Sty",
-            "Stay", "Steel", "McNee", "Maine", "Decker", "Moore"
+            "Stay", "Steel", "McNee", "Maine", "Decker", "Moore", "Riley", "Shilling",
         ])
         return f"{nickname}{first} {last}"
     
@@ -211,14 +218,15 @@ class Crewman:
             "sailor": 80,
             "cook": 5,
             "soldier": 5,
-            "archer": 10,
+            "archer": 10,  # added
             "rogue": 10,
             "fisherman": 15,
+            "lookout": 10,  # added
             "captain": 5,
             "tailor": 5,
             "shipwright": 5,
             "engineer": 5,
-            "sharpshooter": 5,
+            "sharpshooter": 5,  # added
             "mistweaver": 1,
             "seer": 5,
             "diver": 5,
@@ -230,26 +238,99 @@ class Crewman:
         })
 
 
+# TODO move to constants.stats
 """ maps occupation to cooldown_max"""
-occupation_cd = {
-    "sailor": 0,
-    "cook": 0,  # Auto: feed crew extra somehow
-    "soldier": 0,  # Auto: +1 crew defense? but dies first...
-    "archer": 0,  # Auto: +1 damage to arrow total
-    "rogue": 0,
-    "fisherman": 5,  # Action: catches fish at seaweed
-    "captain": 0,  # Auto: raises morale
-    "shipwright": 5,  # Action: repairs ship with tar & wood
-    "engineer": 5,  # Action: repairs ballista with rope and wood
-    "sharpshooter": 0,  # Auto: + 1 weapon damage total
-    "mistweaver": 5,  # Action: summons a circle of mist around ship
-    "seer": 5,  # Action: reveal map as if flying
-    "tailor": 5,  # Action: repair sails with rope and canvas
-    "diver": 5,  # Auto: recover more from sunken ships?
-    "scryer": 10,  # Action: reveals location of all monsters in viewport
-    "steward": 0,  # fit more cargo somehow?
-    "smith": 5,  # Action: repair cannons with steel
-    "stormbringer": 10,  # Action: makes weather worse
-    "surgeon": 0,  # ?
-    "merchant": 0,  # Auto: discount buying/selling
+occupation_stats = {
+    "cook": {
+        'cd': 0,
+        'cost': 10,
+    },  # Auto: feed crew extra somehow OR Action: reduce other crew cooldowns ?
+    "soldier": {
+        'cd': 0,
+        'cost': 12,
+    },  # Auto: +1 crew defense vs melee? but dies first...
+    "sailor": {
+        'cd': 0,
+        'cost': 8,
+    },
+    "archer": {
+        'cd': 0,
+        'cost': 12,
+    },  # Auto: +1 damage to arrow total
+    "sharpshooter": {
+        'cd': 0,
+        'cost': 13,
+    },  # Auto: + 1 weapon damage total
+    "lookout": {
+        'cd': 0,
+        'cost': 12,
+    },  # Auto: + 1 view
+    "rogue": {
+        'cd': 0,
+        'cost': 9,
+    },
+    "fisherman": {
+        'cd': 5,
+        'cost': 6,
+    },  # Action: catches fish at seaweed
+    "captain": {
+        'cd': 0,
+        'cost': 15,
+    },  # Auto: raises morale
+    "shipwright": {
+        'cd': 5,
+        'cost': 13,
+    },  # Action: repairs ship with tar & wood
+    "engineer": {
+        'cd': 5,
+        'cost': 13,
+    },  # Action: repairs ballista with rope and wood
+    "mistweaver": {
+        'cd': 5,
+        'cost': 15,
+    },  # Action: summons a circle of mist around ship
+    "seer": {
+        'cd': 5,
+        'cost': 11,
+    },  # Action: reveal terrain no LOS blocking
+    "tailor": {
+        'cd': 5,
+        'cost': 12,
+    },  # Action: repair sails with rope and canvas
+    "scryer": {
+        'cd': 10,
+        'cost': 13,
+    },  # Action: reveals location of all monsters in viewport
+    "smith": {
+        'cd': 5,
+        'cost': 12,
+    },  # Action: repair cannons with iron
+    "stormbringer": {
+        'cd': 10,
+        'cost': 14,
+    },  # Action: makes weather worse
+    "diver": {
+        'cd': 0,
+        'cost': 9,
+    },  # Auto: recover more from sunken ships?
+    "steward": {
+        'cd': 0,
+        'cost': 12,
+    },  # fit more cargo somehow? - maybe keep cargo from being damaged / washing overboard?
+    "surgeon": {
+        'cd': 0,
+        'cost': 14,
+    },  # ?
+    "minstrel": {
+        'cd': 0,
+        'cost': 10,
+    },  # reduce max cooldowns of others by 1 ?
+    "merchant": {
+        'cd': 0,
+        'cost': 12,
+    },  # Auto: discount buying/selling
+    "cartographer": {
+        'cd': 0,
+        'cost': 12,
+    },  # Auto: allows reading of maps
 }

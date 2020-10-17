@@ -32,6 +32,8 @@ class View(BaseComponent):
     def set_fov(self) -> None:
         distance = self.distance + self.engine.time.get_time_of_day_info['view'] + \
                    self.game_map.weather.get_weather_info['view']
+        if self.parent.crew is not None and self.parent.crew.has_occupation("lookout"):
+            distance += 1
         if distance < 1:
             distance = 1
         if self.parent.flying or (self.parent.x, self.parent.y) == self.parent.game_map.port.location:

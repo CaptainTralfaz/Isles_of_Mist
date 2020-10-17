@@ -25,6 +25,7 @@ from render.merchant import merchant_render
 from render.mini_map import mini_map_render
 from render.smithy import smithy_render
 from render.status_panel import status_panel_render
+from render.tavern import tavern_render
 from render.viewport import viewport_render
 from render.weapons import weapon_render
 from time_of_day import Time
@@ -90,10 +91,8 @@ class Engine:
             self.event_handler = CargoConfigurationHandler(self)
         elif self.game_state == GameStates.PLAYER_DEAD:
             self.event_handler = GameOverEventHandler(self)
-        elif self.game_state in [GameStates.MERCHANT, GameStates.SMITHY]:
+        elif self.game_state in [GameStates.MERCHANT, GameStates.SMITHY, GameStates.TAVERN]:
             self.event_handler = MerchantHandler(self)
-        # elif self.game_state == GameStates.SMITHY:
-        #     self.event_handler = SmithyHandler(self)
         # # elif self.game_state == GameStates.UPGRADES:
         #     self.event_handler = UpgradeHandler(self)
     
@@ -157,4 +156,7 @@ class Engine:
                                 ui_layout=self.ui_layout)
             elif self.game_state == GameStates.SMITHY:
                 smithy_render(console=main_surface, player=self.player, time=self.time,
+                              ui_layout=self.ui_layout)
+            elif self.game_state == GameStates.TAVERN:
+                tavern_render(console=main_surface, player=self.player, time=self.time,
                               ui_layout=self.ui_layout)

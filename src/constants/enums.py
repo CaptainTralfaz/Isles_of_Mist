@@ -40,6 +40,7 @@ class GameStates(Enum):
     CREW_CONFIG = auto()
     CARGO_CONFIG = auto()
     MERCHANT = auto()
+    TAVERN = auto()
     SMITHY = auto()
     UPGRADES = auto()
     PLAYER_DEAD = auto()

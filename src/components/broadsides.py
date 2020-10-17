@@ -104,10 +104,12 @@ class Broadsides(BaseComponent):
             if len(self.port) < self.slot_count:
                 self.port.append(weapon)
                 weapon.cooldown = weapon.cooldown_max
+                weapon.parent = self
         elif location == Location.STARBOARD:
             if len(self.starboard) < self.slot_count:
                 self.starboard.append(weapon)
                 weapon.cooldown = weapon.cooldown_max
+                weapon.parent = self
     
     def detach(self, weapon: Weapon) -> None:
         """
