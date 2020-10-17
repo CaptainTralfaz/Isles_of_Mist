@@ -187,7 +187,7 @@ class HostileFlyingEnemy(BaseAI):
             for neighbor in self.engine.game_map.get_neighbors_at_elevations(self.entity.x,
                                                                              self.entity.y,
                                                                              self.entity.elevations):
-                if self.distance_map[neighbor] < shortest:
+                if self.distance_map.get(neighbor) < shortest:
                     target = neighbor
                     shortest = self.distance_map[neighbor]
             

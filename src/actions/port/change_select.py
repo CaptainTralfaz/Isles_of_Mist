@@ -57,4 +57,16 @@ class ChangeSelectionAction(Action):
                 self.entity.broadsides.selected += 1
                 if self.entity.broadsides.selected > length:
                     self.entity.broadsides.selected = 0
+        
+        elif self.engine.game_state == GameStates.TAVERN:
+            length = len(self.entity.crew.roster) + len(self.entity.game_map.port.tavern.roster) - 1
+            if self.event == MenuKeys.UP:
+                self.entity.crew.selected -= 1
+                if self.entity.crew.selected < 0:
+                    self.entity.crew.selected = length
+            if self.event == MenuKeys.DOWN:
+                self.entity.crew.selected += 1
+                if self.entity.crew.selected > length:
+                    self.entity.crew.selected = 0
+        
         return False

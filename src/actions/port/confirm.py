@@ -23,6 +23,7 @@ class ConfirmAction(Action):
     def perform(self) -> Optional[Dict, bool]:
         if not self.entity.is_alive:
             self.engine.game_state = GameStates.PLAYER_DEAD
+            self.engine.message_log.add_message("You can't configure while dead...")
             return False
         elif self.event == MenuKeys.LEFT:
             return ExitPortAction(self.entity).perform()
@@ -31,11 +32,11 @@ class ConfirmAction(Action):
                 # make sure there is enough money
                 if self.entity.cargo.coins - self.entity.game_map.port.merchant.temp_coins < 0:
                     self.engine.message_log.add_message("You don't have enough coins...")
-                    return ExitPortAction(self.entity).perform()
+                    return False
                 
                 if self.entity.game_map.port.merchant.coins + self.entity.game_map.port.merchant.temp_coins < 0:
                     self.engine.message_log.add_message("Merchant doesn't have enough coins...")
-                    return ExitPortAction(self.entity).perform()
+                    return False
                 
                 if sum(self.entity.cargo.sell_list.values()) > 0:  # if there's actually stuff to sell
                     # remove the items from player inventory, add to merchant inventory
@@ -67,11 +68,11 @@ class ConfirmAction(Action):
                 # make sure there is enough money
                 if self.entity.cargo.coins - self.entity.game_map.port.smithy.temp_coins < 0:
                     self.engine.message_log.add_message("You don't have enough coins...")
-                    return ExitPortAction(self.entity).perform()
+                    return False
                 
                 if self.entity.game_map.port.smithy.coins + self.entity.game_map.port.smithy.temp_coins < 0:
                     self.engine.message_log.add_message("Smith doesn't have enough coins...")
-                    return ExitPortAction(self.entity).perform()
+                    return False
                 
                 if len(self.entity.broadsides.sell_list) > 0:  # if there's actually stuff to sell
                     # remove the items from player inventory, add to smithy inventory
@@ -87,5 +88,35 @@ class ConfirmAction(Action):
                 
                 self.entity.cargo.coins -= self.entity.game_map.port.smithy.temp_coins
                 self.entity.game_map.port.smithy.coins += self.entity.game_map.port.smithy.temp_coins
+                self.engine.message_log.add_message("Transaction completed")
+                return ExitPortAction(self.entity, confirm=True).perform()
+            
+            elif self.engine.game_state == GameStates.TAVERN:
+                # make sure there is enough money
+                if self.entity.cargo.coins - self.entity.game_map.port.tavern.temp_coins < 0:
+                    self.engine.message_log.add_message("You don't have enough coins...")
+                    return False
+                
+                # make sure there will be enough room on the ship
+                if len(self.entity.crew.roster) \
+                        + len(self.entity.crew.hire_list) \
+                        - len(self.entity.crew.release_list) > self.entity.crew.max_count:
+                    self.engine.message_log.add_message("Not enough room on the ship!")
+                    return False
+                
+                if len(self.entity.crew.release_list) > 0:  # if there's actually people to release
+                    # remove the items from player inventory, add to smithy inventory
+                    for crewman in self.entity.crew.release_list:
+                        self.entity.game_map.port.tavern.roster.append(crewman)
+                        self.entity.crew.roster.remove(crewman)
+                
+                # make sure there is enough room on the ship
+                if len(self.entity.crew.roster) > 0:  # if there's actually people to hire
+                    # remove the items from smithy inventory, add to player inventory
+                    for crewman in self.entity.crew.hire_list:
+                        self.entity.game_map.port.tavern.roster.remove(crewman)
+                        self.entity.crew.roster.append(crewman)
+                
+                self.entity.cargo.coins -= self.entity.game_map.port.tavern.temp_coins
                 self.engine.message_log.add_message("Transaction completed")
                 return ExitPortAction(self.entity, confirm=True).perform()

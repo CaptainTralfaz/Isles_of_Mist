@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
-from actions.repair.hire_crew import HireCrewAction
 from actions.repair.hull import RepairHullAction
 from actions.repair.sails import RepairSailsAction
 from actions.repair.weapons import RepairWeaponsAction
+from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
     from entity import Entity
@@ -24,7 +24,7 @@ class RepairAction(Action):
     
     def perform(self) -> bool:
         if self.event == "crew":
-            return HireCrewAction(self.entity).perform()
+            raise Impossible("Not Anymore!")
         if self.event == "sails":
             return RepairSailsAction(self.entity).perform()
         if self.event == "shipyard":

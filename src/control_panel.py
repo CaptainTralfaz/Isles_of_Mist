@@ -126,7 +126,7 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
             if key_mod == KeyMod.SHIFT:
                 arrow_keys = [{'rotation': 0, 'text': 'Repair Sails'},
                               {'rotation': 90, 'text': 'Repair Hull'},
-                              {'rotation': 270, 'text': 'Hire Crew'},
+                              # {'rotation': 270, 'text': 'Hire Crew'},
                               {'rotation': 180, 'text': 'Fix Weapons'}]
             elif key_mod == KeyMod.COMMAND:
                 if player.sails.raised:
@@ -251,6 +251,30 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
                 elif weapon_list[selected] in player.broadsides.buy_list:
                     arrow_keys.append({'rotation': 90, 'text': 'Return'})
                 arrow_keys.append({'rotation': 180, 'text': 'Move Down'})
+            text_keys = [{'name': 'Shift', 'text': 'Finished'},
+                         {'name': 'Esc', 'text': 'Exit'}]
+    
+    elif game_state == GameStates.TAVERN:
+        if key_mod == KeyMod.SHIFT:
+            arrow_keys = [{'rotation': 90, 'text': 'Confirm'},
+                          {'rotation': 270, 'text': 'Cancel'}]
+        else:
+            full_roster = []
+            for crewman in player.crew.roster:
+                full_roster.append(crewman)
+            for crewman in player.game_map.port.tavern.roster:
+                full_roster.append(crewman)
+            
+            arrow_keys = [{'rotation': 0, 'text': 'Move Up'}]
+            if full_roster[player.crew.selected] in player.crew.hire_list:
+                arrow_keys.append({'rotation': 90, 'text': 'To Tavern'})
+            elif full_roster[player.crew.selected] in player.crew.release_list:
+                arrow_keys.append({'rotation': 270, 'text': 'To Crew'})
+            elif full_roster[player.crew.selected] in player.game_map.port.tavern.roster:
+                arrow_keys.append({'rotation': 270, 'text': 'To Crew'})
+            elif full_roster[player.crew.selected] in player.crew.roster:
+                arrow_keys.append({'rotation': 90, 'text': 'To Tavern'})
+            arrow_keys.append({'rotation': 180, 'text': 'Move Down'})
             text_keys = [{'name': 'Shift', 'text': 'Finished'},
                          {'name': 'Esc', 'text': 'Exit'}]
     

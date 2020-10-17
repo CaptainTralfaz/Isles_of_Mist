@@ -26,8 +26,9 @@ class PortAction(Action):
         if self.event == PortVisit.MERCHANT:  # Buy / sell Cargo
             self.engine.game_state = GameStates.MERCHANT
             return False
-        # if self.event == PortVisit.TAVERN:  # Hire Crewmen
-        #     raise Impossible(f"{self.event} action yet implemented")
+        if self.event == PortVisit.TAVERN:  # Hire Crewmen
+            self.engine.game_state = GameStates.TAVERN
+            return False
         if self.event == PortVisit.SMITHY:  # Buy / Sell Weapons
             self.engine.game_state = GameStates.SMITHY
             return False

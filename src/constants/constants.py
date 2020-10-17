@@ -58,7 +58,7 @@ MERCHANT = {
     'fruit': 10,
     'grain': 30,
     'leather': 10,
-    'log': 30,
+    'lumber': 30,
     'meat': 30,
     'rope': 20,
     'rum': 10,

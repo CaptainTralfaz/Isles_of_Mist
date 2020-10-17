@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from actions.base.base import Action
 from actions.port.merchant import MerchantAction
 from actions.port.smithy import SmithyAction
+from actions.port.tavern import TavernAction
 from constants.enums import GameStates, MenuKeys
 
 if TYPE_CHECKING:
@@ -27,6 +28,9 @@ class SelectedAction(Action):
             return MerchantAction(self.entity, self.event).perform()
         if self.engine.game_state == GameStates.SMITHY:
             return SmithyAction(self.entity, self.event).perform()
+        if self.engine.game_state == GameStates.TAVERN:
+            return TavernAction(self.entity, self.event).perform()
         if self.engine.game_state == GameStates.UPGRADES:
-            return UpgradeAction(self.entity, self.event).perform()
+            return False
+            # return UpgradeAction(self.entity, self.event).perform()
         return False

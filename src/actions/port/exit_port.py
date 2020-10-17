@@ -22,11 +22,17 @@ class ExitPortAction(Action):
     
     def perform(self) -> bool:
         self.engine.game_state = GameStates.ACTION
+        
         self.entity.crew.selected = 0
+        self.entity.crew.hire_list = []
+        self.entity.crew.release_list = []
+        self.entity.game_map.port.tavern.temp_coins = 0
+        
         self.entity.broadsides.selected = 0
         self.entity.broadsides.buy_list = []
         self.entity.broadsides.sell_list = []
         self.entity.game_map.port.smithy.temp_coins = 0
+        
         self.entity.cargo.selected = "arrows"
         self.entity.cargo.buy_list = {}
         self.entity.cargo.sell_list = {}
@@ -35,4 +41,5 @@ class ExitPortAction(Action):
             self.entity.cargo.manifest)
         self.entity.game_map.port.merchant.manifest = remove_zero_quantities(
             self.entity.game_map.port.merchant.manifest)
+        
         return self.confirm

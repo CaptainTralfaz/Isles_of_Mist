@@ -44,7 +44,8 @@ class BroadsideAction(SplitDamageAction):
             targets.remove(self.entity)
         if len(targets) < 1:
             raise Impossible(f"No targets to {direction.name.lower().capitalize()}")
-        
+        if self.entity.crew.has_occupation("sharpshooter"):
+            damage += 1
         damage = damage // len(targets)
         super().__init__(entity, targets, damage, direction, ammo)
     

@@ -7,7 +7,7 @@ from typing import Iterable, List, Tuple, Optional, Set, Dict, TYPE_CHECKING
 from constants.constants import move_elevations
 from constants.enums import Conditions, Elevation
 from entity import Entity
-from port import Port
+from port.port import Port
 from tile import Terrain
 from utilities import Hex, cube_directions, cube_add, cube_to_hex, \
     hex_to_cube, cube_neighbor, cube_line_draw, get_distance
@@ -342,7 +342,7 @@ class GameMap:
                         cargo_loss += 12
                     if cargo_loss > 0:
                         entity.cargo.lose_random_cargo(cargo_loss)
-
+        
         if not entity.flying and entity.parent.game_map.terrain[x][y].decoration:
             if entity.parent.game_map.terrain[x][y].decoration in ['minefield']:
                 damage = randint(2, 5)

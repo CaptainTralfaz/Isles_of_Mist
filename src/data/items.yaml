@@ -34,7 +34,7 @@ item_stats:
     volume: 2
     category: 4
     cost: 6
-  log:
+  lumber:
     weight: 6
     volume: 6
     category: 4
