@@ -6,13 +6,14 @@ from typing import List, Dict, TYPE_CHECKING
 from components.base import BaseComponent
 from constants.constants import move_elevations
 from constants.enums import GameStates, RenderOrder, MenuKeys
+from constants.stats import occupation_stats
 from event_handlers.player_dead import GameOverEventHandler
 from utilities import choice_from_dict
 
 if TYPE_CHECKING:
     from entity import Entity
 
-starting_crew_list = ["lookout", "archer", "sharpshooter", "sailor", "sailor", "sailor",
+starting_crew_list = ["sailor", "sailor", "sailor", "sailor", "sailor", "sailor",
                       "shipwright", "tailor", "cook", "captain"]
 
 
@@ -117,15 +118,26 @@ class Crew(BaseComponent):
     
     def take_damage(self, amount: int) -> None:
         for crew in range(amount):
-            if len(self.roster) > 0:
+            soldiers = [crewman for crewman in self.roster if crewman.occupation == "soldier" and crewman.cooldown == 0]
+            if len(soldiers) > 0:
+                crewman = choice(soldiers)
+                crewman.cooldown = 20
+                self.engine.message_log.add_message(f"{crewman.name} the {crewman.occupation} defends the blow!",
+                                                    text_color='cyan')
+            elif len(self.roster) > 0:
                 # pick a crewman
                 pick = choice(self.roster)
                 self.engine.message_log.add_message(f"{pick.name} the {pick.occupation} has perished!",
-                                                    text_color='orange')
+                                                    text_color='cyan')
                 # kill crewman
                 self.roster.remove(pick)
             if len(self.roster) <= 0:
                 self.die()
+    
+    def tick_cooldowns(self):
+        countdowns = [crewman for crewman in self.roster if crewman.cooldown > 0]
+        for crewman in countdowns:
+            crewman.cooldown -= 1
 
 
 def generate_roster(count: int):
@@ -143,30 +155,31 @@ def generate_new_game_roster(occupation_list):
 
 
 class Crewman:
-    def __init__(self, name: str = None, occupation: str = None, assignment: MenuKeys = None):
+    def __init__(self, name: str = None, occupation: str = None, assignment: MenuKeys = None, cooldown: int = 0):
         self.name = self.generate_name() if name is None else name
         self.occupation = self.generate_occupation() if occupation is None else occupation
         self.assignment = assignment
-        self.cooldown = 0
+        self.cooldown = cooldown
         self.cooldown_max = occupation_stats[self.occupation]['cd']
     
     def to_json(self) -> Dict:
         return {
             'name': self.name,
             'occupation': self.occupation,
-            'assignment': self.assignment.value if self.assignment is not None else None
+            'assignment': self.assignment.value if self.assignment is not None else None,
+            'cooldown': self.cooldown
         }
     
     @staticmethod
     def from_json(json_data) -> Crewman:
         name = json_data.get('name')
         occupation = json_data.get('occupation')
+        cooldown = json_data.get('cooldown')
         assignment_data = json_data.get('assignment')
         assignment = None
         if assignment_data is not None:
             assignment = MenuKeys(assignment_data)
-        return Crewman(name=name, occupation=occupation,
-                       assignment=assignment)
+        return Crewman(name=name, occupation=occupation, assignment=assignment, cooldown=cooldown)
     
     @staticmethod
     def generate_name():
@@ -236,101 +249,3 @@ class Crewman:
             "stormbringer": 1,
             "surgeon": 1,
         })
-
-
-# TODO move to constants.stats
-""" maps occupation to cooldown_max"""
-occupation_stats = {
-    "cook": {
-        'cd': 0,
-        'cost': 10,
-    },  # Auto: feed crew extra somehow OR Action: reduce other crew cooldowns ?
-    "soldier": {
-        'cd': 0,
-        'cost': 12,
-    },  # Auto: +1 crew defense vs melee? but dies first...
-    "sailor": {
-        'cd': 0,
-        'cost': 8,
-    },
-    "archer": {
-        'cd': 0,
-        'cost': 12,
-    },  # Auto: +1 damage to arrow total
-    "sharpshooter": {
-        'cd': 0,
-        'cost': 13,
-    },  # Auto: + 1 weapon damage total
-    "lookout": {
-        'cd': 0,
-        'cost': 12,
-    },  # Auto: + 1 view
-    "rogue": {
-        'cd': 0,
-        'cost': 9,
-    },
-    "fisherman": {
-        'cd': 5,
-        'cost': 6,
-    },  # Action: catches fish at seaweed
-    "captain": {
-        'cd': 0,
-        'cost': 15,
-    },  # Auto: raises morale
-    "shipwright": {
-        'cd': 5,
-        'cost': 13,
-    },  # Action: repairs ship with tar & wood
-    "engineer": {
-        'cd': 5,
-        'cost': 13,
-    },  # Action: repairs ballista with rope and wood
-    "mistweaver": {
-        'cd': 5,
-        'cost': 15,
-    },  # Action: summons a circle of mist around ship
-    "seer": {
-        'cd': 5,
-        'cost': 11,
-    },  # Action: reveal terrain no LOS blocking
-    "tailor": {
-        'cd': 5,
-        'cost': 12,
-    },  # Action: repair sails with rope and canvas
-    "scryer": {
-        'cd': 10,
-        'cost': 13,
-    },  # Action: reveals location of all monsters in viewport
-    "smith": {
-        'cd': 5,
-        'cost': 12,
-    },  # Action: repair cannons with iron
-    "stormbringer": {
-        'cd': 10,
-        'cost': 14,
-    },  # Action: makes weather worse
-    "diver": {
-        'cd': 0,
-        'cost': 9,
-    },  # Auto: recover more from sunken ships?
-    "steward": {
-        'cd': 0,
-        'cost': 12,
-    },  # fit more cargo somehow? - maybe keep cargo from being damaged / washing overboard?
-    "surgeon": {
-        'cd': 0,
-        'cost': 14,
-    },  # ?
-    "minstrel": {
-        'cd': 0,
-        'cost': 10,
-    },  # reduce max cooldowns of others by 1 ?
-    "merchant": {
-        'cd': 0,
-        'cost': 12,
-    },  # Auto: discount buying/selling
-    "cartographer": {
-        'cd': 0,
-        'cost': 12,
-    },  # Auto: allows reading of maps
-}

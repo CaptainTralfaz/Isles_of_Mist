@@ -17,3 +17,17 @@ def get_items():
 
 
 item_stats = get_items()
+
+
+def get_occupations():
+    data = None
+    with open(file="data/occupations.yaml", mode="r") as stream:
+        try:
+            data = load(stream, Loader=Loader)
+        except FileNotFoundError:
+            print(f"loading error on {stream}")
+    
+    return data['occupations']
+
+
+occupation_stats = get_occupations()

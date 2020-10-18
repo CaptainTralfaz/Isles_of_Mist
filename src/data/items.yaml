@@ -29,6 +29,11 @@ item_stats:
     volume: 2
     category: 5
     cost: 2
+  iron:
+    weight: 4
+    volume: 1
+    category: 4
+    cost: 10
   leather:
     weight: 2
     volume: 2

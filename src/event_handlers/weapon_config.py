@@ -49,6 +49,7 @@ class WeaponConfigurationHandler(EventHandler):
                 self.engine.player.view.set_fov()
                 if self.engine.player.broadsides:
                     self.engine.player.broadsides.tick_cooldown()
+                self.engine.player.crew.tick_cooldowns()
                 self.engine.handle_bonus_movement()
                 self.engine.handle_enemy_turns()
                 self.engine.handle_weather()

@@ -1,0 +1,97 @@
+occupations:
+  cook:
+    cd: 15
+    cost: 10
+    description: Reduce other crew cooldowns with fish, meat, fruit, or bread
+  soldier:
+    cd: 0
+    cost: 20
+    description: First into the fray to block with his armor!
+  sailor:
+    cd: 0
+    cost: 8
+    description: The standard hearty sailing man
+  archer:
+    cd: 0
+    cost: 12
+    description: +1 maximum Arrow Damage total
+  sharpshooter:
+    cd: 0
+    cost: 13
+    description: +1 maximum Broadsides Damage total
+  lookout:
+    cd: 0
+    cost: 12
+    description: +1 View range
+  rogue:
+    cd: 0
+    cost: 9
+    description: Nothing special at the moment...
+  fisherman:
+    cd: 5
+    cost: 9
+    description: Catch fish with meat as bait
+  captain:
+    cd: 0
+    cost: 15
+    description: Nothing special at the moment... # Auto: raises morale
+  shipwright:
+    cd: 5
+    cost: 13
+    description: Repairs Ship with tar and wood
+  engineer:
+    cd: 5
+    cost: 13
+    description: Repairs ballista with wood and leather
+  mistweaver:
+    cd: 5
+    cost: 15
+    description: Summons mist around ship using a fish
+  seer:
+    cd: 5
+    cost: 12
+    description: Connects to the minds of those nearby using a pearl
+  tailor:
+    cd: 5
+    cost: 12
+    description: Repairs sails with rope and canvas
+  scryer:
+    cd: 10
+    cost: 13
+    description: Views terrain from high above using a pearl
+  smith:
+    cd: 5
+    cost: 12
+    description: Repairs Cannons with iron and leather
+  stormbringer:
+    cd: 10
+    cost: 14
+    description: Makes the weather worse using a pearl
+  diver:
+    cd: 0
+    cost: 9
+    description: Nothing special at the moment...  # Auto: recover more from sunken ships?
+  steward:
+    cd: 0
+    cost: 12
+    description: Nothing special at the moment...  # Keep cargo from being damaged / washing overboard?
+  surgeon:
+    cd: 0
+    cost: 14
+    description: Nothing special at the moment...  # ?
+  minstrel:
+    cd: 0
+    cost: 10
+    description: Reduces maximum cooldowns of others
+  merchant:
+    cd: 0
+    cost: 12
+    description: Nothing special at the moment... # Auto: discount buying/selling
+  cartographer:
+    cd: 0
+    cost: 12
+    description: Nothing special at the moment... # Auto: allows reading of maps
+  farmer:
+    cd: 0
+    cost: 6
+    description: Landlubber

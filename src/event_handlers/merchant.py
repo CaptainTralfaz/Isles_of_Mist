@@ -48,6 +48,7 @@ class MerchantHandler(EventHandler):
                 self.engine.player.view.set_fov()
                 if self.engine.player.broadsides:
                     self.engine.player.broadsides.tick_cooldown()
+                self.engine.player.crew.tick_cooldowns()
                 self.engine.handle_bonus_movement()
                 self.engine.handle_enemy_turns()
                 self.engine.handle_weather()
@@ -56,9 +57,9 @@ class MerchantHandler(EventHandler):
                         entity.view.set_fov()
             if self.engine.game_state != GameStates.MERCHANT:
                 self.engine.get_handler()
-
+            
             return something_happened
-
+    
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None

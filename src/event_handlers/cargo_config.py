@@ -9,8 +9,8 @@ from actions.base.mouse import MouseMoveAction
 from actions.base.quit import ActionQuit
 from actions.ship_config.change_select import ChangeSelectionAction
 from actions.ship_config.configure import ConfigureAction
-from actions.ship_config.exit_config import ExitConfigAction
 from actions.ship_config.confirm import ConfirmAction
+from actions.ship_config.exit_config import ExitConfigAction
 from components.cargo import Cargo
 from constants.enums import GameStates, KeyMod
 from constants.keys import MODIFIERS, MENU_KEYS
@@ -61,6 +61,7 @@ class CargoConfigurationHandler(EventHandler):
                 self.engine.player.view.set_fov()
                 if self.engine.player.broadsides:
                     self.engine.player.broadsides.tick_cooldown()
+                self.engine.player.crew.tick_cooldowns()
                 self.engine.handle_bonus_movement()
                 self.engine.handle_enemy_turns()
                 self.engine.handle_weather()

@@ -229,7 +229,7 @@ class GameMap:
                             with frontier.mutex:
                                 frontier.queue.clear()
         # change came_from to distances
-        distance_map = {}
+        distance_map = {(entity_x, entity_y): get_distance(entity_x, entity_y, target_x, target_y)}
         for (x, y) in came_from.keys():
             distance_map[x, y] = get_distance(x, y, target_x, target_y)
         
