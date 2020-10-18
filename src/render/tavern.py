@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 from pygame import Surface
 
-from components.crew import occupation_stats
 from constants.colors import colors
 from constants.constants import margin, game_font
 from constants.images import cargo_icons
+from constants.stats import occupation_stats
 from render.utilities import render_border
 
 if TYPE_CHECKING:
@@ -105,6 +105,12 @@ def tavern_render(console: Surface,
         
         height += game_font.get_height() + margin
         count += 1
+    
+    crewman = full_roster[player.crew.selected]
+    surf = game_font.render(f"{crewman.occupation.capitalize()}: {occupation_stats[crewman.occupation]['description']}",
+                            True, colors['mountain'])
+    crew_surf.blit(surf, ((ui_layout.viewport_width - surf.get_width()) // 2,
+                          ui_layout.viewport_height - game_font.get_height() - margin * 2))
     
     time.tint_render(crew_surf)
     render_border(crew_surf, time.get_sky_color)

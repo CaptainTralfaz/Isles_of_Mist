@@ -9,6 +9,7 @@ from actions.attack.attack_choice import AttackAction
 from actions.auto.auto import AutoAction
 from actions.base.mouse import MouseMoveAction
 from actions.base.quit import ActionQuit
+from actions.crew.crew import CrewAction
 from actions.move.movement import MovementAction
 from actions.move.rotate import RotateAction
 from actions.port.port_choice import PortAction
@@ -16,7 +17,7 @@ from actions.repair.repair_choice import RepairAction
 from actions.ship_config.ship import ShipAction
 from constants.enums import GameStates, KeyMod
 from constants.keys import MODIFIERS, ATTACK_KEYS, REPAIR_KEYS, PORT_KEYS, SHIP_KEYS, AUTO_KEYS, MOVEMENT_KEYS, \
-    ROTATE_KEYS
+    ROTATE_KEYS, MENU_KEYS
 from custom_exceptions import Impossible
 from event_handlers.base import EventHandler
 
@@ -53,6 +54,7 @@ class MainEventHandler(EventHandler):
                 self.engine.player.view.set_fov()
                 if self.engine.player.broadsides:
                     self.engine.player.broadsides.tick_cooldown()
+                self.engine.player.crew.tick_cooldowns()
                 self.engine.handle_bonus_movement()
                 self.engine.handle_enemy_turns()
                 self.engine.handle_weather()
@@ -84,6 +86,8 @@ class MainEventHandler(EventHandler):
                 response = ShipAction(player, SHIP_KEYS[event.key])
             elif port and self.engine.key_mod == KeyMod.OPTION and event.key in PORT_KEYS:
                 response = PortAction(player, PORT_KEYS[event.key])
+            elif self.engine.key_mod == KeyMod.OPTION and event.key in MENU_KEYS:
+                response = CrewAction(player, MENU_KEYS[event.key])
             if self.engine.key_mod is None:
                 if event.key in ROTATE_KEYS:
                     response = RotateAction(player, ROTATE_KEYS[event.key])

@@ -55,7 +55,7 @@ class MeleeAction(Action):
             damage = self.entity.fighter.power - self.target.crew.defense
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.crew.name}"
             if damage > 0:
-                self.engine.message_log.add_message(f"{attack_desc} and kills {damage} members", text_color='pink')
+                self.engine.message_log.add_message(f"{attack_desc} and wounds {damage} members", text_color='pink')
                 self.target.crew.take_damage(damage)
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", text_color='pink')

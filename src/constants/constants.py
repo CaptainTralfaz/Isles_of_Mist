@@ -57,6 +57,7 @@ MERCHANT = {
     'fish': 30,
     'fruit': 10,
     'grain': 30,
+    'iron': 5,
     'leather': 10,
     'lumber': 30,
     'meat': 30,

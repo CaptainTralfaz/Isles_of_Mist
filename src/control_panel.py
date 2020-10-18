@@ -92,14 +92,19 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
                 right = [crewman for crewman in player.crew.roster if crewman.assignment == MenuKeys.RIGHT]
                 left = [crewman for crewman in player.crew.roster if crewman.assignment == MenuKeys.LEFT]
                 down = [crewman for crewman in player.crew.roster if crewman.assignment == MenuKeys.DOWN]
+                
                 if len(up) > 0:
-                    arrow_keys.append({'rotation': 0, 'text': f"{up[0].occupation.capitalize()}"})
+                    cooldown = f" ({up[0].cooldown})" if up[0].cooldown > 0 else " (ok)"
+                    arrow_keys.append({'rotation': 0, 'text': f"{up[0].occupation.capitalize()} {cooldown}"})
                 if len(right) > 0:
-                    arrow_keys.append({'rotation': 90, 'text': f"{right[0].occupation.capitalize()}"})
+                    cooldown = f" ({right[0].cooldown})" if right[0].cooldown > 0 else " (ok)"
+                    arrow_keys.append({'rotation': 90, 'text': f"{right[0].occupation.capitalize()} {cooldown}"})
                 if len(left) > 0:
-                    arrow_keys.append({'rotation': 270, 'text': f"{left[0].occupation.capitalize()}"})
+                    cooldown = f" ({left[0].cooldown})" if left[0].cooldown > 0 else " (ok)"
+                    arrow_keys.append({'rotation': 270, 'text': f"{left[0].occupation.capitalize()} {cooldown}"})
                 if len(down) > 0:
-                    arrow_keys.append({'rotation': 180, 'text': f"{down[0].occupation.capitalize()}"})
+                    cooldown = f" ({down[0].cooldown})" if down[0].cooldown > 0 else " (ok)"
+                    arrow_keys.append({'rotation': 180, 'text': f"{down[0].occupation.capitalize()} {cooldown}"})
             
             elif player.is_alive:  # standard actions
                 arrow_keys = [{'rotation': 0, 'text': 'Row'},
