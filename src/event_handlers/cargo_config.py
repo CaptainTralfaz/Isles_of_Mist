@@ -58,19 +58,11 @@ class CargoConfigurationHandler(EventHandler):
                                    cargo=Cargo(max_volume=10,
                                                max_weight=10,
                                                manifest=something_happened.get('cargo'))))
-                self.engine.player.view.set_fov()
-                if self.engine.player.broadsides:
-                    self.engine.player.broadsides.tick_cooldown()
-                self.engine.player.crew.tick_cooldowns()
-                self.engine.handle_bonus_movement()
-                self.engine.handle_enemy_turns()
-                self.engine.handle_weather()
-                for entity in self.engine.game_map.entities:
-                    if entity.is_alive:
-                        entity.view.set_fov()
+                self.engine.end_turn()
             if self.engine.game_state != GameStates.CARGO_CONFIG:
                 self.engine.get_handler()
-    
+        return something_happened
+
     def process_event(self, event) -> Optional[Action]:
         player = self.engine.player
         response = None

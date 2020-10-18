@@ -80,6 +80,18 @@ class Engine:
         return Engine(player=player, ui_layout=ui_layout, seed=seed, message_log=message_log,
                       time_of_day=time_of_day, camera=camera, game_state=game_state)
     
+    def end_turn(self):
+        self.player.view.set_fov()
+        if self.player.broadsides:
+            self.player.broadsides.tick_cooldown()
+        self.player.crew.tick_cooldowns()
+        self.handle_bonus_movement()
+        self.handle_enemy_turns()
+        self.handle_weather()
+        for entity in self.game_map.entities:
+            if entity.is_alive:
+                entity.view.set_fov()
+
     def get_handler(self):
         if self.game_state == GameStates.ACTION:
             self.event_handler = MainEventHandler(self)
