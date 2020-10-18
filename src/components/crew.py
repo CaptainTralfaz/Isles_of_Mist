@@ -187,11 +187,11 @@ class Crewman:
         if randint(0, 5) == 0:
             nickname = choice([
                 "'Fat' ", "'Skinny' ", "'Lazy' ", "'Big' ", "'Tiny' ", "'Old' ", "'Young' ", "'Handsome' ", "'Stinky' ",
-                "'Lucky' ", "'Dark' ", "'Pale' ", "'Crazy' ", "'Sharp' ", "'Mean' ", "'Smelly' ", "'Drunk'", "'Tipsy' ",
+                "'Lucky' ", "'Dark' ", "'Pale' ", "'Crazy' ", "'Sharp' ", "'Mean' ", "'Smelly' ", "'Poor' ", "'Tipsy' ",
                 "'Sleepy' ", "'Lumpy' ", "'Bald' ", "'Quick' ", "'Fancy' ", "'Ugly' ", "'Long' ", "'Wise' ", "'Rusty' ",
                 "'Sneaky' ", "'Honest' ", "'Dirty' ", "'Clumsy' ", "'Slippery' ", "'Fierce' ", "'Mighty' ", "'Pretty' ",
                 "'Quiet' ", "'Eagle Eye' ", "'Cautious' ", "'Hairy' ", "'Cruel' ", "'Angry' ", "'Salty' ", "'Crusty' ",
-                "'Slim' ", "'Wild' ", "'Poor' ", "'Thrifty' ",
+                "'Slim' ", "'Wild' ", "'Thrifty' ", "'Drunk' ",
             ])
         first = choice([
             "Jack", "James", "Benjamin", "Halsten", "Joseph", "Phillip", "Robert", "Carey", "Terrance", "Igor", "Derek",
@@ -240,12 +240,14 @@ class Crewman:
             "shipwright": 5,
             "engineer": 5,
             "sharpshooter": 5,  # added
-            "mistweaver": 1,
+            "stormbringer": 5,
+            "windjammer": 5,
+            "mistweaver": 5,
+            "woodshaper": 5,
             "seer": 5,
             "diver": 5,
             "scryer": 1,
             "steward": 5,
             "smith": 5,
-            "stormbringer": 1,
             "surgeon": 1,
         })

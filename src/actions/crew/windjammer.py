@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from components.crew import Crewman
 
 
-class StormBringer(Action):
+class WindJammer(Action):
     def __init__(self, entity: Entity, crewman: Crewman):
         """
         this action directs the crewman to attempts to make the weather worse
@@ -22,14 +22,14 @@ class StormBringer(Action):
         super().__init__(entity)
     
     def perform(self) -> bool:
-        components = ["pearl"]
+        components = ["bat wing"]
         if self.crewman.cooldown > 0:
             raise Impossible(f"{self.crewman.name} is still on cooldown")
         for item in components:
             if not (item in self.entity.cargo.manifest.keys() and self.entity.cargo.manifest[item] > 0):
-                raise Impossible(f"Cannot change weather without {item}")
-        if self.entity.game_map.weather.conditions == Conditions.STORMY:
-            raise Impossible(f"Weather conditions cannot get worse")
+                raise Impossible(f"Cannot calm wind without {item}")
+        if self.entity.game_map.weather.wind_direction is None:
+            raise Impossible(f"Wind is not blowing")
         self.crewman.cooldown = self.crewman.cooldown_max
         if len(components) > 1:
             used = f"each of {components[0]}"
@@ -39,8 +39,8 @@ class StormBringer(Action):
             used = components[0]
         for item in components:
             self.entity.cargo.manifest[item] -= 1
-        self.entity.game_map.weather.conditions = Conditions(self.entity.game_map.weather.conditions.value + 1)
-        self.entity.game_map.weather.conditions_count = 0
-        self.engine.message_log.add_message(f"{self.crewman.name} moves the heavens!", text_color='yellow')
+        self.entity.game_map.weather.wind_direction = None
+        self.entity.game_map.weather.wind_count = 0
+        self.engine.message_log.add_message(f"{self.crewman.name} calms the wind!", text_color='yellow')
         self.engine.message_log.add_message(f"Used 1 {used}")
         return True

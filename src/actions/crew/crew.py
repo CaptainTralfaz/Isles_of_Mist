@@ -13,6 +13,7 @@ from actions.crew.shipwright import Shipwright
 from actions.crew.smith import Smith
 from actions.crew.stormbringer import StormBringer
 from actions.crew.tailor import Tailor
+from actions.crew.windjammer import WindJammer
 from constants.enums import MenuKeys
 from custom_exceptions import Impossible
 
@@ -24,6 +25,7 @@ action_lookup = {
     "tailor": Tailor,
     "engineer": Engineer,
     "mistweaver": MistWeaver,
+    "windjammer": WindJammer,
     "cook": Cook,
     "seer": Seer,
     "scryer": Scryer,
