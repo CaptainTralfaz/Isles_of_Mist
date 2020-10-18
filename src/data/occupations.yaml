@@ -51,6 +51,10 @@ occupations:
     cd: 5
     cost: 12
     description: Connects to the minds of those nearby using a pearl
+  woodshaper:
+    cd: 0
+    cost: 20
+    description: Protects the hull using a serpent scale
   tailor:
     cd: 5
     cost: 12
@@ -67,6 +71,10 @@ occupations:
     cd: 10
     cost: 14
     description: Makes the weather worse using a pearl
+  windjammer:
+    cd: 10
+    cost: 14
+    description: Calms the wind using a bat wing
   diver:
     cd: 0
     cost: 9

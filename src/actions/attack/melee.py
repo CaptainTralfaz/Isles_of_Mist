@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
+from random import choice
 
 from actions.base.base import Action
 from utilities import choice_from_dict
@@ -40,6 +41,19 @@ class MeleeAction(Action):
             attack_desc = f"{self.entity.name.capitalize()} attacks {self.target.name}'s {self.target.fighter.name}"
             if damage > 0:
                 self.engine.message_log.add_message(f"{attack_desc} for {damage} damage", text_color='pink')
+                if self.target.fighter.name == "hull" \
+                        and self.target.crew.has_occupation("woodshaper") \
+                        and "wood" in self.target.cargo.manifest.keys() \
+                        and self.target.cargo.manifest['wood'] > 0:
+                    shapers = [crewman for crewman in self.target.crew.roster if crewman.occupation == "woodshaper"
+                               and crewman.cooldown == 0]
+                    if len(shapers) > 0:
+                        shaper = choice(shapers)
+                        shaper.cooldown = 20
+                        self.target.cargo.manifest['wood'] -= 1
+                        self.engine.message_log.add_message(f"{shaper.name} used a wood to prevent 1 damage",
+                                                            text_color='cyan')
+                        damage -= 1
                 self.target.fighter.hp -= damage
             else:
                 self.engine.message_log.add_message(f"{attack_desc} but does no damage", text_color='pink')

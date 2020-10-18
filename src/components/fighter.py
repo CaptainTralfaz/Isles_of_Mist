@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict, TYPE_CHECKING
+from random import choice
 
 from components.base import BaseComponent
 from constants.constants import move_elevations
@@ -91,4 +92,17 @@ class Fighter(BaseComponent):
         return amount_repaired
     
     def take_damage(self, amount: int) -> None:
+        if self.name == "hull" \
+                and self.parent.crew.has_occupation("woodshaper") \
+                and "wood" in self.parent.cargo.manifest.keys() \
+                and self.parent.cargo.manifest['wood'] > 0:
+            shapers = [crewman for crewman in self.parent.crew.roster if crewman.occupation == "woodshaper"
+                       and crewman.cooldown == 0]
+            if len(shapers) > 0:
+                shaper = choice(shapers)
+                shaper.cooldown = 20
+                self.parent.cargo.manifest['wood'] -= 1
+                self.engine.message_log.add_message(f"{shaper.name} used a wood to prevent 1 damage",
+                                                    text_color='cyan')
+                amount -= 1
         self.hp -= amount
