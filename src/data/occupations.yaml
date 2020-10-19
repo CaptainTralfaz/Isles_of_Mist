@@ -2,15 +2,19 @@ occupations:
   cook:
     cd: 15
     cost: 10
-    description: Reduce other crew cooldowns with fish, meat, fruit, or bread
+    description: Reduce other crew cooldowns with fish
   soldier:
     cd: 0
     cost: 20
-    description: First into the fray to block with his armor!
+    description: First into the fray to block with his shield!
   sailor:
     cd: 0
     cost: 8
     description: The standard hearty sailing man
+  farmer:
+    cd: 0
+    cost: 5
+    description: Landlubber... Inexperienced but cheap
   archer:
     cd: 0
     cost: 12
@@ -23,18 +27,14 @@ occupations:
     cd: 0
     cost: 12
     description: +1 View range
-  rogue:
-    cd: 0
-    cost: 9
-    description: Nothing special at the moment...
   fisherman:
     cd: 5
     cost: 9
     description: Catch fish with meat as bait
   captain:
     cd: 0
-    cost: 15
-    description: Nothing special at the moment... # Auto: raises morale
+    cost: 20
+    description: Reduce cost to hire crew
   shipwright:
     cd: 5
     cost: 13
@@ -71,10 +71,22 @@ occupations:
     cd: 10
     cost: 14
     description: Makes the weather worse using a pearl
-  windjammer:
+  stormcalmer:
     cd: 10
     cost: 14
-    description: Calms the wind using a bat wing
+    description: Makes the weather better using a pearl
+  windcaller:
+    cd: 10
+    cost: 14
+    description: Calls the wind using a bat wing
+  windsoother:
+    cd: 10
+    cost: 14
+    description: Disperses the wind using a bat wing
+  rogue:
+    cd: 0
+    cost: 9
+    description: Nothing special at the moment...
   diver:
     cd: 0
     cost: 9
@@ -83,14 +95,14 @@ occupations:
     cd: 0
     cost: 12
     description: Nothing special at the moment...  # Keep cargo from being damaged / washing overboard?
-  surgeon:
+  medic:
     cd: 0
     cost: 14
     description: Nothing special at the moment...  # ?
   minstrel:
     cd: 0
     cost: 10
-    description: Reduces maximum cooldowns of others
+    description: Nothing special at the moment...  # Reduces maximum cooldowns of others?
   merchant:
     cd: 0
     cost: 12
@@ -99,7 +111,3 @@ occupations:
     cd: 0
     cost: 12
     description: Nothing special at the moment... # Auto: allows reading of maps
-  farmer:
-    cd: 0
-    cost: 6
-    description: Landlubber
