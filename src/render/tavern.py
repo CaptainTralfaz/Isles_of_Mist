@@ -41,6 +41,7 @@ def tavern_render(console: Surface,
         full_roster.append(crewman)
     for crewman in tavern_roster:
         full_roster.append(crewman)
+    discount = 2 if player.crew.has_occupation("captain") else 0
     
     coins = cargo_icons['coins']
     crew_surf.blit(coins, (margin * 2, height))
@@ -100,7 +101,7 @@ def tavern_render(console: Surface,
             color = colors['pink']
         surf = game_font.render(location, True, color)
         crew_surf.blit(surf, (435, height))
-        surf = game_font.render(f"{occupation_stats[crewman.occupation]['cost']}", True, colors['cyan'])
+        surf = game_font.render(f"{occupation_stats[crewman.occupation]['cost'] - discount}", True, colors['cyan'])
         crew_surf.blit(surf, (575 - surf.get_width(), height))
         
         height += game_font.get_height() + margin

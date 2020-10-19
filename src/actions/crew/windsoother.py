@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
-from constants.enums import Conditions
 from custom_exceptions import Impossible
 
 if TYPE_CHECKING:
@@ -11,7 +10,7 @@ if TYPE_CHECKING:
     from components.crew import Crewman
 
 
-class WindJammer(Action):
+class WindSoother(Action):
     def __init__(self, entity: Entity, crewman: Crewman):
         """
         this action directs the crewman to attempts to make the weather worse

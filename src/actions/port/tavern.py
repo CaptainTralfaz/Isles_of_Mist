@@ -28,6 +28,7 @@ class TavernAction(Action):
         for crewman in self.entity.game_map.port.tavern.roster:
             full_roster.append(crewman)
         selected = self.entity.crew.selected
+        discount = 2 if self.entity.crew.has_occupation("captain") else 0
         
         roster = self.entity.crew.roster
         release_list = self.entity.crew.release_list
@@ -45,14 +46,14 @@ class TavernAction(Action):
             elif full_roster[selected] in tavern and full_roster[selected] not in hire_list:
                 hire_list.append(full_roster[selected])
                 self.entity.game_map.port.tavern.temp_coins += \
-                    occupation_stats[full_roster[selected].occupation]['cost']
+                    occupation_stats[full_roster[selected].occupation]['cost'] + discount
             return False
         
         elif self.event == MenuKeys.RIGHT:
             if full_roster[selected] in hire_list:
                 hire_list.remove(full_roster[selected])
                 self.entity.game_map.port.tavern.temp_coins -= \
-                    occupation_stats[full_roster[selected].occupation]['cost']
+                    occupation_stats[full_roster[selected].occupation]['cost'] - discount
             elif full_roster[selected] in roster and full_roster[selected] not in release_list:
                 release_list.append(full_roster[selected])
             return False
