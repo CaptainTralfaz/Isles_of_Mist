@@ -54,7 +54,7 @@ occupations:
   woodshaper:
     cd: 0
     cost: 20
-    description: Protects the hull using a serpent scale
+    description: Protects the hull using a wood
   tailor:
     cd: 5
     cost: 12
