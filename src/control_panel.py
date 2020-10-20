@@ -129,10 +129,10 @@ def get_keys(key_mod: KeyMod, game_state: GameStates, player: Entity):
         
         else:  # Player is in port
             if key_mod == KeyMod.SHIFT:
-                arrow_keys = [{'rotation': 0, 'text': 'Repair Sails'},
-                              {'rotation': 90, 'text': 'Repair Hull'},
+                arrow_keys = [{'rotation': 0, 'text': 'Repair Sails    (15)'},
+                              {'rotation': 90, 'text': 'Repair Hull    (20)'},
                               # {'rotation': 270, 'text': 'Hire Crew'},
-                              {'rotation': 180, 'text': 'Fix Weapons'}]
+                              {'rotation': 180, 'text': 'Fix Weapons  (25)'}]
             elif key_mod == KeyMod.COMMAND:
                 if player.sails.raised:
                     arrow_keys.append({'rotation': 0, 'text': 'Trim Sails'})

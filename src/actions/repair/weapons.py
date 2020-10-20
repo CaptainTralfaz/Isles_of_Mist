@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from random import choice
 from typing import TYPE_CHECKING
 
 from actions.base.base import Action
@@ -19,15 +20,13 @@ class RepairWeaponsAction(Action):
     
     def perform(self) -> bool:
         damaged = self.entity.broadsides.get_damaged_weapons()
-        hrs = 0
-        if damaged:
-            for weapon in damaged:
-                weapon.repair(1)
-                hrs += 1
-        if hrs:
-            hours = "hours" if hrs > 1 else "hour"
-            passes = "pass" if hrs > 1 else "passes"
-            self.engine.time.roll_hrs(hrs)
-            self.engine.message_log.add_message(f"Repaired {hrs} Weapons damage ({hrs} {hours} {passes})")
-            return True
-        raise Impossible(f"Weapons are already fully repaired")
+        if len(damaged) <= 0:
+            raise Impossible(f"Weapons are already fully repaired")
+        if self.entity.cargo.coins < 25:
+            raise Impossible(f"Not enough coins")
+        self.entity.cargo.coins -= 25
+        weapon = choice(damaged)
+        weapon.repair(1)
+        self.engine.time.roll_hrs(1)
+        self.engine.message_log.add_message(f"Repaired 1 {weapon.name} damage (one hour passes)")
+        return True
