@@ -111,3 +111,7 @@ occupations:
     cd: 0
     cost: 12
     description: Nothing special at the moment... # Auto: allows reading of maps
+  mutineer:
+    cd: 0
+    cost: 0
+    description: He should have been paid!
