@@ -13,8 +13,8 @@ from utilities import choice_from_dict
 if TYPE_CHECKING:
     from entity import Entity
 
-starting_crew_list = ["sailor", "sailor", "sailor", "sailor", "sailor", "sailor",
-                      "shipwright", "tailor", "cook", "captain"]
+starting_crew_list = ["sailor", "sailor", "sailor", "sailor", "sailor",
+                      "lookout", "shipwright", "tailor", "cook", "captain"]
 
 
 class Crew(BaseComponent):
@@ -138,6 +138,42 @@ class Crew(BaseComponent):
         countdowns = [crewman for crewman in self.roster if crewman.cooldown > 0]
         for crewman in countdowns:
             crewman.cooldown -= 1
+            
+    def pay_crew(self):
+        pay_list = sorted(self.roster,
+                          key=lambda i: occupation_stats[i.occupation]['cost'], reverse=True)
+        mutiny_list = []
+        for crewman in pay_list:
+            amount = occupation_stats[crewman.occupation]['cost']
+            if self.parent.cargo.coins < amount:
+                mutiny_list.append(crewman)
+                crewman.occupation = "mutineer"
+            else:
+                self.parent.cargo.coins -= amount
+        if len(mutiny_list) > 0:
+            self.parent.parent.engine.message_log.add_message(f"{mutiny_list[0].name} attempts to incite a mutiny!",
+                                                              text_color='red')
+        if len(mutiny_list) > len(self.roster) // 2:
+            self.parent.parent.engine.message_log.add_message(f"The mutiny succeeds!", text_color='red')
+            loyalists = []
+            for crewman in self.roster:
+                if crewman not in mutiny_list:
+                    loyalists.append(crewman)
+            for crewman in loyalists:
+                self.roster.remove(crewman)
+                self.parent.parent.engine.message_log.add_message(f"{crewman.name} has fighting the mutineers!",
+                                                                  text_color='cyan')
+            self.parent.fighter.die()
+        else:
+            self.parent.parent.engine.message_log.add_message(f"The mutiny is put down!", text_color='red')
+            for crewman in mutiny_list:
+                self.parent.parent.engine.message_log.add_message(f"{crewman.name} has died attempting mutiny!",
+                                                                  text_color='cyan')
+                self.roster.remove(crewman)
+            # plus one random crewman for every 2 mutineers...
+            count = len(mutiny_list) // 2
+            for crewman in range(count):
+                self.take_damage(1)
 
 
 def generate_roster(count: int):

@@ -15,6 +15,7 @@ class Time:
         self.day = day
         self.month = month
         self.year = year
+        self.parent = None
     
     def to_json(self):
         """
@@ -45,7 +46,7 @@ class Time:
         :return: None
         """
         total = self.mins + amount
-        if self.mins >= 60:
+        if total >= 60:
             self.mins = total - 60
             self.roll_hrs(1)
         else:
@@ -69,11 +70,12 @@ class Time:
     
     def roll_month(self, amount):
         total = self.month + amount
-        if self.month > 12:
+        if total > 12:
             self.month = total - 12
             self.roll_year(1)
         else:
             self.month = total
+        self.parent.player.crew.pay_crew()
     
     def roll_year(self, amount):
         total = self.year + amount

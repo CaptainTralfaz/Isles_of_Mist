@@ -54,6 +54,7 @@ class Engine:
         self.message_log = MessageLog(parent=self) if message_log is None else message_log
         self.clock = time.Clock()
         self.time = Time() if time_of_day is None else time_of_day
+        self.time.parent = self
         self.key_mod = None
         self.camera = Camera() if camera is None else camera
         self.game_state = GameStates.ACTION if game_state is None else game_state
@@ -87,6 +88,7 @@ class Engine:
         self.player.crew.tick_cooldowns()
         self.handle_bonus_movement()
         self.handle_enemy_turns()
+        self.time.roll_min(time_tick)
         self.handle_weather()
         for entity in self.game_map.entities:
             if entity.is_alive:
@@ -124,7 +126,6 @@ class Engine:
                 pass
     
     def handle_weather(self):
-        self.time.roll_min(time_tick)
         self.game_map.weather.roll_weather()
         self.game_map.weather.roll_wind()
         self.game_map.weather.roll_mist(self.game_map)

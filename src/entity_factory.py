@@ -79,7 +79,7 @@ serpent = Entity(x=0,
                                  defense=1,
                                  power=3,
                                  can_hit={"hull": 60, "crew": 5, "weapon": 15}),
-                 view=View(3))
+                 view=View(4))
 
 bat = Entity(x=0,
              y=0,
@@ -96,7 +96,7 @@ bat = Entity(x=0,
                              defense=0,
                              power=2,
                              can_hit={"sail": 30, "crew": 10}),
-             view=View(4),
+             view=View(5),
              flying=True)
 
 mermaid = Entity(x=0,
@@ -114,7 +114,7 @@ mermaid = Entity(x=0,
                                  defense=0,
                                  power=1,
                                  can_hit={"crew": 10}),
-                 view=View(3))
+                 view=View(4))
 
 shipwreck = Entity(x=0,
                    y=0,
