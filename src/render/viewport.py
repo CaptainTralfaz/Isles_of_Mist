@@ -43,7 +43,7 @@ def viewport_render(game_map: GameMap,
                               map_to_surface_coords(x, y, left, top, overlap, player, camera))
                 if game_map.terrain[x][y].decoration:
                     map_surf.blit(terrain_icons[game_map.terrain[x][y].decoration],
-                                  map_to_surface_coords(x, y, left, top, overlap, player, camera, entity=True))
+                                  map_to_surface_coords(x, y, left, top, overlap, player, camera))
                 # coord_text = game_font.render(f"{x}:{y}", False, (0, 0, 0))
                 # map_surf.blit(coord_text,
                 #               ((x - left) * tile_size,

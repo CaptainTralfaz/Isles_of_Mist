@@ -131,7 +131,7 @@ class Elevation(Enum):
     GRASS = auto()
     JUNGLE = auto()
     MOUNTAIN = auto()
-    VOLCANO = auto()
+    ALL = ()
     
     def __lt__(self, other):
         if self.__class__ is other.__class__:

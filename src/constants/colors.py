@@ -32,4 +32,10 @@ colors = {
     'seaweed': (50, 175, 50),
     'sandbar': (225, 200, 125),
     'minefield': (200, 0, 0),
+    'mine': (50, 50, 50),
+    'quarry': (0, 0, 0),
+    'tidepool': (0, 50, 200),
+    'swamp': (0, 255, 255),
+    'farmland': (200, 0, 0),
+    'claypool': (250, 150, 75),
 }

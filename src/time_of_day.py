@@ -67,6 +67,7 @@ class Time:
             self.roll_month(1)
         else:
             self.day = total
+        self.parent.game_map.port.update_port()
     
     def roll_month(self, amount):
         total = self.month + amount

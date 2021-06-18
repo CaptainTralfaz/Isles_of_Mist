@@ -3,6 +3,7 @@ from __future__ import annotations
 from random import choice, randint
 from typing import Dict, Tuple
 
+from components.crew import generate_roster
 from port.smithy import Smithy
 from port.merchant import Merchant
 from port.tavern import Tavern
@@ -14,12 +15,15 @@ class Port:
                  name: str = None,
                  merchant: Merchant = None,
                  smithy: Smithy = None,
-                 tavern: Tavern = None):
+                 tavern: Tavern = None,
+                 coins: int = None):
         self.location = location
         self.name = name if name is name is not None else gen_port_name()
         self.merchant = merchant if merchant is not None else Merchant()
         self.smithy = smithy if smithy is not None else Smithy()
         self.tavern = tavern if tavern is not None else Tavern()
+        self.coins = coins if coins is not None else randint(100, 200)
+        self.size = 1
     
     def to_json(self) -> Dict:
         return {
@@ -27,7 +31,8 @@ class Port:
             'name': self.name,
             'merchant': self.merchant.to_json(),
             'smithy': self.smithy.to_json(),
-            'tavern': self.tavern.to_json()
+            'tavern': self.tavern.to_json(),
+            'coins': self.coins,
         }
     
     @staticmethod
@@ -38,8 +43,19 @@ class Port:
         merchant = Merchant.from_json(json_data.get('merchant'))
         smithy = Smithy.from_json(json_data.get('smithy'))
         tavern = Tavern.from_json(json_data.get('tavern'))
-        return Port(location=location, name=name, merchant=merchant, smithy=smithy, tavern=tavern)
+        coins = json_data.get('coins')
+        return Port(location=location, name=name, merchant=merchant, smithy=smithy, tavern=tavern, coins=coins)
 
+    def update_port(self):
+        # for now, just divide up money from repairs and tavern between smithy / merchant
+        print(f"Updating cargo/coins for {self.name}")
+        self.merchant.coins += self.coins // 2
+        self.smithy.coins += self.coins // 2
+        print(f"{self.coins // 2} given to both Merchant and Tavern")
+        # simulate next day's earnings base
+        self.coins = randint(10, 20) * self.size
+        self.tavern.roster.extend(generate_roster(randint(0, 2)))
+        
 
 def gen_port_name() -> str:
     first = randint(0, 1)
@@ -47,9 +63,8 @@ def gen_port_name() -> str:
         adjective = choice([
             "Odd ", "Grand ", "Little ", "Poor ", "Tiny ", "Perfect ", "Stinky ", "Old ", "Fierce ", "Ole ", "Sad ",
             "Red ", "Black ", "Blue ", "Green ", "Yellow ", "Ugly ", "Rich ", "Happy ", "Royal ", "White ", "Drunken ",
-            "Sandy ", "One ", "Sloppy ", "Tidy ", "Lonely ", "Deadly ", "Foggy ", "Big ", "Double ", "Pierced "
-                                                                                                     "Shifty ",
-            "Slippery ", "Hungry ", "Sliced ", "Oiled ", "Twisted ", "Long ", "Short ", "Crusty ",
+            "Sandy ", "One ", "Sloppy ", "Tidy ", "Lonely ", "Deadly ", "Foggy ", "Big ", "Double ", "Pierced ",
+            "Slippery ", "Hungry ", "Sliced ", "Oiled ", "Twisted ", "Long ", "Short ", "Crusty ", "Shifty ",
             "Hairy ", "New ", "Jolly ", "Half ", "Dirty ", "Salty ", "Tired ", "Lumpy ", "Leaning ", "Round ", "Bad ",
             "Angry ", "Ancient ", "Zero ", "Lame ", "Fancy ", "Priceless ", "Worthless ", "Lazy ", "Rocky ",
             "Windy ", "Dry ", "Sunny ", "Hazy ", "Shady "

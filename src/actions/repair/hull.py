@@ -23,6 +23,7 @@ class RepairHullAction(Action):
         if self.entity.cargo.coins < 20:
             raise Impossible("Not enough coins")
         self.entity.cargo.coins -= 20
+        self.entity.game_map.port.coins += 20
         self.entity.fighter.repair(1)
         self.engine.time.roll_hrs(2)
         self.engine.message_log.add_message(f"Repaired 1 Hull Point for 20 Coins (2 hours pass)")

@@ -118,5 +118,6 @@ class ConfirmAction(Action):
                         self.entity.crew.roster.append(crewman)
                 
                 self.entity.cargo.coins -= self.entity.game_map.port.tavern.temp_coins
+                self.entity.game_map.port.coins += self.entity.game_map.port.tavern.temp_coins
                 self.engine.message_log.add_message("Transaction completed")
                 return ExitPortAction(self.entity, confirm=True).perform()

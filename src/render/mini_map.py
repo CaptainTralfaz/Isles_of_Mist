@@ -31,17 +31,17 @@ def mini_map_render(game_map: GameMap, main_display: display, ui_layout: Display
                 mini_surf.blit(block, (margin + x * block_size,
                                        margin + y * block_size + (x % 2) * block_size // 2 - 2))
                 if game_map.terrain[x][y].decoration:
-                    if game_map.terrain[x][y].elevation in move_elevations['land']:
+                    if colors.get(game_map.terrain[x][y].decoration):
+                        mini_block.fill(colors[game_map.terrain[x][y].decoration])
+                        mini_surf.blit(mini_block,
+                                       (margin + 1 + x * block_size,
+                                        margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
+                    else:
                         color = 'white' if game_map.terrain[x][y].decoration in ["port"] else 'black'
                         block.fill(colors['red'])
                         mini_surf.blit(block, (margin + x * block_size,
                                                margin + y * block_size + (x % 2) * block_size // 2 - 2))
                         mini_block.fill(color)
-                        mini_surf.blit(mini_block,
-                                       (margin + 1 + x * block_size,
-                                        margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))
-                    else:
-                        mini_block.fill(colors[game_map.terrain[x][y].decoration])
                         mini_surf.blit(mini_block,
                                        (margin + 1 + x * block_size,
                                         margin + 1 + y * block_size + (x % 2) * block_size // 2 - 2))

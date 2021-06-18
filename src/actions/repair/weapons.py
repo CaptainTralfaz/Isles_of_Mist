@@ -25,6 +25,7 @@ class RepairWeaponsAction(Action):
         if self.entity.cargo.coins < 25:
             raise Impossible(f"Not enough coins")
         self.entity.cargo.coins -= 25
+        self.entity.game_map.port.coins += 25
         weapon = choice(damaged)
         weapon.repair(1)
         self.engine.time.roll_hrs(1)

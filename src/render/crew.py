@@ -30,7 +30,7 @@ def crew_render(console: Surface,
     crew_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
     count = 0
     height = margin * 2
-    
+
     game_font.set_underline(True)
     surf = game_font.render(f"Assign", True, colors['mountain'])
     crew_surf.blit(surf, (margin * 2, height))
