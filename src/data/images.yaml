@@ -22,6 +22,12 @@ assets:
     - fog_of_war
     - mist
     - highlight
+    - mine
+    - quarry
+    - swamp
+    - tidepool
+    - claypool
+    - farmland
     - minefield
     - port
     - coral

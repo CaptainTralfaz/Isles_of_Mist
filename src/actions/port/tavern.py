@@ -46,7 +46,7 @@ class TavernAction(Action):
             elif full_roster[selected] in tavern and full_roster[selected] not in hire_list:
                 hire_list.append(full_roster[selected])
                 self.entity.game_map.port.tavern.temp_coins += \
-                    occupation_stats[full_roster[selected].occupation]['cost'] + discount
+                    occupation_stats[full_roster[selected].occupation]['cost'] - discount
             return False
         
         elif self.event == MenuKeys.RIGHT:

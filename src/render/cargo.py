@@ -32,11 +32,20 @@ def cargo_render(console: Surface,
     cargo_surf = Surface((ui_layout.viewport_width, ui_layout.viewport_height))
     height = margin * 2
     column = 70
-    
+    spacer = 35
+
     manifest_keys = sorted([key for key in player.cargo.manifest.keys()],
                            key=lambda i: item_stats[i]['category'].value)
+    
+    coins = cargo_icons['coins']
+    cargo_surf.blit(coins, (margin * 2, height))
+    surf = game_font.render(f"{player.cargo.coins}", True, colors['mountain'])
+    cargo_surf.blit(surf, (spacer, height))
+    surf = game_font.render(f"Player Cargo", True, colors['mountain'])
+    cargo_surf.blit(surf, (spacer + column, height))
+    height += game_font.get_height() + margin
+
     game_font.set_underline(True)
-    spacer = 35
     surf = game_font.render(f"Item Name", True, colors['mountain'])
     cargo_surf.blit(surf, (spacer, height))
     c = 3

@@ -30,9 +30,19 @@ ISLAND_GEN = {
 
 DECORATION_GEN = {
     'frequency': 20,
-    'rand_pow_x': 20,
-    'rand_pow_y': 20,
+    'rand_pow_x': 25,
+    'rand_pow_y': 25,
     'cutoff': 185,
+}
+
+ELEVATION_LEVEL = {
+    'ocean': 100,
+    'water': 125,
+    'shallows': 150,
+    'beach': 160,
+    'grass': 170,
+    'jungle': 200,
+    'mountain': 255,
 }
 
 
@@ -67,50 +77,88 @@ def generate_map(map_width: int, map_height: int, engine: Engine, seed: int, ui_
             
             # decoration
             decoration = None
-            if (x, y) in rock_noise:
-                decoration = "rocks"
-            elif (x, y) in coral_noise:
-                decoration = "coral"
-            elif (x, y) in sandbar_noise:
-                decoration = "sandbar"
-            elif (x, y) in seaweed_noise:
-                decoration = "seaweed"
+            if island_noise[x][y] < ELEVATION_LEVEL['shallows']:
+                if (x, y) in rock_noise:
+                    decoration = "rocks"
+                elif (x, y) in coral_noise:
+                    decoration = "coral"
+                elif (x, y) in sandbar_noise:
+                    decoration = "sandbar"
+                elif (x, y) in seaweed_noise:
+                    decoration = "seaweed"
+            elif island_noise[x][y] < ELEVATION_LEVEL['beach']:
+                if (x, y) in rock_noise:
+                    decoration = "quarry"
+                elif (x, y) in coral_noise:
+                    decoration = "claypool"  # clay pit
+                elif (x, y) in sandbar_noise:
+                    decoration = "tidepool"
+                elif (x, y) in seaweed_noise:
+                    decoration = "tidepool"
+            elif island_noise[x][y] < ELEVATION_LEVEL['grass']:
+                if (x, y) in rock_noise:
+                    decoration = "quarry"
+                elif (x, y) in coral_noise:
+                    decoration = "claypool"  # clay pit
+                elif (x, y) in sandbar_noise:
+                    decoration = "farmland"
+                elif (x, y) in seaweed_noise:
+                    decoration = "farmland"
+            elif island_noise[x][y] < ELEVATION_LEVEL['jungle']:
+                if (x, y) in rock_noise:
+                    decoration = "mine"
+                elif (x, y) in coral_noise:
+                    decoration = "claypool"
+                elif (x, y) in sandbar_noise:
+                    decoration = "swamp"
+                elif (x, y) in seaweed_noise:
+                    decoration = "swamp"
+            elif island_noise[x][y] < ELEVATION_LEVEL['mountain']:
+                if (x, y) in rock_noise:
+                    decoration = "mine"
+                elif (x, y) in coral_noise:
+                    decoration = "mine"
+                elif (x, y) in sandbar_noise:
+                    decoration = "volcano"
+                elif (x, y) in seaweed_noise:
+                    decoration = "volcano"
             
-            if island_noise[x][y] < 100:
+            if island_noise[x][y] < ELEVATION_LEVEL['ocean']:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.OCEAN,
                                                    explored=False,
                                                    decoration=decoration,
                                                    mist=mist)
-            elif island_noise[x][y] < 125:
+            elif island_noise[x][y] < ELEVATION_LEVEL['water']:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.WATER,
                                                    explored=False,
                                                    decoration=decoration,
                                                    mist=mist)
-            elif island_noise[x][y] < 150:
+            elif island_noise[x][y] < ELEVATION_LEVEL['shallows']:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.SHALLOWS,
                                                    explored=False,
                                                    decoration=decoration,
                                                    mist=mist)
-            elif island_noise[x][y] < 160:
+            elif island_noise[x][y] < ELEVATION_LEVEL['beach']:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.BEACH,
                                                    explored=False,
+                                                   decoration=decoration,
                                                    mist=mist)
-            elif island_noise[x][y] < 170:
+            elif island_noise[x][y] < ELEVATION_LEVEL['grass']:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.GRASS,
                                                    explored=False,
+                                                   decoration=decoration,
                                                    mist=mist)
-            elif island_noise[x][y] < 200:
+            elif island_noise[x][y] < ELEVATION_LEVEL['jungle']:
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.JUNGLE,
                                                    explored=False,
+                                                   decoration=decoration,
                                                    mist=mist)
-            elif island_noise[x][y] < 210:
+            else:  # ELEVATION_LEVEL['mountain']
                 island_map.terrain[x][y] = Terrain(elevation=Elevation.MOUNTAIN,
                                                    explored=False,
+                                                   decoration=decoration,
                                                    mist=mist)
-            else:
-                island_map.terrain[x][y] = Terrain(elevation=Elevation.VOLCANO,
-                                                   explored=False,
-                                                   mist=mist)
+
     ocean = explore_water_iterative(island_map)
     islands = explore_islands(island_map, ocean)
     island = big_island(islands)

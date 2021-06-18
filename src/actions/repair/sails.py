@@ -23,6 +23,7 @@ class RepairSailsAction(Action):
         if self.entity.cargo.coins < 15:
             raise Impossible("Not enough coins!")
         self.entity.cargo.coins -= 15
+        self.entity.game_map.port.coins += 15
         self.entity.sails.repair(1)
         self.engine.time.roll_hrs(1)
         self.engine.message_log.add_message(f"Repaired 1 Sail (one hour passes)")

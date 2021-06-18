@@ -42,7 +42,7 @@ class Scryer(Action):
         visible_tiles = self.entity.game_map.get_fov(distance,
                                                      self.entity.x,
                                                      self.entity.y,
-                                                     elevation=Elevation.VOLCANO,
+                                                     elevation=Elevation.ALL,
                                                      mist_view=distance)
         for (x, y) in visible_tiles:
             if self.entity.name == "Player" \

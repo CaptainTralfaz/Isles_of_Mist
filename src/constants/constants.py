@@ -30,13 +30,13 @@ move_elevations = {
     'water': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS],
     'deep_water': [Elevation.OCEAN, Elevation.WATER],
     'ocean': [Elevation.OCEAN],
-    'land': [Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO],
+    'land': [Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN],
     'fly': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS,
             Elevation.BEACH, Elevation.GRASS, Elevation.JUNGLE],
     'shore': [Elevation.SHALLOWS, Elevation.BEACH],
     'shallows': [Elevation.SHALLOWS],
     'all': [Elevation.OCEAN, Elevation.WATER, Elevation.SHALLOWS, Elevation.BEACH,
-            Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN, Elevation.VOLCANO]
+            Elevation.GRASS, Elevation.JUNGLE, Elevation.MOUNTAIN]
 }
 
 SMITHY = {
